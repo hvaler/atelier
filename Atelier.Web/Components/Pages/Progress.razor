@@ -19,8 +19,8 @@
 
         <!-- Student Selector -->
         <div class="btn-group btn-group-sm bg-dark p-1 rounded-pill" role="group">
-            <button type="button" class="btn @(ActiveStudentId == "clara-01" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SwitchStudent("clara-01")'>
-                Clara (Beginner)
+            <button type="button" class="btn @(ActiveStudentId == "young-tester-01" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SwitchStudent("young-tester-01")'>
+                Young Tester (Age 9)
             </button>
             <button type="button" class="btn @(ActiveStudentId == "sofia-01" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SwitchStudent("sofia-01")'>
                 Sofia (Advanced)
@@ -33,7 +33,7 @@
 </div>
 
 @code {
-    private string ActiveStudentId { get; set; } = "clara-01";
+    private string ActiveStudentId { get; set; } = "young-tester-01";
     private DerivedProfileDto? DerivedProfile { get; set; }
     private WeeklyDigestDto? WeeklyDigest { get; set; }
 

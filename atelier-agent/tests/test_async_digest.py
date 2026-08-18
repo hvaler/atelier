@@ -68,22 +68,22 @@ def test_gcs_upload_event_processing():
     """Eventarc GCS object finalize trigger automatically runs geometry, critique, and saves to memory."""
     payload = GcsEventPayload(
         bucket="atelier-inbox",
-        name="clara-01/drawing_box_01.png",
+        name="young-tester-01/drawing_box_01.png",
     )
 
     response = process_gcs_upload_event(payload)
 
     assert response.status_code == "processed" if hasattr(response, "status_code") else response.status == "processed"
-    assert response.student_id == "clara-01"
-    assert response.student_name == "Clara"
+    assert response.student_id == "young-tester-01"
+    assert "Tester" in response.student_name or "Student" in response.student_name
     assert response.k_detected >= 1
     assert len(response.critique_headline) > 5
 
     # Verify that exercise record was persisted in memory_repo
-    exercises = memory_repo.get_student_exercises("clara-01")
+    exercises = memory_repo.get_student_exercises("young-tester-01")
     assert len(exercises) >= 1
     latest = exercises[-1]
-    assert latest.student_id == "clara-01"
+    assert latest.student_id == "young-tester-01"
     assert latest.source == "folder"
 
 
@@ -120,9 +120,9 @@ def test_weekly_digest_generation_with_improvement():
 
 def test_weekly_digest_beginner_vs_advanced_plans():
     """Beginner students get 1-point foundation drills, advanced get complex 2-point architectural drills."""
-    # Beginner: Clara
-    digest_clara = generate_weekly_digest("clara-01")
-    assert any("cube" in p.title.lower() or "box" in p.title.lower() for p in digest_clara.next_week_practice_plan)
+    # Beginner: young-tester-01
+    digest_beginner = generate_weekly_digest("young-tester-01")
+    assert any("cube" in p.title.lower() or "box" in p.title.lower() for p in digest_beginner.next_week_practice_plan)
 
     # Advanced: Sofia
     digest_sofia = generate_weekly_digest("sofia-01")

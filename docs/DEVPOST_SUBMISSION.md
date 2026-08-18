@@ -26,7 +26,7 @@ Atelier — AI Studio Master for Remote Art Students
 ### 4. About the Project (Full Description)
 
 #### 💡 Inspiration
-When my 9-year-old daughter Clara began practicing 3D perspective boxes and buildings in her sketchbook, she hit a universal roadblock in remote art education: she knew her drawings looked slightly "off", but couldn't identify the subtle 4-degree angle error causing the distortion. 
+When our youngest tester (age 9, drawings used with permission) began practicing 3D perspective boxes and buildings in her sketchbook, she hit a universal roadblock in remote art education: she knew her drawings looked slightly "off", but couldn't identify the subtle 4-degree angle error causing the distortion. 
 
 When we tested generic multi-modal AI chatbots, they hallucinated measurements—inventing arbitrary degrees or claiming straight lines were curved. Remote art students don't need a chatbot guessing angles; they need a **Studio Master**: an agent that grounds its feedback in mathematical truth while teaching with warmth and pedagogical empathy.
 
@@ -70,7 +70,7 @@ Atelier is an agentic AI studio master for perspective drawing:
 
 #### 🏆 Accomplishments We're Proud Of
 - **Zero Hallucination Guarantee (ADR-001)**: Mathematical proof and 36 automated unit/integration tests confirming that the AI never fabricates measurements.
-- **True Level-Awareness**: The exact same agent seamlessly critiques a 9-year-old beginner (Clara) using intuitive language about *"lines heading towards the horizon dot"* and an advanced animation student (Sofia) using rigorous studio master terminology (*$LH$, $LT$, true magnitude, and $F_1/F_2$ convergence*).
+- **True Level-Awareness**: The exact same agent seamlessly critiques our youngest tester (age 9) using intuitive language about *"lines heading towards the horizon dot"* and an advanced animation student (Sofia) using rigorous studio master terminology (*$LH$, $LT$, true magnitude, and $F_1/F_2$ convergence*).
 - **Golden Case Benchmark**: A comprehensive dataset with deliberate known errors ($0^\circ, 4^\circ, 6^\circ, 9^\circ$) validating OpenCV detection accuracy.
 
 ---

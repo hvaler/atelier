@@ -52,7 +52,7 @@ public class AtelierAgentClient : IAtelierAgentClient
             return new AskPromptDataDto
             {
                 StudentId = studentId,
-                StudentName = studentId.Contains("clara") ? "Clara" : "Sofia",
+                StudentName = studentId.Contains("sofia") ? "Sofia" : "Young Tester (Age 9)",
                 IntentQuestion = "What kind of 3D form or perspective exercise were you practicing?",
                 DifficultyQuestion = "Which part or axis felt hardest to calibrate?",
                 QuickIntentSuggestions = ["1-Point Frontal Box", "2-Point Oblique Cube", "Stepped Architectural Volume"],
@@ -134,7 +134,7 @@ public class AtelierAgentClient : IAtelierAgentClient
                 StudentName = request.Student.Name,
                 Level = request.Student.Level,
                 Headline = isBeginner ? $"Wonderful 3D Practice, {request.Student.Name}!" : $"Perspective Review: Solid Volumetric Structure, {request.Student.Name}",
-                ModelVersion = "gemini-2.5-flash",
+                ModelVersion = "gemini-3.5-flash",
                 Validated = true,
                 MeasuredFindings =
                 [
@@ -205,13 +205,13 @@ public class AtelierAgentClient : IAtelierAgentClient
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to get derived profile for {StudentId}", studentId);
-            var isBeginner = studentId.Contains("clara");
+            var isBeginner = !studentId.Contains("sofia");
             return new DerivedProfileDto
             {
                 Student = new StudentProfileDto
                 {
                     StudentId = studentId,
-                    Name = isBeginner ? "Clara" : "Sofia",
+                    Name = isBeginner ? "Young Tester (Age 9)" : "Sofia",
                     Level = isBeginner ? "beginner" : "advanced"
                 },
                 TotalExercises = 4,
@@ -271,12 +271,12 @@ public class AtelierAgentClient : IAtelierAgentClient
             _logger.LogWarning(ex, "Failed to generate weekly digest for {StudentId}", studentId);
         }
 
-        var isBeginner = studentId.Contains("clara");
+        var isBeginner = !studentId.Contains("sofia");
         return new WeeklyDigestDto
         {
             DigestId = "digest-sample",
             StudentId = studentId,
-            StudentName = isBeginner ? "Clara" : "Sofia",
+            StudentName = isBeginner ? "Young Tester (Age 9)" : "Sofia",
             WeekId = "2026-W34",
             TotalDrawings = 4,
             WeeklyAvgConvergenceErrorDeg = isBeginner ? 2.1 : 2.6,
@@ -294,7 +294,7 @@ public class AtelierAgentClient : IAtelierAgentClient
 
     private static List<StudentProfileDto> GetFallbackStudents() =>
     [
-        new StudentProfileDto { StudentId = "clara-01", Name = "Clara", Level = "beginner", TonePreference = "encouraging" },
+        new StudentProfileDto { StudentId = "young-tester-01", Name = "Young Tester (Age 9)", Level = "beginner", TonePreference = "encouraging" },
         new StudentProfileDto { StudentId = "sofia-01", Name = "Sofia", Level = "advanced", TonePreference = "technical" }
     ];
 }

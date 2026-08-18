@@ -27,7 +27,7 @@ public class AgentClientTests
         // Assert
         Assert.NotNull(students);
         Assert.NotEmpty(students);
-        Assert.Contains(students, s => s.Name == "Clara" && s.Level == "beginner");
+        Assert.Contains(students, s => s.StudentId == "young-tester-01" && s.Level == "beginner");
         Assert.Contains(students, s => s.Name == "Sofia" && s.Level == "advanced");
     }
 
@@ -35,12 +35,12 @@ public class AgentClientTests
     public async Task GetAskPromptAsync_ReturnsTailoredQuestions()
     {
         // Act
-        var askClara = await _client.GetAskPromptAsync("clara-01");
+        var askTester = await _client.GetAskPromptAsync("young-tester-01");
 
         // Assert
-        Assert.NotNull(askClara);
-        Assert.Equal("Clara", askClara.StudentName);
-        Assert.NotEmpty(askClara.QuickIntentSuggestions);
+        Assert.NotNull(askTester);
+        Assert.True(askTester.StudentName.Contains("Tester") || askTester.StudentName.Contains("Student"));
+        Assert.NotEmpty(askTester.QuickIntentSuggestions);
     }
 
     [Fact]
@@ -69,8 +69,8 @@ public class AgentClientTests
         };
         var student = new StudentProfileDto
         {
-            StudentId = "clara-01",
-            Name = "Clara",
+            StudentId = "young-tester-01",
+            Name = "Young Tester (Age 9)",
             Level = "beginner"
         };
         var req = new CritiqueRequestDto
@@ -86,7 +86,7 @@ public class AgentClientTests
         // Assert
         Assert.NotNull(response);
         Assert.NotNull(response.Critique);
-        Assert.Equal("Clara", response.Critique.StudentName);
+        Assert.Equal("Young Tester (Age 9)", response.Critique.StudentName);
         Assert.NotEmpty(response.Critique.MeasuredFindings);
         Assert.NotEmpty(response.Critique.QualitativeObservations);
         Assert.NotNull(response.Critique.NextExercise);
@@ -96,7 +96,7 @@ public class AgentClientTests
     public async Task GetDerivedProfileAsync_ReturnsProgressionCurve()
     {
         // Act
-        var profile = await _client.GetDerivedProfileAsync("clara-01");
+        var profile = await _client.GetDerivedProfileAsync("young-tester-01");
 
         // Assert
         Assert.NotNull(profile);

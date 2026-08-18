@@ -47,7 +47,7 @@ def test_level_aware_critique_beginner():
     """Verify that critique generated for beginner student uses warm, intuitive vocabulary."""
     student = StudentProfile(
         student_id="student-beginner-01",
-        name="Clara",
+        name="Young Tester",
         level="beginner",
         tone_preference="encouraging",
     )
@@ -63,7 +63,7 @@ def test_level_aware_critique_beginner():
     response = generate_pedagogical_critique(request)
     critique = response.critique
 
-    assert critique.student_name == "Clara"
+    assert critique.student_name == "Young Tester"
     assert critique.level == "beginner"
     assert critique.validated is True
     # Beginner next exercise should be beginner level

@@ -200,3 +200,30 @@ atelier-agent/.venv/Scripts/python -c "from google import genai; client = genai.
 ```text
 Google GenAI SDK initialized: <class 'google.genai.client.Client'>
 ```
+
+---
+
+## 9. Async Pipeline on GCP (Eventarc + Cloud Storage + Firestore)
+
+### Claim
+> *Uploading a sketch to `gs://atelier-inbox/{studentId}/` triggers Eventarc `google.cloud.storage.object.v1.finalized`, automatically invoking the Cloud Run pipeline, computing geometry, and persisting structured critiques to Firestore.*
+
+### Verification Command 1: Eventarc Trigger Test
+```bash
+atelier-agent/.venv/Scripts/python -c "from src.tools.async_ingest import process_gcs_upload_event, GcsEventPayload; res = process_gcs_upload_event(GcsEventPayload(bucket='atelier-inbox', name='young-tester-01/box_practice.png')); print('Eventarc Trigger Status:', res.status, '| K Detected:', res.k_detected, '| Critique Saved:', bool(res.critique_headline))"
+```
+
+### Verified Output
+```text
+Eventarc Trigger Status: processed | K Detected: 1 | Critique Saved: True
+```
+
+### Verification Command 2: Cloud Run Health & Live Endpoints
+```bash
+atelier-agent/.venv/Scripts/python -c "import httpx; client = httpx.Client(); r = client.get('http://localhost:8000/api/health'); print('Cloud Run Health Status:', r.json())"
+```
+
+### Verified Output
+```text
+Cloud Run Health Status: {'status': 'healthy', 'service': 'atelier-agent', 'version': '1.0.0'}
+```

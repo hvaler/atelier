@@ -17,7 +17,7 @@
 ### Phase 2: Live UI Demonstration — Blazor Server (0:45 - 2:15)
 - **Visual**: Screen recording of `Atelier.Web` running live.
 - **Demonstrate**:
-  1. **Student Switcher**: Switch to **Clara (9yo Beginner)**.
+  1. **Student Switcher**: Switch to **Young Tester (Age 9, Beginner)**.
   2. **Verb 1 (ASK)**: Show the clarifying dialogue card (*"What kind of 3D box were you practicing today? Which corner felt hardest?"*).
   3. **Multimodal Overlay (The Star UX)**:
      - Click **🎨 Annotated Overlay**: show the traffic-light color-coded lines (Green $<2.5^\circ$, Yellow, Red $>6.0^\circ$), horizon line ($LH$) in cyan, and vanishing points.

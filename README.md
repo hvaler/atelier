@@ -7,9 +7,9 @@
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://python.org/)
 [![Google Cloud](https://img.shields.io/badge/GCP-Cloud_Run_%7C_Vertex_AI_%7C_Firestore-4285F4.svg)](https://cloud.google.com/)
 [![Google GenAI SDK](https://img.shields.io/badge/Google_GenAI_SDK-google--genai-4285F4.svg)](https://pypi.org/project/google-genai/)
-[![Gemini](https://img.shields.io/badge/Gemini-Flash-8E24AA.svg)](https://deepmind.google/technologies/gemini/)
+[![Gemini](https://img.shields.io/badge/Gemini-3.5_Flash-8E24AA.svg)](https://deepmind.google/technologies/gemini/)
 
-**Atelier** is an agentic AI studio master designed for remote art students. It pairs **deterministic OpenCV computer vision** (for calculating vanishing points, horizon lines, and per-line angular convergence errors in degrees) with **Gemini Flash on Google Cloud Vertex AI** (for empathetic, level-aware pedagogical critiques).
+**Atelier** is an agentic AI studio master designed for remote art students. It pairs **deterministic OpenCV computer vision** (for calculating vanishing points, horizon lines, and per-line angular convergence errors in degrees) with **Gemini 3.5 Flash on Google Cloud Vertex AI** (for empathetic, level-aware pedagogical critiques).
 
 ---
 
@@ -17,9 +17,19 @@
 
 | Requirement | How Atelier satisfies it | Where |
 | :--- | :--- | :--- |
-| **Gemini 3.5+ via Gemini API or Vertex AI** | Gemini Flash on Vertex AI (critique + dialogue) | [`atelier-agent/src/tools/critique.py`](atelier-agent/src/tools/critique.py) |
+| **Gemini 3.5+ via Gemini API or Vertex AI** | Gemini 3.5 Flash on Vertex AI (critique + dialogue) | [`atelier-agent/src/tools/critique.py`](atelier-agent/src/tools/critique.py) |
 | **≥1 Google Agent Framework** | Google GenAI SDK (`google-genai`) — all Gemini & Gemma calls | [`atelier-agent/requirements.txt`](atelier-agent/requirements.txt) · [`src/tools/`](atelier-agent/src/tools/) |
 | **≥1 Google Cloud infrastructure service** | Cloud Run · Firestore · GCS · Eventarc · Cloud Scheduler | [`infra/`](infra/) · [`src/tools/`](atelier-agent/src/tools/) |
+
+---
+
+## 🌐 Live Demo & Hosted Deployment
+
+- 💻 **Studio Web Client (Blazor / .NET 10)**: `https://atelier-web-1065181741517.europe-west3.run.app`
+- 🤖 **Agent Backend API (FastAPI / Cloud Run)**: `https://atelier-agent-1065181741517.europe-west3.run.app`
+- 📚 **Interactive Swagger API Docs**: `https://atelier-agent-1065181741517.europe-west3.run.app/docs`
+
+> 💡 *Note on Cold Starts*: To conserve Google Cloud student budget, Cloud Run services scale to 0 instances when idle. The initial load request may take ~5-10 seconds to spin up containers.
 
 ---
 
@@ -55,7 +65,7 @@
  │                                                                     │                   │
  │                                                                     ▼                   │
  │   ┌───────────────────────────┐                     ┌───────────────────────────────┐   │
- │   │ Anti-Hallucination Gate   │ <──(Validates)───── │   Gemini Flash Studio Master  │   │
+ │   │ Anti-Hallucination Gate   │ <──(Validates)───── │   Gemini 3.5 Flash Studio     │   │
  │   │ (ADR-001 Validator)       │                     │   (Google Vertex AI)          │   │
  │   │ - Rejects invented metrics│                     │   - Level-Aware Rubric        │   │
  │   │ - Retries with feedback   │                     │   - Two-Plane Structured JSON │   │
@@ -94,12 +104,13 @@ In the spirit of radical technical honesty, here is what is 100% implemented ver
 
 | Feature / Domain Area | Current Implementation Status | Notes & Roadmap |
 | :--- | :--- | :--- |
-| **1-Point Perspective ($k=1$)** | ✅ **100% Complete & Benchmarked** | Tested on Clara's 9yo box drawings and golden cases ($0^\circ-9^\circ$ deliberate error). |
+| **1-Point Perspective ($k=1$)** | ✅ **100% Complete & Benchmarked** | Tested on our youngest tester (age 9, drawings used with permission) and golden cases ($0^\circ-9^\circ$ deliberate error). |
 | **2-Point Oblique Perspective ($k=2$)** | ✅ **100% Complete & Benchmarked** | RANSAC vanishing point clustering for $F_1$ and $F_2$, horizon tilt, and error per line. |
 | **Two-Plane Critique Model** | ✅ **100% Complete & Validated** | Plane A (OpenCV measured) + Plane B (Studio qualitative rubric) strictly separated. |
 | **Anti-Hallucination Validator** | ✅ **100% Complete & Tested** | In-code gate rejecting fabricated numerical measurements with feedback retry loop. |
 | **Collaborative Loop (4 Verbs)** | ✅ **100% Complete** | Ask, Guide, Capture & Adapt with dynamic tone shift and Firestore append-only models. |
 | **Gemma Pre-Router** | ✅ **100% Complete (+0.2 pts)** | `/api/router/classify` routes drawing types and tunes Canny/Hough edge parameters. |
+| **Async GCS Ingestion (Eventarc + Scheduler)** | ✅ **Verified on GCP (2026-08-18)** | Object finalize triggers Cloud Run pipeline and persists immutable events in Firestore. |
 | **Multimodal Blazor UI** | ✅ **100% Complete** | Interactive overlay viewer, side-by-side comparison, and SVG progress curve. |
 | **3-Point Curvilinear Perspective ($k=3$)** | ⏳ *Planned for Phase 2* | 3-point worm/bird's-eye perspective is planned for high-level architectural rendering. |
 | **Live Camera WebRTC Stream** | ⏳ *Planned for Phase 2* | Current version operates on uploaded photos and GCS inbox drops; live video streaming planned. |

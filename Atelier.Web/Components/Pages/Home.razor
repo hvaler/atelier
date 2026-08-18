@@ -21,8 +21,8 @@
         <div class="d-flex align-items-center gap-3 bg-dark p-2 rounded-4 border border-secondary border-opacity-25 shadow-sm">
             <span class="text-secondary small ps-2">Active Student:</span>
             <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn @(CurrentStudentId == "clara-01" ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SelectStudent("clara-01")'>
-                    Clara (9yo Beginner)
+                <button type="button" class="btn @(CurrentStudentId == "young-tester-01" ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SelectStudent("young-tester-01")'>
+                    Young Tester (Age 9)
                 </button>
                 <button type="button" class="btn @(CurrentStudentId == "sofia-01" ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SelectStudent("sofia-01")'>
                     Sofia (Animation Adv.)
@@ -109,7 +109,7 @@
 </div>
 
 @code {
-    private string CurrentStudentId { get; set; } = "clara-01";
+    private string CurrentStudentId { get; set; } = "young-tester-01";
     private StudentProfileDto? CurrentStudent { get; set; }
     private AskPromptDataDto? AskData { get; set; }
 
@@ -142,8 +142,8 @@
         CurrentStudent = students.FirstOrDefault(s => s.StudentId == studentId) ?? new StudentProfileDto
         {
             StudentId = studentId,
-            Name = studentId.Contains("clara") ? "Clara" : "Sofia",
-            Level = studentId.Contains("clara") ? "beginner" : "advanced"
+            Name = studentId.Contains("sofia") ? "Sofia" : "Young Tester (Age 9)",
+            Level = studentId.Contains("sofia") ? "advanced" : "beginner"
         };
         await ReloadAskPrompt();
     }

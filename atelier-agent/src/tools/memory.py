@@ -27,8 +27,8 @@ class MemoryRepository:
         # Initialize default demo profiles for multi-student support from day 1
         self.register_student(
             StudentProfile(
-                student_id="clara-01",
-                name="Clara",
+                student_id="young-tester-01",
+                name="Young Tester (Age 9)",
                 level="beginner",
                 tone_preference="encouraging",
                 recurring_issues=[],
