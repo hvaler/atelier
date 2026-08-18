@@ -6,7 +6,7 @@
 set -euo pipefail
 
 PROJECT_ID="${1:-$(gcloud config get-value project)}"
-REGION="${2:-europe-west3}"
+REGION="${2:-europe-west1}"
 REPO_NAME="atelier-repo"
 TAG="$(git rev-parse --short HEAD 2>/dev/null || echo 'latest')"
 
@@ -30,6 +30,7 @@ if [ -z "$AGENT_EXISTS" ]; then
     --platform=managed \
     --region="$REGION" \
     --project="$PROJECT_ID" \
+    --service-account="sa-atelier-agent@${PROJECT_ID}.iam.gserviceaccount.com" \
     --allow-unauthenticated \
     --min-instances=0 \
     --max-instances=5 \
@@ -43,6 +44,7 @@ else
     --platform=managed \
     --region="$REGION" \
     --project="$PROJECT_ID" \
+    --service-account="sa-atelier-agent@${PROJECT_ID}.iam.gserviceaccount.com" \
     --no-traffic \
     --tag="candidate" \
     --allow-unauthenticated \
@@ -83,6 +85,7 @@ if [ -z "$WEB_EXISTS" ]; then
     --platform=managed \
     --region="$REGION" \
     --project="$PROJECT_ID" \
+    --service-account="sa-atelier-web@${PROJECT_ID}.iam.gserviceaccount.com" \
     --allow-unauthenticated \
     --min-instances=0 \
     --max-instances=5 \
@@ -96,6 +99,7 @@ else
     --platform=managed \
     --region="$REGION" \
     --project="$PROJECT_ID" \
+    --service-account="sa-atelier-web@${PROJECT_ID}.iam.gserviceaccount.com" \
     --no-traffic \
     --tag="candidate" \
     --allow-unauthenticated \

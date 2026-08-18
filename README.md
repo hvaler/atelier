@@ -25,9 +25,9 @@
 
 ## 🌐 Live Demo & Hosted Deployment
 
-- 💻 **Studio Web Client (Blazor / .NET 10)**: `https://atelier-web-1065181741517.europe-west3.run.app`
-- 🤖 **Agent Backend API (FastAPI / Cloud Run)**: `https://atelier-agent-1065181741517.europe-west3.run.app`
-- 📚 **Interactive Swagger API Docs**: `https://atelier-agent-1065181741517.europe-west3.run.app/docs`
+- 💻 **Studio Web Client (Blazor / .NET 10)**: `https://atelier-web-773993294789.europe-west1.run.app`
+- 🤖 **Agent Backend API (FastAPI / Cloud Run)**: `https://atelier-agent-773993294789.europe-west1.run.app`
+- 📚 **Interactive Swagger API Docs**: `https://atelier-agent-773993294789.europe-west1.run.app/docs`
 
 > 💡 *Note on Cold Starts*: To conserve Google Cloud student budget, Cloud Run services scale to 0 instances when idle. The initial load request may take ~5-10 seconds to spin up containers.
 

@@ -181,6 +181,7 @@ from src.tools.digest import generate_weekly_digest, get_student_digests
 
 
 @app.post("/api/events/gcs-upload", response_model=GcsProcessingResponse, status_code=status.HTTP_200_OK)
+@app.post("/api/async/gcs-upload", response_model=GcsProcessingResponse, status_code=status.HTTP_200_OK)
 def handle_gcs_upload_event(event: GcsEventPayload) -> GcsProcessingResponse:
     """Eventarc webhook receiver triggered on GCS object finalize (google.cloud.storage.object.v1.finalized)."""
     try:

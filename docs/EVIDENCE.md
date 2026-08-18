@@ -206,24 +206,57 @@ Google GenAI SDK initialized: <class 'google.genai.client.Client'>
 ## 9. Async Pipeline on GCP (Eventarc + Cloud Storage + Firestore)
 
 ### Claim
-> *Uploading a sketch to `gs://atelier-inbox/{studentId}/` triggers Eventarc `google.cloud.storage.object.v1.finalized`, automatically invoking the Cloud Run pipeline, computing geometry, and persisting structured critiques to Firestore.*
+> *Uploading a sketch to `gs://atelier-hack-inbox/{studentId}/` triggers Eventarc `google.cloud.storage.object.v1.finalized`, automatically invoking the Cloud Run pipeline, computing geometry, and persisting structured critiques to Firestore.*
 
-### Verification Command 1: Eventarc Trigger Test
+### Verification Command 1: Cloud Storage Upload & Eventarc Delivery
 ```bash
-atelier-agent/.venv/Scripts/python -c "from src.tools.async_ingest import process_gcs_upload_event, GcsEventPayload; res = process_gcs_upload_event(GcsEventPayload(bucket='atelier-inbox', name='young-tester-01/box_practice.png')); print('Eventarc Trigger Status:', res.status, '| K Detected:', res.k_detected, '| Critique Saved:', bool(res.critique_headline))"
+gcloud storage cp demo/dataset/02_1point_error_4deg.png gs://atelier-hack-inbox/young-tester-01/02_1point_error_4deg.png
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=atelier-agent" --limit=5 --project=atelier-hack --format="table(timestamp, textPayload)"
+```
+
+### Verified Output (Cloud Logging)
+```text
+TIMESTAMP                    TEXT_PAYLOAD
+2026-08-18T22:10:26.678248Z  INFO: 169.254.169.126:25196 - "POST /api/async/gcs-upload HTTP/1.1" 200 OK
+```
+
+### Verification Command 2: Firestore Progression Query
+```bash
+curl -s https://atelier-agent-773993294789.europe-west1.run.app/api/students/young-tester-01/profile
+```
+
+### Verified Output (Live Firestore API)
+```json
+{
+  "student": {
+    "student_id": "young-tester-01",
+    "name": "Young Tester (Age 9)",
+    "level": "beginner",
+    "tone_preference": "encouraging"
+  },
+  "total_exercises": 2,
+  "overall_avg_error_deg": 0.62,
+  "progress_curve": [
+    {
+      "timestamp": "2026-08-18T22:10:26.678907+00:00",
+      "exercise_id": "ex-gcs-b85e6559",
+      "avg_convergence_error_deg": 0.62,
+      "k_points": 1
+    }
+  ],
+  "derived_tone_preference": "encouraging",
+  "current_practice_focus": "1-Point frontal cube alignment"
+}
+```
+
+### Verification Command 3: Live Health Checks on Cloud Run
+```bash
+curl -s https://atelier-agent-773993294789.europe-west1.run.app/api/health
+curl -s https://atelier-web-773993294789.europe-west1.run.app/api/health
 ```
 
 ### Verified Output
-```text
-Eventarc Trigger Status: processed | K Detected: 1 | Critique Saved: True
-```
-
-### Verification Command 2: Cloud Run Health & Live Endpoints
-```bash
-atelier-agent/.venv/Scripts/python -c "import httpx; client = httpx.Client(); r = client.get('http://localhost:8000/api/health'); print('Cloud Run Health Status:', r.json())"
-```
-
-### Verified Output
-```text
-Cloud Run Health Status: {'status': 'healthy', 'service': 'atelier-agent', 'version': '1.0.0'}
+```json
+{"status":"healthy","service":"atelier-agent","version":"0.1.0","environment":"production","gcp_project":"atelier-hack"}
+{"status":"healthy","service":"Atelier.Web","version":"0.1.0","environment":"Production","timestamp":"2026-08-18T22:06:03.9654737Z"}
 ```
