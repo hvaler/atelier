@@ -73,14 +73,97 @@ def analyze_drawing(request: GeometryAnalysisRequest) -> GeometryAnalysisResult:
     return result
 
 
-from src.models.critique import CritiqueRequest, CritiqueResponse
+
+from pydantic import BaseModel
+
+from src.models.critique import (
+    CritiqueRequest,
+    CritiqueResponse,
+    NextExerciseRecommendation,
+    StudentProfile,
+)
+from src.models.memory import AskPromptData, DerivedProfile, ExerciseRecord, FeedbackEvent
+from src.tools.collaborative import (
+    adapt_profile,
+    ask_clarification,
+    capture_feedback,
+    guide_next_exercise,
+)
 from src.tools.critique import generate_pedagogical_critique
+from src.tools.memory import memory_repo
+
+
+class FeedbackRequest(BaseModel):
+    student_id: str
+    helpful: bool
+    note: str | None = None
 
 
 @app.post("/api/critique", response_model=CritiqueResponse, status_code=status.HTTP_200_OK)
 def create_critique(request: CritiqueRequest) -> CritiqueResponse:
     """Generate pedagogical critique with Gemini 3.5 Flash on Vertex AI (ADR-001)."""
     return generate_pedagogical_critique(request)
+
+
+# -----------------------------------------------------------------------------
+# Collaborative Partner & Memory Endpoints (The 4 Verbs: Ask, Guide, Capture, Adapt)
+# -----------------------------------------------------------------------------
+
+
+@app.get("/api/students", response_model=list[StudentProfile], status_code=status.HTTP_200_OK)
+def list_students() -> list[StudentProfile]:
+    """List all registered student profiles (Multi-student support)."""
+    return memory_repo.list_students()
+
+
+@app.post("/api/students", response_model=StudentProfile, status_code=status.HTTP_201_CREATED)
+def register_student(student: StudentProfile) -> StudentProfile:
+    """Register a new student profile."""
+    return memory_repo.register_student(student)
+
+
+@app.get("/api/students/{student_id}/ask", response_model=AskPromptData, status_code=status.HTTP_200_OK)
+def get_ask_questions(student_id: str) -> AskPromptData:
+    """Verb 1: ASK clarifying questions to the student before analyzing their work."""
+    return ask_clarification(student_id)
+
+
+@app.get("/api/students/{student_id}/guide", response_model=NextExerciseRecommendation, status_code=status.HTTP_200_OK)
+def get_next_guided_exercise(student_id: str) -> NextExerciseRecommendation:
+    """Verb 2: GUIDE the student with the next recommended exercise derived from recurring error patterns."""
+    try:
+        return guide_next_exercise(student_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+@app.post("/api/exercises", response_model=ExerciseRecord, status_code=status.HTTP_201_CREATED)
+def save_exercise_record(exercise: ExerciseRecord) -> ExerciseRecord:
+    """Persist an immutable exercise record to append-only memory (ADR-005)."""
+    return memory_repo.save_exercise(exercise)
+
+
+@app.post("/api/exercises/{exercise_id}/feedback", response_model=FeedbackEvent, status_code=status.HTTP_201_CREATED)
+def submit_feedback(exercise_id: str, request: FeedbackRequest) -> FeedbackEvent:
+    """Verb 3: CAPTURE explicit student feedback as an immutable event."""
+    try:
+        return capture_feedback(
+            exercise_id=exercise_id,
+            student_id=request.student_id,
+            helpful=request.helpful,
+            note=request.note,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+@app.get("/api/students/{student_id}/profile", response_model=DerivedProfile, status_code=status.HTTP_200_OK)
+def get_derived_student_profile(student_id: str) -> DerivedProfile:
+    """Verb 4: ADAPT - Retrieve dynamically derived student profile, tone preference and progress curve."""
+    try:
+        return adapt_profile(student_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @app.get("/")
@@ -91,4 +174,5 @@ def root():
         "health_url": "/api/health",
         "analyze_url": "/api/analyze",
         "critique_url": "/api/critique",
+        "students_url": "/api/students",
     }
