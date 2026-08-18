@@ -1,10 +1,12 @@
 """Main entry point for Atelier Agent FastAPI service."""
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from src.config import settings
+from src.models.geometry import GeometryAnalysisRequest, GeometryAnalysisResult
+from src.tools.geometry import analyze_geometry, decode_image_base64
 
 app = FastAPI(
     title=settings.app_name,
@@ -45,10 +47,37 @@ def health_check() -> HealthResponse:
     )
 
 
+@app.post("/api/analyze", response_model=GeometryAnalysisResult, status_code=status.HTTP_200_OK)
+def analyze_drawing(request: GeometryAnalysisRequest) -> GeometryAnalysisResult:
+    """Analyze a perspective drawing deterministically using OpenCV (ADR-001)."""
+    if not request.image_base64:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="image_base64 must be provided in the request body.",
+        )
+
+    try:
+        image = decode_image_base64(request.image_base64)
+    except (ValueError, TypeError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid image format: {e!s}",
+        ) from e
+
+    result = analyze_geometry(
+        image=image,
+        k_points=request.k_points,
+        min_confidence_threshold=request.min_confidence_threshold,
+        generate_overlay_flag=request.generate_overlay,
+    )
+    return result
+
+
 @app.get("/")
 def root():
     return {
         "message": "Atelier Agent is running.",
         "docs_url": "/docs",
         "health_url": "/api/health",
+        "analyze_url": "/api/analyze",
     }
