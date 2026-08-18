@@ -204,6 +204,25 @@ def list_student_digests(student_id: str) -> list[WeeklyDigest]:
     return get_student_digests(student_id)
 
 
+from src.tools.gemma_router import GemmaClassificationResult, classify_drawing_with_gemma
+
+
+class RouterRequest(BaseModel):
+    image_width: int = 800
+    image_height: int = 600
+    student_level_hint: str = "beginner"
+
+
+@app.post("/api/router/classify", response_model=GemmaClassificationResult, status_code=status.HTTP_200_OK)
+def classify_with_gemma(request: RouterRequest) -> GemmaClassificationResult:
+    """Gemma lightweight pre-router on Vertex AI for exercise routing & parameter tuning (+0.2 pts ATA Bonus)."""
+    return classify_drawing_with_gemma(
+        image_width=request.image_width,
+        image_height=request.image_height,
+        student_level_hint=request.student_level_hint,
+    )
+
+
 @app.get("/")
 def root():
     return {
@@ -215,4 +234,5 @@ def root():
         "students_url": "/api/students",
         "events_url": "/api/events/gcs-upload",
         "digest_url": "/api/digest/weekly",
+        "router_url": "/api/router/classify",
     }
