@@ -166,6 +166,44 @@ def get_derived_student_profile(student_id: str) -> DerivedProfile:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
+from src.models.digest import (
+    GcsEventPayload,
+    GcsProcessingResponse,
+    WeeklyDigest,
+    WeeklyDigestRequest,
+)
+from src.tools.async_ingest import process_gcs_upload_event
+from src.tools.digest import generate_weekly_digest, get_student_digests
+
+# -----------------------------------------------------------------------------
+# Asynchronous Ingestion & Weekly Digest (ADR-004: GCS + Eventarc + Cloud Scheduler)
+# -----------------------------------------------------------------------------
+
+
+@app.post("/api/events/gcs-upload", response_model=GcsProcessingResponse, status_code=status.HTTP_200_OK)
+def handle_gcs_upload_event(event: GcsEventPayload) -> GcsProcessingResponse:
+    """Eventarc webhook receiver triggered on GCS object finalize (google.cloud.storage.object.v1.finalized)."""
+    try:
+        return process_gcs_upload_event(event)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+
+
+@app.post("/api/digest/weekly", response_model=WeeklyDigest, status_code=status.HTTP_200_OK)
+def trigger_weekly_digest(request: WeeklyDigestRequest) -> WeeklyDigest:
+    """Cloud Scheduler endpoint to generate weekly digest, progress delta and practice plan."""
+    try:
+        return generate_weekly_digest(request.student_id, request.week_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+@app.get("/api/students/{student_id}/digests", response_model=list[WeeklyDigest], status_code=status.HTTP_200_OK)
+def list_student_digests(student_id: str) -> list[WeeklyDigest]:
+    """Retrieve historical weekly digests for a student."""
+    return get_student_digests(student_id)
+
+
 @app.get("/")
 def root():
     return {
@@ -175,4 +213,6 @@ def root():
         "analyze_url": "/api/analyze",
         "critique_url": "/api/critique",
         "students_url": "/api/students",
+        "events_url": "/api/events/gcs-upload",
+        "digest_url": "/api/digest/weekly",
     }

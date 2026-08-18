@@ -19,22 +19,52 @@ AGENT_IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/atelier-agent:$
 docker build -t "$AGENT_IMAGE" -f infra/Dockerfile.agent .
 docker push "$AGENT_IMAGE"
 
-# 2. Deploy atelier-agent to Cloud Run
+# 2. Deploy atelier-agent to Cloud Run (TEC-010: first deploy direct, subsequent via tagged candidate + smoke test)
 echo "🚀 Deploying atelier-agent service..."
-gcloud run deploy atelier-agent \
-  --image="$AGENT_IMAGE" \
-  --platform=managed \
-  --region="$REGION" \
-  --project="$PROJECT_ID" \
-  --allow-unauthenticated \
-  --min-instances=0 \
-  --max-instances=5 \
-  --memory=1Gi \
-  --cpu=1 \
-  --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION}"
+AGENT_EXISTS=$(gcloud run services list --platform=managed --region="$REGION" --project="$PROJECT_ID" --filter="metadata.name=atelier-agent" --format="value(metadata.name)" || true)
 
-AGENT_URL=$(gcloud run services describe atelier-agent --platform=managed --region="$REGION" --format='value(status.url)')
-echo "✅ atelier-agent deployed at: $AGENT_URL"
+if [ -z "$AGENT_EXISTS" ]; then
+  echo "   [First Deploy] Deploying atelier-agent with 100% traffic..."
+  gcloud run deploy atelier-agent \
+    --image="$AGENT_IMAGE" \
+    --platform=managed \
+    --region="$REGION" \
+    --project="$PROJECT_ID" \
+    --allow-unauthenticated \
+    --min-instances=0 \
+    --max-instances=5 \
+    --memory=1Gi \
+    --cpu=1 \
+    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION}"
+else
+  echo "   [Subsequent Deploy] Deploying candidate revision for smoke test..."
+  gcloud run deploy atelier-agent \
+    --image="$AGENT_IMAGE" \
+    --platform=managed \
+    --region="$REGION" \
+    --project="$PROJECT_ID" \
+    --no-traffic \
+    --tag="candidate" \
+    --allow-unauthenticated \
+    --min-instances=0 \
+    --max-instances=5 \
+    --memory=1Gi \
+    --cpu=1 \
+    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION}"
+
+  CANDIDATE_AGENT_URL="https://candidate---atelier-agent-$(gcloud run services describe atelier-agent --region="$REGION" --format='value(status.address.url)' | sed 's|https://||')"
+  echo "🧪 Running smoke test on candidate: ${CANDIDATE_AGENT_URL}/api/health..."
+  SMOKE_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${CANDIDATE_AGENT_URL}/api/health" || echo "000")
+  if [ "$SMOKE_CODE" != "200" ]; then
+    echo "❌ Smoke test failed on atelier-agent candidate (HTTP $SMOKE_CODE). Aborting traffic promotion."
+    exit 1
+  fi
+  echo "✅ Smoke test passed! Promoting traffic to latest revision..."
+  gcloud run services update-traffic atelier-agent --region="$REGION" --project="$PROJECT_ID" --to-latest
+fi
+
+AGENT_URL=$(gcloud run services describe atelier-agent --platform=managed --region="$REGION" --project="$PROJECT_ID" --format='value(status.url)')
+echo "✅ atelier-agent active at: $AGENT_URL"
 
 # 3. Build and push Atelier.Web
 echo "📦 Building & Pushing Atelier.Web container..."
@@ -42,21 +72,51 @@ WEB_IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/atelier-web:${TAG
 docker build -t "$WEB_IMAGE" --build-arg "AGENT_URL=${AGENT_URL}" -f infra/Dockerfile.web .
 docker push "$WEB_IMAGE"
 
-# 4. Deploy Atelier.Web to Cloud Run
+# 4. Deploy Atelier.Web to Cloud Run (TEC-010)
 echo "🚀 Deploying Atelier.Web service..."
-gcloud run deploy atelier-web \
-  --image="$WEB_IMAGE" \
-  --platform=managed \
-  --region="$REGION" \
-  --project="$PROJECT_ID" \
-  --allow-unauthenticated \
-  --min-instances=0 \
-  --max-instances=5 \
-  --memory=512Mi \
-  --cpu=1 \
-  --set-env-vars="ASPNETCORE_ENVIRONMENT=Production,Agent__BaseUrl=${AGENT_URL}"
+WEB_EXISTS=$(gcloud run services list --platform=managed --region="$REGION" --project="$PROJECT_ID" --filter="metadata.name=atelier-web" --format="value(metadata.name)" || true)
 
-WEB_URL=$(gcloud run services describe atelier-web --platform=managed --region="$REGION" --format='value(status.url)')
+if [ -z "$WEB_EXISTS" ]; then
+  echo "   [First Deploy] Deploying atelier-web with 100% traffic..."
+  gcloud run deploy atelier-web \
+    --image="$WEB_IMAGE" \
+    --platform=managed \
+    --region="$REGION" \
+    --project="$PROJECT_ID" \
+    --allow-unauthenticated \
+    --min-instances=0 \
+    --max-instances=5 \
+    --memory=512Mi \
+    --cpu=1 \
+    --set-env-vars="ASPNETCORE_ENVIRONMENT=Production,Agent__BaseUrl=${AGENT_URL}"
+else
+  echo "   [Subsequent Deploy] Deploying candidate revision for smoke test..."
+  gcloud run deploy atelier-web \
+    --image="$WEB_IMAGE" \
+    --platform=managed \
+    --region="$REGION" \
+    --project="$PROJECT_ID" \
+    --no-traffic \
+    --tag="candidate" \
+    --allow-unauthenticated \
+    --min-instances=0 \
+    --max-instances=5 \
+    --memory=512Mi \
+    --cpu=1 \
+    --set-env-vars="ASPNETCORE_ENVIRONMENT=Production,Agent__BaseUrl=${AGENT_URL}"
+
+  CANDIDATE_WEB_URL="https://candidate---atelier-web-$(gcloud run services describe atelier-web --region="$REGION" --format='value(status.address.url)' | sed 's|https://||')"
+  echo "🧪 Running smoke test on candidate: ${CANDIDATE_WEB_URL}/api/health..."
+  SMOKE_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${CANDIDATE_WEB_URL}/api/health" || echo "000")
+  if [ "$SMOKE_CODE" != "200" ]; then
+    echo "❌ Smoke test failed on atelier-web candidate (HTTP $SMOKE_CODE). Aborting traffic promotion."
+    exit 1
+  fi
+  echo "✅ Smoke test passed! Promoting traffic to latest revision..."
+  gcloud run services update-traffic atelier-web --region="$REGION" --project="$PROJECT_ID" --to-latest
+fi
+
+WEB_URL=$(gcloud run services describe atelier-web --platform=managed --region="$REGION" --project="$PROJECT_ID" --format='value(status.url)')
 echo "🎉 Deployment complete!"
 echo "🌐 Atelier Web UI: $WEB_URL"
 echo "🤖 Atelier Agent:  $AGENT_URL"
