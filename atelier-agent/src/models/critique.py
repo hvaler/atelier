@@ -56,7 +56,7 @@ class CritiqueOutput(BaseModel):
     )
     pedagogical_summary: PedagogicalSummary
     next_exercise: NextExerciseRecommendation
-    model_version: str = Field("gemini-3.5-flash", description="Underlying model used for critique")
+    model_version: str = Field("gemini-2.5-flash", description="Underlying model used for critique")
     validated: bool = Field(True, description="Whether the critique passed all anti-hallucination validation gates")
 
 

@@ -16,7 +16,7 @@
 >  
 > ***'The geometry measures, the AI teaches, the student grows.'***  
 >  
-> *Atelier pairs deterministic OpenCV computer vision with Gemini 3.5 Flash on Google Cloud Vertex AI to deliver empathetic, zero-hallucination studio master tutoring."*
+> *Atelier pairs deterministic OpenCV computer vision with Gemini on Google Cloud Vertex AI to deliver empathetic, zero-hallucination studio master tutoring."*
 
 ---
 
@@ -47,7 +47,7 @@
 
 > *"Under the hood, Atelier is built with:*  
 > - *A **Gemma** pre-router on Vertex AI for cheap drawing classification.*  
-> - ***Gemini 3.5 Flash** for level-aware pedagogical critiques.*  
+> - ***Gemini Flash** for level-aware pedagogical critiques.*  
 > - *An **Anti-Hallucination Validator** that guarantees metrics integrity.*  
 > - ***Google Cloud Run** running our .NET 10 Blazor frontend and Python microservices.*  
 > - ***Google Cloud Storage + Eventarc** for background photo ingestion, and **Cloud Scheduler** for weekly progress digests.*  

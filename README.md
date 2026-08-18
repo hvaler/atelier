@@ -6,9 +6,9 @@
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://python.org/)
 [![Google Cloud](https://img.shields.io/badge/GCP-Cloud_Run_%7C_Vertex_AI_%7C_Firestore-4285F4.svg)](https://cloud.google.com/)
-[![Gemini](https://img.shields.io/badge/Gemini-3.5_Flash-8E24AA.svg)](https://deepmind.google/technologies/gemini/)
+[![Gemini](https://img.shields.io/badge/Gemini-Flash-8E24AA.svg)](https://deepmind.google/technologies/gemini/)
 
-**Atelier** is an agentic AI studio master designed for remote art students. It pairs **deterministic OpenCV computer vision** (for calculating vanishing points, horizon lines, and per-line angular convergence errors in degrees) with **Gemini 3.5 Flash on Google Cloud Vertex AI** (for empathetic, level-aware pedagogical critiques).
+**Atelier** is an agentic AI studio master designed for remote art students. It pairs **deterministic OpenCV computer vision** (for calculating vanishing points, horizon lines, and per-line angular convergence errors in degrees) with **Gemini Flash on Google Cloud Vertex AI** (for empathetic, level-aware pedagogical critiques).
 
 ---
 
@@ -44,7 +44,7 @@
  │                                                                     │                   │
  │                                                                     ▼                   │
  │   ┌───────────────────────────┐                     ┌───────────────────────────────┐   │
- │   │ Anti-Hallucination Gate   │ <──(Validates)───── │   Gemini 3.5 Flash Studio     │   │
+ │   │ Anti-Hallucination Gate   │ <──(Validates)───── │   Gemini Flash Studio Master  │   │
  │   │ (ADR-001 Validator)       │                     │   (Google Vertex AI)          │   │
  │   │ - Rejects invented metrics│                     │   - Level-Aware Rubric        │   │
  │   │ - Retries with feedback   │                     │   - Two-Plane Structured JSON │   │

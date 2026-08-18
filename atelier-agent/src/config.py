@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     gcp_location: str = os.getenv("GCP_LOCATION", "europe-west3")
     firestore_db: str = os.getenv("FIRESTORE_DATABASE", "(default)")
     inbox_bucket: str = os.getenv("INBOX_BUCKET", "atelier-inbox")
-    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
     model_config = SettingsConfigDict(
         env_file=".env",

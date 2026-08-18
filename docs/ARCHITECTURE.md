@@ -21,12 +21,12 @@ graph TB
         end
 
         subgraph "Compute: Google Cloud Run"
-            AgentService["🤖 atelier-agent\n(FastAPI / Python 3.12)\n- Gemma Pre-Router\n- OpenCV Deterministic Geometry\n- Gemini 3.5 Flash Client\n- Anti-Hallucination Validator"]
+            AgentService["🤖 atelier-agent\n(FastAPI / Python 3.12)\n- Gemma Pre-Router\n- OpenCV Deterministic Geometry\n- Gemini Flash Client\n- Anti-Hallucination Validator"]
         end
 
         subgraph "Google Vertex AI"
             Gemma["🧠 Gemma 2B/9B\n(Lightweight Pre-Routing)"]
-            Gemini["✨ Gemini 3.5 Flash\n(Level-Aware Two-Plane Critique)"]
+            Gemini["✨ Gemini Flash\n(Level-Aware Two-Plane Critique)"]
         end
 
         subgraph "Memory & State"
@@ -62,7 +62,7 @@ graph TB
   - Generation of Base64 annotated overlays with traffic-light color encoding (Green: $<2.5^\circ$, Yellow: $2.5^\circ - 6.0^\circ$, Red: $>6.0^\circ$).
 - **Gemma Pre-Router (`src/tools/gemma_router.py`)**:
   - Pre-classifies exercise types and tunes Canny edge thresholds to minimize compute before heavy LLM execution.
-- **Gemini 3.5 Flash Client (`src/tools/critique.py`)**:
+- **Gemini Flash Client (`src/tools/critique.py`)**:
   - Prompts calibrated with authentic studio master rubrics (RUNBOOK §2).
   - Level-aware tone differentiation (`beginner` for 9-year-olds vs `advanced` for animation university students).
 - **Anti-Hallucination Validator (`src/tools/validator.py`)**:
@@ -91,7 +91,7 @@ sequenceDiagram
     participant Web as 💻 Atelier.Web (Blazor)
     participant Agent as 🤖 atelier-agent (Cloud Run)
     participant CV as 📐 OpenCV Engine
-    participant Vertex as ✨ Vertex AI (Gemini 3.5)
+    participant Vertex as ✨ Vertex AI (Gemini Flash)
     participant DB as 📦 Cloud Firestore
 
     Student->>Web: Uploads drawing photo

@@ -15,7 +15,7 @@ To bridge this gap, I designed **Atelier** around a single strict invariant:
 
 > **"The geometry measures, the AI teaches, the student grows." (ADR-001)**
 
-Atelier is an agentic AI studio master for remote art students that decouples deterministic geometric calculation (via OpenCV) from high-empathy pedagogical critique (via Gemini 3.5 Flash on Vertex AI).
+Atelier is an agentic AI studio master for remote art students that decouples deterministic geometric calculation (via OpenCV) from high-empathy pedagogical critique (via Gemini Flash on Vertex AI).
 
 ---
 
@@ -33,7 +33,7 @@ Atelier is an agentic AI studio master for remote art students that decouples de
             │                                                                    │
             ▼                                                                    ▼
  ┌──────────────────────┐         ┌────────────────────────┐         ┌───────────────────────┐
- │  Collaborative Loop  │ <────── │  Anti-Hallucination    │ <────── │  Gemini 3.5 Flash     │
+ │  Collaborative Loop  │ <────── │  Anti-Hallucination    │ <────── │  Gemini Flash Studio  │
  │  - ASK Clarification │         │  Validator (ADR-001)   │         │  (Google Vertex AI)   │
  │  - GUIDE Next Drill  │         │  - Verifies degrees    │         │  - Level-Aware Rubric │
  │  - CAPTURE Feedback  │         │  - Rejects fakes       │         │  - Two-Plane Critique │
@@ -77,4 +77,4 @@ Building Atelier demonstrated that the future of agentic AI in technical discipl
 When these two forces combine, students of all ages can see their invisible mistakes and grow with confidence.
 
 ---
-*Built with Google Agent Development Kit (ADK), Vertex AI (Gemini 3.5 Flash & Gemma), Google Cloud Run, Cloud Storage, Eventarc, Firestore, OpenCV, and .NET 10.*
+*Built with Google Agent Development Kit (ADK), Vertex AI (Gemini Flash & Gemma), Google Cloud Run, Cloud Storage, Eventarc, Firestore, OpenCV, and .NET 10.*

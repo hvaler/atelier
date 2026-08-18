@@ -134,7 +134,7 @@ public class AtelierAgentClient : IAtelierAgentClient
                 StudentName = request.Student.Name,
                 Level = request.Student.Level,
                 Headline = isBeginner ? $"Wonderful 3D Practice, {request.Student.Name}!" : $"Perspective Review: Solid Volumetric Structure, {request.Student.Name}",
-                ModelVersion = "gemini-3.5-flash",
+                ModelVersion = "gemini-2.5-flash",
                 Validated = true,
                 MeasuredFindings =
                 [

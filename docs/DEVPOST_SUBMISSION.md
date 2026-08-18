@@ -15,7 +15,7 @@ Atelier — AI Studio Master for Remote Art Students
 
 ### 2. Elevator Pitch / Tagline (1-2 sentences)
 ```text
-"The geometry measures, the AI teaches, the student grows." An AI studio tutor that decouples deterministic OpenCV computer vision from Gemini 3.5 Flash on Vertex AI to deliver zero-hallucination, level-aware perspective drawing critique and dynamic progression.
+"The geometry measures, the AI teaches, the student grows." An AI studio tutor that decouples deterministic OpenCV computer vision from Gemini on Google Cloud Vertex AI to deliver zero-hallucination, level-aware perspective drawing critique and dynamic progression.
 ```
 
 ### 3. Category Track Selection
@@ -53,7 +53,7 @@ Atelier is an agentic AI studio master for perspective drawing:
 ---
 
 #### ⚙️ How We Built It
-- **AI & Models**: Google Vertex AI (`gemini-3.5-flash` for level-aware pedagogical critiques and `gemma` for lightweight pre-routing and parameter tuning).
+- **AI & Models**: Google Vertex AI (`gemini-2.5-flash` / `gemini-2.0-flash` for level-aware pedagogical critiques and `gemma` for lightweight pre-routing and parameter tuning).
 - **Backend Service (`atelier-agent`)**: Python 3.12, FastAPI, OpenCV (`opencv-python-headless`), NumPy, Pydantic v2, and Google Cloud ADK.
 - **Frontend Service (`Atelier.Web`)**: .NET 10, Blazor Server, C#, responsive dark studio aesthetic with native SVG progression charts.
 - **Cloud Infrastructure**: Google Cloud Run (microservices hosting), Google Cloud Storage (`gs://atelier-inbox/{studentId}/`), Eventarc (CloudEvents), Cloud Scheduler (cron digests), and Cloud Firestore (append-only event store).

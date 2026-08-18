@@ -9,7 +9,7 @@ Proud to submit Atelier to the #AllThingsAgenticHackathon! 🚀
 
 An AI Studio Master for remote art students combining:
 ✨ Deterministic OpenCV geometry (RANSAC vanishing points & angular error in degrees)
-🤖 Gemini 3.5 Flash & Gemma on Google @GoogleCloud Vertex AI for empathetic, level-aware critique
+🤖 Gemini Flash & Gemma on Google @GoogleCloud Vertex AI for empathetic, level-aware critique
 💬 The 4 Collaborative Verbs: Ask, Guide, Capture & Adapt
 📊 Append-only memory & progression curves in Firestore
 
@@ -35,7 +35,7 @@ We solved this with ADR-001: Decoupling deterministic geometry from empathetic p
 🔹 How Atelier works:
 1. OpenCV computer vision detects line segments, solves vanishing points (k=1 frontal, k=2 oblique), and calculates angular deviation in degrees.
 2. Gemma on Vertex AI performs lightweight pre-routing to classify drawing types.
-3. Gemini 3.5 Flash on Vertex AI produces level-aware critiques structured in two planes: Plane A (exact measured findings) and Plane B (studio observations on line weight, spatial clarity, and cleanliness).
+3. Gemini Flash on Vertex AI produces level-aware critiques structured in two planes: Plane A (exact measured findings) and Plane B (studio observations on line weight, spatial clarity, and cleanliness).
 4. An Anti-Hallucination Validator guarantees the LLM never invents numbers.
 5. Ingests drawings asynchronously via GCS + Eventarc on Cloud Run, while Cloud Scheduler sends weekly progress digests and practice plans.
 6. The Collaborative Partner loop orchestrates the 4 verbs: ASK clarification, GUIDE drills, CAPTURE feedback, and ADAPT student profiles dynamically.

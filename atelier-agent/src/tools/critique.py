@@ -1,4 +1,4 @@
-"""Pedagogical critique service using Gemini 3.5 Flash via Vertex AI (ADR-001 & PAT-006)."""
+"""Pedagogical critique service using Gemini Flash via Vertex AI (ADR-001 & PAT-006)."""
 
 import hashlib
 import json
@@ -146,7 +146,7 @@ def call_vertex_ai_critique(
     system_prompt: str,
     user_prompt: str,
 ) -> CritiqueOutput:
-    """Invoke Gemini 3.5 Flash via Google GenAI SDK / Vertex AI with structured output."""
+    """Invoke Gemini Flash via Google GenAI SDK / Vertex AI with structured output."""
     try:
         from google import genai
         from google.genai import types

@@ -45,7 +45,7 @@
   3. **Cloud Firestore**:
      - Show the `students/{studentId}/exercises/` and `feedback/` collection tree demonstrating the append-only event-sourcing model.
   4. **Vertex AI Studio**:
-     - Quick view of Gemini 3.5 Flash and Gemma model endpoints.
+     - Quick view of Gemini Flash and Gemma model endpoints.
 
 ---
 

@@ -215,7 +215,7 @@ public class CritiqueOutputDto
     public NextExerciseRecommendationDto NextExercise { get; set; } = new();
 
     [JsonPropertyName("model_version")]
-    public string ModelVersion { get; set; } = "gemini-3.5-flash";
+    public string ModelVersion { get; set; } = "gemini-2.5-flash";
 
     [JsonPropertyName("validated")]
     public bool Validated { get; set; } = true;
