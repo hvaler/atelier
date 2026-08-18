@@ -1,0 +1,193 @@
+@namespace Atelier.Web.Components.Shared
+
+<div class="overlay-viewer card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+    <!-- Header with Multimodal View Toggles -->
+    <div class="card-header bg-dark text-white d-flex flex-wrap justify-content-between align-items-center py-3 px-4">
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary px-3 py-2 rounded-pill font-monospace">
+                @(Geometry?.KDetected ?? 1)-Point Perspective
+            </span>
+            <span class="text-secondary small">|</span>
+            <span class="text-light small">
+                Confidence: <strong class="@(Geometry?.ConfidenceLow == true ? "text-danger" : "text-success")">@((Geometry?.Confidence ?? 0.85).ToString("P0"))</strong>
+            </span>
+        </div>
+
+        <div class="btn-group btn-group-sm rounded-pill p-1 bg-secondary bg-opacity-25" role="group">
+            <button type="button" class="btn @(ActiveView == "overlay" ? "btn-primary" : "btn-outline-light border-0") rounded-pill px-3" @onclick='() => SetView("overlay")'>
+                🎨 Annotated Overlay
+            </button>
+            <button type="button" class="btn @(ActiveView == "original" ? "btn-primary" : "btn-outline-light border-0") rounded-pill px-3" @onclick='() => SetView("original")'>
+                📷 Original Drawing
+            </button>
+            <button type="button" class="btn @(ActiveView == "split" ? "btn-primary" : "btn-outline-light border-0") rounded-pill px-3" @onclick='() => SetView("split")'>
+                ↔️ Side-by-Side
+            </button>
+            <button type="button" class="btn @(ActiveView == "data" ? "btn-primary" : "btn-outline-light border-0") rounded-pill px-3" @onclick='() => SetView("data")'>
+                🔍 Line Inspection
+            </button>
+        </div>
+    </div>
+
+    <!-- Canvas / Visual Display Area -->
+    <div class="card-body bg-black p-3 text-center position-relative min-vh-40 d-flex justify-content-center align-items-center">
+        @if (Geometry == null && string.IsNullOrEmpty(OriginalImageBase64))
+        {
+            <div class="p-5 text-secondary">
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+                <p>Analyzing geometry with deterministic OpenCV engine...</p>
+            </div>
+        }
+        else if (ActiveView == "overlay")
+        {
+            <div class="position-relative d-inline-block">
+                @if (!string.IsNullOrEmpty(Geometry?.OverlayImageBase64))
+                {
+                    <img src="data:image/png;base64,@Geometry.OverlayImageBase64" class="img-fluid rounded-3 shadow" style="max-height: 520px; object-fit: contain;" alt="Deterministic Geometry Overlay" />
+                }
+                else if (!string.IsNullOrEmpty(OriginalImageBase64))
+                {
+                    <img src="data:image/png;base64,@OriginalImageBase64" class="img-fluid rounded-3 shadow" style="max-height: 520px; object-fit: contain;" alt="Drawing" />
+                }
+
+                <!-- Floating Legend Badge -->
+                <div class="position-absolute bottom-0 start-0 m-3 p-2 bg-dark bg-opacity-75 backdrop-blur rounded-3 text-start text-white small border border-secondary border-opacity-50">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge" style="background-color: #00e676;">&nbsp;</span>
+                        <span class="small text-light">Error &lt; 2.5° (Accurate)</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge" style="background-color: #ffd600;">&nbsp;</span>
+                        <span class="small text-light">Error 2.5° - 6.0° (Slight Drift)</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge" style="background-color: #ff1744;">&nbsp;</span>
+                        <span class="small text-light">Error &gt; 6.0° (Diverging)</span>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (ActiveView == "original")
+        {
+            <div class="d-inline-block">
+                @if (!string.IsNullOrEmpty(OriginalImageBase64))
+                {
+                    <img src="data:image/png;base64,@OriginalImageBase64" class="img-fluid rounded-3 shadow" style="max-height: 520px; object-fit: contain;" alt="Original Drawing" />
+                }
+                else if (!string.IsNullOrEmpty(Geometry?.OverlayImageBase64))
+                {
+                    <img src="data:image/png;base64,@Geometry.OverlayImageBase64" class="img-fluid rounded-3 shadow" style="max-height: 520px; object-fit: contain;" alt="Drawing" />
+                }
+            </div>
+        }
+        else if (ActiveView == "split")
+        {
+            <div class="row g-3 w-100 justify-content-center">
+                <div class="col-md-6 text-center">
+                    <span class="badge bg-secondary mb-2">Original Student Drawing</span>
+                    <div>
+                        <img src="data:image/png;base64,@(string.IsNullOrEmpty(OriginalImageBase64) ? Geometry?.OverlayImageBase64 : OriginalImageBase64)" class="img-fluid rounded-3 shadow" style="max-height: 380px;" alt="Original" />
+                    </div>
+                </div>
+                <div class="col-md-6 text-center">
+                    <span class="badge bg-primary mb-2">Deterministic Geometric Overlay</span>
+                    <div>
+                        <img src="data:image/png;base64,@Geometry?.OverlayImageBase64" class="img-fluid rounded-3 shadow" style="max-height: 380px;" alt="Overlay" />
+                    </div>
+                </div>
+            </div>
+        }
+        else if (ActiveView == "data")
+        {
+            <div class="w-100 bg-dark text-white p-4 rounded-3 text-start" style="max-height: 480px; overflow-y: auto;">
+                <h6 class="text-primary mb-3">Deterministic OpenCV Metrics (ADR-001)</h6>
+                <div class="table-responsive">
+                    <table class="table table-dark table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Line #</th>
+                                <th>Start (x, y)</th>
+                                <th>End (x, y)</th>
+                                <th>Target VP</th>
+                                <th>Convergence Error</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Geometry?.Lines != null && Geometry.Lines.Count > 0)
+                            {
+                                @foreach (var line in Geometry.Lines)
+                                {
+                                    <tr>
+                                        <td>#@line.Id</td>
+                                        <td>(@line.Start.X.ToString("F0"), @line.Start.Y.ToString("F0"))</td>
+                                        <td>(@line.End.X.ToString("F0"), @line.End.Y.ToString("F0"))</td>
+                                        <td>
+                                            <span class="badge bg-secondary">@(line.VpIndex.HasValue ? $"VP-{line.VpIndex}" : "Parallel/Axis")</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge @(line.ConvergenceErrorDeg < 2.5 ? "bg-success" : line.ConvergenceErrorDeg < 6.0 ? "bg-warning text-dark" : "bg-danger")">
+                                                @line.ConvergenceErrorDeg.ToString("F1")°
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">No individual line segments extracted.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Quick Metric Bar -->
+    <div class="card-footer bg-dark text-light border-0 py-3 px-4 d-flex flex-wrap justify-content-between align-items-center">
+        <div class="d-flex gap-4">
+            <div>
+                <small class="text-secondary d-block">Average Angular Error</small>
+                <strong class="fs-5 @(Geometry?.AvgConvergenceErrorDeg < 3.0 ? "text-success" : "text-warning")">
+                    @(Geometry?.AvgConvergenceErrorDeg.ToString("F1") ?? "0.0")°
+                </strong>
+            </div>
+            <div>
+                <small class="text-secondary d-block">Max Line Deviation</small>
+                <strong class="fs-5 @(Geometry?.MaxConvergenceErrorDeg < 5.0 ? "text-success" : "text-danger")">
+                    @(Geometry?.MaxConvergenceErrorDeg.ToString("F1") ?? "0.0")°
+                </strong>
+            </div>
+            <div>
+                <small class="text-secondary d-block">Vanishing Points</small>
+                <strong class="fs-5 text-info">@(Geometry?.VanishingPoints?.Count ?? 0) detected</strong>
+            </div>
+        </div>
+
+        <div>
+            @if (Geometry?.HorizonLine != null)
+            {
+                <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-50 px-3 py-2 rounded-pill">
+                    Horizon Line: @Geometry.HorizonLine.AngleDeg.ToString("F1")° tilt
+                </span>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public GeometryAnalysisResultDto? Geometry { get; set; }
+
+    [Parameter]
+    public string? OriginalImageBase64 { get; set; }
+
+    private string ActiveView { get; set; } = "overlay";
+
+    private void SetView(string view)
+    {
+        ActiveView = view;
+    }
+}

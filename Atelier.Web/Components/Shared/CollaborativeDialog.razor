@@ -1,0 +1,134 @@
+@namespace Atelier.Web.Components.Shared
+@inject IAtelierAgentClient AgentClient
+
+<div class="collaborative-dialog card border-0 shadow-sm rounded-4 p-4 bg-dark text-white mb-4">
+    @if (Mode == "ask")
+    {
+        <!-- Verb 1: ASK Clarifying Questions -->
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="fs-4">💬</span>
+            <div>
+                <h5 class="fw-bold text-primary mb-0">Studio Master Collaboration (ASK)</h5>
+                <small class="text-secondary">Tell Atelier about your practice focus before analyzing</small>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label text-light fw-bold small">@AskData?.IntentQuestion</label>
+            <input type="text" class="form-control bg-black text-white border-secondary mb-2" placeholder="e.g. 1-Point box or 2-Point building..." @bind="IntentInput" />
+            <div class="d-flex flex-wrap gap-2">
+                @if (AskData?.QuickIntentSuggestions != null)
+                {
+                    @foreach (var sug in AskData.QuickIntentSuggestions)
+                    {
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill py-0 px-2 text-white-50" @onclick="() => IntentInput = sug">
+                            + @sug
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label text-light fw-bold small">@AskData?.DifficultyQuestion</label>
+            <input type="text" class="form-control bg-black text-white border-secondary mb-2" placeholder="e.g. Converging the top lines or line weight..." @bind="DifficultyInput" />
+            <div class="d-flex flex-wrap gap-2">
+                @if (AskData?.QuickDifficultySuggestions != null)
+                {
+                    @foreach (var sug in AskData.QuickDifficultySuggestions)
+                    {
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill py-0 px-2 text-white-50" @onclick="() => DifficultyInput = sug">
+                            + @sug
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-primary w-100 py-2 rounded-pill fw-bold" @onclick="SubmitAskContext">
+            Analyze Drawing with My Context 🚀
+        </button>
+    }
+    else if (Mode == "feedback")
+    {
+        <!-- Verb 3: CAPTURE & Verb 4: ADAPT -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h6 class="fw-bold text-light mb-0">Was this critique helpful? (CAPTURE & ADAPT)</h6>
+                <small class="text-secondary">Your feedback automatically adapts the agent's tone and exercises</small>
+            </div>
+            @if (FeedbackSubmitted)
+            {
+                <span class="badge bg-success px-3 py-2 rounded-pill">
+                    Profile Adapted ✓
+                </span>
+            }
+        </div>
+
+        @if (!FeedbackSubmitted)
+        {
+            <div class="d-flex gap-2 mb-3">
+                <button type="button" class="btn @(HelpfulChoice == true ? "btn-success" : "btn-outline-success") rounded-pill px-4" @onclick="() => HelpfulChoice = true">
+                    👍 Helpful
+                </button>
+                <button type="button" class="btn @(HelpfulChoice == false ? "btn-warning" : "btn-outline-warning") rounded-pill px-4" @onclick="() => HelpfulChoice = false">
+                    👎 Needs Adjustment
+                </button>
+            </div>
+
+            @if (HelpfulChoice.HasValue)
+            {
+                <div class="mb-3">
+                    <input type="text" class="form-control bg-black text-white border-secondary form-control-sm" placeholder="Optional note: (e.g. 'Tone was a bit too technical' or 'Loved the focus area')" @bind="FeedbackNote" />
+                </div>
+                <button type="button" class="btn btn-sm btn-primary rounded-pill px-4" @onclick="SubmitFeedback">
+                    Submit Feedback & Update Profile
+                </button>
+            }
+        }
+        else
+        {
+            <div class="alert alert-dark bg-secondary bg-opacity-10 border border-secondary border-opacity-25 text-white mb-0 small">
+                ✓ Thank you! Atelier has recorded this event in your append-only profile history and calibrated future critique depth.
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Mode { get; set; } = "ask"; // "ask" or "feedback"
+
+    [Parameter]
+    public AskPromptDataDto? AskData { get; set; }
+
+    [Parameter]
+    public string? ExerciseId { get; set; }
+
+    [Parameter]
+    public string StudentId { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<(string Intent, string Difficulty)> OnAskCompleted { get; set; }
+
+    private string IntentInput { get; set; } = string.Empty;
+    private string DifficultyInput { get; set; } = string.Empty;
+
+    private bool? HelpfulChoice { get; set; }
+    private string FeedbackNote { get; set; } = string.Empty;
+    private bool FeedbackSubmitted { get; set; }
+
+    private async Task SubmitAskContext()
+    {
+        await OnAskCompleted.InvokeAsync((IntentInput, DifficultyInput));
+    }
+
+    private async Task SubmitFeedback()
+    {
+        if (!HelpfulChoice.HasValue || string.IsNullOrEmpty(ExerciseId))
+            return;
+
+        await AgentClient.SubmitFeedbackAsync(ExerciseId, StudentId, HelpfulChoice.Value, FeedbackNote);
+        FeedbackSubmitted = true;
+    }
+}

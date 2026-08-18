@@ -1,0 +1,56 @@
+@page "/progress"
+@namespace Atelier.Web.Components.Pages
+@using Atelier.Web.Components.Shared
+@inject IAtelierAgentClient AgentClient
+
+<PageTitle>Student Progression — Atelier</PageTitle>
+
+<div class="container-xl py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+        <div>
+            <h2 class="fw-bold text-white mb-0">
+                Student <span class="text-primary">Progression</span> & Analytics
+            </h2>
+            <p class="text-secondary small mb-0">
+                Tracking convergence error reduction, recurring geometric issues, and weekly practice plans.
+            </p>
+        </div>
+
+        <!-- Student Selector -->
+        <div class="btn-group btn-group-sm bg-dark p-1 rounded-pill" role="group">
+            <button type="button" class="btn @(ActiveStudentId == "clara-01" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SwitchStudent("clara-01")'>
+                Clara (Beginner)
+            </button>
+            <button type="button" class="btn @(ActiveStudentId == "sofia-01" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SwitchStudent("sofia-01")'>
+                Sofia (Advanced)
+            </button>
+        </div>
+    </div>
+
+    <!-- Progress Analytics Component -->
+    <ProgressChart Profile="DerivedProfile" Digest="WeeklyDigest" />
+</div>
+
+@code {
+    private string ActiveStudentId { get; set; } = "clara-01";
+    private DerivedProfileDto? DerivedProfile { get; set; }
+    private WeeklyDigestDto? WeeklyDigest { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync(ActiveStudentId);
+    }
+
+    private async Task SwitchStudent(string studentId)
+    {
+        ActiveStudentId = studentId;
+        await LoadDataAsync(studentId);
+    }
+
+    private async Task LoadDataAsync(string studentId)
+    {
+        DerivedProfile = await AgentClient.GetDerivedProfileAsync(studentId);
+        WeeklyDigest = await AgentClient.GetWeeklyDigestAsync(studentId);
+    }
+}

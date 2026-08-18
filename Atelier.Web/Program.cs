@@ -12,6 +12,7 @@ builder.Services.AddHttpClient("AgentClient", client =>
     var agentUrl = builder.Configuration["Agent:BaseUrl"] ?? "http://localhost:8000";
     client.BaseAddress = new Uri(agentUrl);
 });
+builder.Services.AddScoped<Atelier.Web.Services.IAtelierAgentClient, Atelier.Web.Services.AtelierAgentClient>();
 
 var app = builder.Build();
 

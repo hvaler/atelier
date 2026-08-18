@@ -1,7 +1,213 @@
-﻿@page "/"
+@page "/"
+@namespace Atelier.Web.Components.Pages
+@using Atelier.Web.Components.Shared
+@inject IAtelierAgentClient AgentClient
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Atelier — Studio Master Perspective AI</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container-xl py-4">
+    <!-- Top Studio Master Bar -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+        <div>
+            <h2 class="fw-bold text-white mb-0">
+                <span class="text-primary">Atelier</span> Studio
+            </h2>
+            <p class="text-secondary small mb-0">
+                "The geometry measures, the AI teaches, the student grows."
+            </p>
+        </div>
 
-Welcome to your new app.
+        <!-- Student Switcher -->
+        <div class="d-flex align-items-center gap-3 bg-dark p-2 rounded-4 border border-secondary border-opacity-25 shadow-sm">
+            <span class="text-secondary small ps-2">Active Student:</span>
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn @(CurrentStudentId == "clara-01" ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SelectStudent("clara-01")'>
+                    Clara (9yo Beginner)
+                </button>
+                <button type="button" class="btn @(CurrentStudentId == "sofia-01" ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SelectStudent("sofia-01")'>
+                    Sofia (Animation Adv.)
+                </button>
+            </div>
+            <span class="badge @(CurrentStudent?.Level == "beginner" ? "bg-info text-dark" : "bg-warning text-dark") rounded-pill px-3 py-2">
+                @(CurrentStudent?.Level.ToUpperInvariant())
+            </span>
+        </div>
+    </div>
+
+    <!-- Main Studio Workspace Grid -->
+    <div class="row g-4">
+        <!-- Left Column: Drawing Setup & Collaboration -->
+        <div class="col-lg-5">
+            <!-- Source Picker Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white mb-4">
+                <h5 class="fw-bold text-light mb-3">📂 Select Perspective Drawing</h5>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Pre-Calibrated Golden Sample:</label>
+                    <select class="form-select bg-black text-white border-secondary" @onchange="OnSampleSelected">
+                        <option value="01_1point_perfect.png">1-Point Perspective (Perfect 0° error)</option>
+                        <option value="02_1point_error_4deg.png">1-Point Perspective (Slight 4° error)</option>
+                        <option value="03_1point_error_9deg.png">1-Point Perspective (Deliberate 9° error)</option>
+                        <option value="04_2point_perfect.png">2-Point Perspective (Perfect F1/F2)</option>
+                        <option value="05_2point_error_6deg.png">2-Point Perspective (F1 Drift 6° error)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">Or Upload Student Drawing Photo:</label>
+                    <InputFile OnChange="HandleFileSelected" class="form-control bg-black text-white border-secondary" accept="image/*" />
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-secondary">
+                        Target Mode: @(CurrentStudent?.Level == "beginner" ? "1-Point (k=1)" : "2-Point (k=2)")
+                    </span>
+                    <button class="btn btn-outline-info btn-sm rounded-pill" @onclick="ReloadAskPrompt">
+                        Refresh Questions
+                    </button>
+                </div>
+            </div>
+
+            <!-- Verb 1: ASK Clarifying Questions Card -->
+            @if (AskData != null && !AnalysisCompleted)
+            {
+                <CollaborativeDialog Mode="ask"
+                                     AskData="AskData"
+                                     StudentId="@CurrentStudentId"
+                                     OnAskCompleted="HandleAskCompleted" />
+            }
+
+            <!-- Verb 3: CAPTURE Feedback Card -->
+            @if (AnalysisCompleted)
+            {
+                <CollaborativeDialog Mode="feedback"
+                                     ExerciseId="@CurrentExerciseId"
+                                     StudentId="@CurrentStudentId" />
+            }
+        </div>
+
+        <!-- Right Column: Multimodal Geometric Overlay & Two-Plane Critique -->
+        <div class="col-lg-7">
+            <!-- Multimodal Overlay (The Star Feature) -->
+            <OverlayViewer Geometry="CurrentGeometry" OriginalImageBase64="@CurrentBase64" />
+
+            <!-- Two-Plane Pedagogical Critique -->
+            @if (IsAnalyzing)
+            {
+                <div class="card border-0 shadow-sm rounded-4 p-5 bg-dark text-center text-white">
+                    <div class="spinner-border text-primary mb-3 mx-auto" role="status"></div>
+                    <h5>Studio Master is examining drawing geometry & formulating critique...</h5>
+                    <p class="text-secondary small">Invoking Gemini 3.5 Flash on Vertex AI with level-aware rubric calibration.</p>
+                </div>
+            }
+            else if (CurrentCritique != null)
+            {
+                <TwoPlaneCritique Critique="CurrentCritique" />
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string CurrentStudentId { get; set; } = "clara-01";
+    private StudentProfileDto? CurrentStudent { get; set; }
+    private AskPromptDataDto? AskData { get; set; }
+
+    private string? CurrentBase64 { get; set; }
+    private GeometryAnalysisResultDto? CurrentGeometry { get; set; }
+    private CritiqueOutputDto? CurrentCritique { get; set; }
+    private string CurrentExerciseId { get; set; } = string.Empty;
+
+    private bool IsAnalyzing { get; set; }
+    private bool AnalysisCompleted { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStudentAsync(CurrentStudentId);
+        await LoadSampleDrawingAsync("01_1point_perfect.png");
+    }
+
+    private async Task SelectStudent(string studentId)
+    {
+        CurrentStudentId = studentId;
+        await LoadStudentAsync(studentId);
+        AnalysisCompleted = false;
+        CurrentCritique = null;
+        await ReloadAskPrompt();
+    }
+
+    private async Task LoadStudentAsync(string studentId)
+    {
+        var students = await AgentClient.GetStudentsAsync();
+        CurrentStudent = students.FirstOrDefault(s => s.StudentId == studentId) ?? new StudentProfileDto
+        {
+            StudentId = studentId,
+            Name = studentId.Contains("clara") ? "Clara" : "Sofia",
+            Level = studentId.Contains("clara") ? "beginner" : "advanced"
+        };
+        await ReloadAskPrompt();
+    }
+
+    private async Task ReloadAskPrompt()
+    {
+        AskData = await AgentClient.GetAskPromptAsync(CurrentStudentId);
+    }
+
+    private async Task OnSampleSelected(ChangeEventArgs e)
+    {
+        var filename = e.Value?.ToString() ?? "01_1point_perfect.png";
+        await LoadSampleDrawingAsync(filename);
+    }
+
+    private async Task LoadSampleDrawingAsync(string filename)
+    {
+        // Simple synthetic sample lines representation for demo
+        var kPoints = filename.StartsWith("04") || filename.StartsWith("05") ? 2 : 1;
+        IsAnalyzing = true;
+        AnalysisCompleted = false;
+
+        CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(string.Empty, kPoints, generateOverlay: true);
+        IsAnalyzing = false;
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+
+        using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        CurrentBase64 = Convert.ToBase64String(ms.ToArray());
+
+        var kPoints = CurrentStudent?.Level == "beginner" ? 1 : 2;
+        IsAnalyzing = true;
+        AnalysisCompleted = false;
+
+        CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, kPoints, generateOverlay: true);
+        IsAnalyzing = false;
+    }
+
+    private async Task HandleAskCompleted((string Intent, string Difficulty) context)
+    {
+        if (CurrentGeometry == null || CurrentStudent == null) return;
+
+        IsAnalyzing = true;
+        CurrentExerciseId = $"ex-ui-{Guid.NewGuid().ToString("N")[..8]}";
+
+        var critiqueReq = new CritiqueRequestDto
+        {
+            Geometry = CurrentGeometry,
+            Student = CurrentStudent,
+            StudentIntent = context.Intent,
+            StudentDifficulty = context.Difficulty,
+            UseCache = true
+        };
+
+        var response = await AgentClient.GenerateCritiqueAsync(critiqueReq);
+        CurrentCritique = response?.Critique;
+
+        IsAnalyzing = false;
+        AnalysisCompleted = true;
+    }
+}
