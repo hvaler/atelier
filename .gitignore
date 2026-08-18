@@ -1,0 +1,40 @@
+# --- Ovillo (internal tooling - never in the public repo) ---
+.claude/
+_hilo/
+_patron/
+Documentos_Base/
+CLAUDE.md
+ecosystem.config.json
+BRIEF_ATELIER.md
+RUNBOOK.md
+EVOLUTIVOS.md
+ovillo-tmp/
+ovillo-template.zip
+install.ps1
+INICIO_RAPIDO.md
+VERSION.json
+SISTEMA_CONTEXTO_CLAUDE.html
+ecosystem.config.example.json
+0*_*/
+
+# --- .NET ---
+bin/
+obj/
+*.user
+.vs/
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- Secrets & env ---
+.env
+*.env
+.secrets/
+appsettings.*.local.json
+
+# --- OS ---
+.DS_Store
+Thumbs.db
