@@ -73,6 +73,16 @@ def analyze_drawing(request: GeometryAnalysisRequest) -> GeometryAnalysisResult:
     return result
 
 
+from src.models.critique import CritiqueRequest, CritiqueResponse
+from src.tools.critique import generate_pedagogical_critique
+
+
+@app.post("/api/critique", response_model=CritiqueResponse, status_code=status.HTTP_200_OK)
+def create_critique(request: CritiqueRequest) -> CritiqueResponse:
+    """Generate pedagogical critique with Gemini 3.5 Flash on Vertex AI (ADR-001)."""
+    return generate_pedagogical_critique(request)
+
+
 @app.get("/")
 def root():
     return {
@@ -80,4 +90,5 @@ def root():
         "docs_url": "/docs",
         "health_url": "/api/health",
         "analyze_url": "/api/analyze",
+        "critique_url": "/api/critique",
     }
