@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY Atelier.Web/Atelier.Web.csproj Atelier.Web/
+RUN dotnet restore Atelier.Web/Atelier.Web.csproj
+
+COPY Atelier.Web/ Atelier.Web/
+WORKDIR /src/Atelier.Web
+RUN dotnet publish -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_HTTP_PORTS=8080
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "Atelier.Web.dll"]

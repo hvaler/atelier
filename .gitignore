@@ -1,5 +1,7 @@
 # --- Ovillo (internal tooling - never in the public repo) ---
 .claude/
+.agents/
+AGENTS.md
 _hilo/
 _patron/
 Documentos_Base/
