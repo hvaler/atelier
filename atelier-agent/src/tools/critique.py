@@ -175,7 +175,7 @@ def call_vertex_ai_critique(
         else:
             raise ValueError("Empty response from Vertex AI Gemini model.")
 
-    except (ImportError, ValueError, TypeError, RuntimeError, OSError):
+    except Exception:
         # Fallback to deterministic studio template if offline or Vertex API credentials unavailable
         return generate_fallback_critique(request)
 

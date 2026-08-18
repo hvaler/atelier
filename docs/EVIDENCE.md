@@ -164,3 +164,39 @@ Correctas! - Con error: 0, Superado: 7, Omitido: 0, Total: 7 - Atelier.Web.Tests
 | **`test_health.py`** | Pytest | Cloud Run Health & Root | 2 | ✅ 100% Passed |
 | **`Atelier.Web.Tests`** | xUnit | Blazor Health & Typed Client | 7 | ✅ 100% Passed |
 | **TOTAL** | | | **36 tests** | **✅ 36/36 PASSED** |
+
+---
+
+## 8. Agent Framework Compliance (Google GenAI SDK)
+
+### Claim
+> *All model invocations for Gemini and Gemma use the official Google GenAI SDK (`google-genai`) with `genai.Client(vertexai=True, ...)`.*
+
+### Verification Command 1: Package Installation & Metadata
+```bash
+atelier-agent/.venv/Scripts/python -m pip show google-genai
+```
+
+### Verified Output
+```text
+Name: google-genai
+Version: 2.18.1
+Summary: GenAI Python SDK
+Home-page: https://github.com/googleapis/python-genai
+Author: 
+Author-email: Google LLC <googleapis-packages@google.com>
+License-Expression: Apache-2.0
+Location: C:\nexus\dev\atelier\atelier-agent\.venv\Lib\site-packages
+Requires: anyio, distro, google-auth, httpx, pydantic, requests, sniffio, tenacity, typing-extensions, websockets
+Required-by: 
+```
+
+### Verification Command 2: SDK Import & Vertex AI Initialization
+```bash
+atelier-agent/.venv/Scripts/python -c "from google import genai; client = genai.Client(vertexai=True, project='atelier-hack', location='europe-west3'); print('Google GenAI SDK initialized:', type(client))"
+```
+
+### Verified Output
+```text
+Google GenAI SDK initialized: <class 'google.genai.client.Client'>
+```

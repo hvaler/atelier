@@ -6,9 +6,20 @@
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://python.org/)
 [![Google Cloud](https://img.shields.io/badge/GCP-Cloud_Run_%7C_Vertex_AI_%7C_Firestore-4285F4.svg)](https://cloud.google.com/)
+[![Google GenAI SDK](https://img.shields.io/badge/Google_GenAI_SDK-google--genai-4285F4.svg)](https://pypi.org/project/google-genai/)
 [![Gemini](https://img.shields.io/badge/Gemini-Flash-8E24AA.svg)](https://deepmind.google/technologies/gemini/)
 
 **Atelier** is an agentic AI studio master designed for remote art students. It pairs **deterministic OpenCV computer vision** (for calculating vanishing points, horizon lines, and per-line angular convergence errors in degrees) with **Gemini Flash on Google Cloud Vertex AI** (for empathetic, level-aware pedagogical critiques).
+
+---
+
+## ✅ Mandatory Stack Compliance (Hackathon Requirements)
+
+| Requirement | How Atelier satisfies it | Where |
+| :--- | :--- | :--- |
+| **Gemini 3.5+ via Gemini API or Vertex AI** | Gemini Flash on Vertex AI (critique + dialogue) | [`atelier-agent/src/tools/critique.py`](atelier-agent/src/tools/critique.py) |
+| **≥1 Google Agent Framework** | Google GenAI SDK (`google-genai`) — all Gemini & Gemma calls | [`atelier-agent/requirements.txt`](atelier-agent/requirements.txt) · [`src/tools/`](atelier-agent/src/tools/) |
+| **≥1 Google Cloud infrastructure service** | Cloud Run · Firestore · GCS · Eventarc · Cloud Scheduler | [`infra/`](infra/) · [`src/tools/`](atelier-agent/src/tools/) |
 
 ---
 
@@ -32,7 +43,7 @@
                     └─────────────────────────┬─────────────────────────┘
                                               ▼
  ┌─────────────────────────────────────────────────────────────────────────────────────────┐
- │                   ATELIER AGENT BACKEND (FastAPI / Cloud Run)                           │
+ │            ATELIER AGENT BACKEND (Google GenAI SDK + FastAPI / Cloud Run)               │
  │                                                                                         │
  │   ┌───────────────────────────┐                     ┌───────────────────────────────┐   │
  │   │    Gemma Pre-Router       │ ──(Classifies)────> │   OpenCV Deterministic Engine │   │
