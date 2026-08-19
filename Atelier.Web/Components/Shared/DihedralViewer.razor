@@ -1,0 +1,138 @@
+@namespace Atelier.Web.Components.Shared
+
+@* The third viewer, because a Monge plate has nothing the other two show. There is no vanishing
+   point to mark and no axis rosette to draw: what matters is whether the two views agree about
+   where things are, so the panel leads with correspondence and with the two mistakes that are
+   easy to confuse — a plan placed wrong, and a corner that was never carried across. *@
+<div class="dihedral-viewer card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+    <div class="card-header bg-body-tertiary text-body d-flex flex-wrap justify-content-between align-items-center py-3 px-4">
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary px-3 py-2 rounded-pill font-monospace">@Loc["Orthographic projection"]</span>
+            <span class="text-body-secondary small">|</span>
+            <span class="text-body small">
+                @Loc["Confidence:"] <strong class="@(Analysis.ConfidenceLow ? "text-danger" : "text-success")">@Analysis.Confidence.ToString("P0")</strong>
+            </span>
+        </div>
+        <span class="badge bg-secondary-subtle text-body-secondary px-3 py-2 rounded-pill small">
+            @Loc["Two flat views, checked against each other"]
+        </span>
+    </div>
+
+    @if (Analysis.GroundLine is null)
+    {
+        @* Nothing was measured, and the panel says so instead of showing a table of zeroes. *@
+        <div class="card-body bg-body-secondary p-4">
+            <div class="alert alert-warning border-0 rounded-3 mb-0">
+                <strong>@Loc["No ground line was found."]</strong>
+                <div class="small mt-1">@Loc["Without it there is no fold, nothing to measure perpendicular to, and no way to tell which view a mark belongs to. Nothing was measured."]</div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-body bg-body-secondary p-3 text-center">
+            @if (!string.IsNullOrEmpty(Analysis.OverlayImageBase64))
+            {
+                <img src="data:image/png;base64,@Analysis.OverlayImageBase64"
+                     class="img-fluid rounded-3 shadow" style="max-height: 520px; object-fit: contain;"
+                     alt="@Loc["Correspondence overlay"]" />
+            }
+            else if (!string.IsNullOrEmpty(OriginalImageBase64))
+            {
+                <img src="data:image/png;base64,@OriginalImageBase64"
+                     class="img-fluid rounded-3 shadow" style="max-height: 520px; object-fit: contain;"
+                     alt="@Loc["Drawing"]" />
+            }
+        </div>
+
+        <div class="card-body bg-body-tertiary text-body px-4 pt-4 pb-0">
+            @* The distinction that carries the teaching. Two plates can share an average and mean
+               opposite things, and only one of these is a construction error. *@
+            @if (Analysis.SystematicOffsetPx is double offset && Math.Abs(offset) >= 3.0)
+            {
+                <div class="alert alert-warning border-0 rounded-3 small">
+                    @(Loc["The plan as a whole sits {0} px sideways from the elevation ({1}% of the page). That is where the plan was placed, not how it was drawn — one correction, before anything else.",
+                          Math.Abs(offset).ToString("F0"), Math.Abs(Analysis.SystematicOffsetPct ?? 0).ToString("F1")])
+                </div>
+            }
+
+            @if (Analysis.UnmatchedInElevation + Analysis.UnmatchedInPlan > 0)
+            {
+                <div class="alert alert-danger border-0 rounded-3 small">
+                    @(Loc["{0} vertex or vertices exist in one view with nothing answering them in the other. That is a construction error rather than a placement one: a corner was never carried across the ground line.",
+                          Analysis.UnmatchedInElevation + Analysis.UnmatchedInPlan])
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>@Loc["Elevation"]</th>
+                            <th>@Loc["Plan"]</th>
+                            <th>@Loc["Residual"]</th>
+                            <th>@Loc["Agreed"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Analysis.Correspondences)
+                        {
+                            <tr>
+                                <td class="font-monospace">@(c.ElevationX is double ex ? $"x = {ex:F0}" : "—")</td>
+                                <td class="font-monospace">@(c.PlanX is double px ? $"x = {px:F0}" : "—")</td>
+                                <td class="font-monospace">@(c.ErrorPx is double err ? $"{err:F1} px" : "—")</td>
+                                <td>
+                                    @if (c.Matched)
+                                    {
+                                        <span class="badge bg-success">@Loc["yes"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">@Loc["no counterpart"]</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-body-tertiary text-body border-0 py-3 px-4 d-flex flex-wrap gap-4">
+            <div>
+                <small class="text-body-secondary d-block">@Loc["Ground line, as drawn"]</small>
+                <strong class="fs-5 @(Math.Abs(Analysis.GroundLine.AngleDeg) < 1.0 ? "text-success" : "text-warning")">
+                    @Analysis.GroundLine.AngleDeg.ToString("+0.0;-0.0;0.0")°
+                </strong>
+            </div>
+            <div>
+                <small class="text-body-secondary d-block">@Loc["Reference lines off square"]</small>
+                <strong class="fs-5 @(Analysis.AvgPerpendicularityErrorDeg < 1.0 ? "text-success" : "text-warning")">
+                    @Analysis.AvgPerpendicularityErrorDeg.ToString("F1")°
+                </strong>
+            </div>
+            <div>
+                <small class="text-body-secondary d-block">@Loc["Residual correspondence"]</small>
+                @* Null is rendered as "not measurable", never as zero: an average over no matched
+                   pair would otherwise read as perfect alignment on the worst possible plate. *@
+                <strong class="fs-5 @(Analysis.AvgCorrespondenceErrorPx is null ? "text-danger" : "text-info")">
+                    @(Analysis.AvgCorrespondenceErrorPx is double avg ? $"{avg:F1} px" : Loc["not measurable"].Value)
+                </strong>
+            </div>
+            <div>
+                <small class="text-body-secondary d-block">@Loc["Vertices agreed"]</small>
+                <strong class="fs-5 @(Analysis.UnmatchedInElevation + Analysis.UnmatchedInPlan == 0 ? "text-success" : "text-warning")">
+                    @Analysis.MatchedVertexCount / @(Analysis.MatchedVertexCount + Analysis.UnmatchedInElevation + Analysis.UnmatchedInPlan)
+                </strong>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public DihedralAnalysisResultDto Analysis { get; set; } = new();
+
+    [Parameter]
+    public string? OriginalImageBase64 { get; set; }
+}

@@ -21,8 +21,10 @@ from src.prompts.rubrics import (
     ADVANCED_SYSTEM_PROMPT,
     AXONOMETRIC_INVARIANT,
     BEGINNER_SYSTEM_PROMPT,
+    ORTHOGRAPHIC_INVARIANT,
     build_axonometric_user_prompt,
     build_critique_user_prompt,
+    build_orthographic_user_prompt,
 )
 from src.tools.validator import validate_critique_measurements
 
@@ -37,9 +39,12 @@ def get_cache_key(request: CritiqueRequest) -> str:
     # measured against a vanishing point and measured against fixed axes.
     if request.geometry is not None:
         shape = f"conic_{request.geometry.avg_convergence_error_deg}_{request.geometry.k_requested}_{request.geometry.line_count}"
-    else:
+    elif request.axonometry is not None:
         axo = request.axonometry
         shape = f"axo_{axo.system}_{axo.avg_axis_error_deg}_{axo.parallelism_error_deg}_{axo.line_count}"
+    else:
+        d = request.dihedral
+        shape = f"ortho_{d.systematic_offset_px}_{d.matched_vertex_count}_{d.unmatched_in_elevation}_{d.unmatched_in_plan}_{d.line_count}"
     content = f"{request.student.student_id}_{request.student.level}_{shape}_{request.language}"
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
@@ -67,6 +72,8 @@ def generate_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
     """Generate a high-quality pedagogical critique without live API calls (for testing & offline demo)."""
     if request.axonometry is not None:
         return generate_axonometric_fallback_critique(request)
+    if request.dihedral is not None:
+        return generate_orthographic_fallback_critique(request)
 
     student = request.student
     geom = request.geometry
@@ -279,6 +286,29 @@ def generate_pedagogical_critique(request: CritiqueRequest) -> CritiqueResponse:
             student_difficulty=request.student_difficulty,
             language=request.language,
         )
+    elif request.dihedral is not None:
+        d = request.dihedral
+        system_prompt = system_prompt + "\n\n" + ORTHOGRAPHIC_INVARIANT
+        user_prompt = build_orthographic_user_prompt(
+            student_name=request.student.name,
+            level=request.student.level,
+            ground_line_tilt_deg=d.ground_line.angle_deg if d.ground_line else 0.0,
+            reference_line_count=len(d.reference_lines),
+            avg_perpendicularity_error_deg=d.avg_perpendicularity_error_deg,
+            max_perpendicularity_error_deg=d.max_perpendicularity_error_deg,
+            systematic_offset_px=d.systematic_offset_px,
+            systematic_offset_pct=d.systematic_offset_pct,
+            matched_vertex_count=d.matched_vertex_count,
+            unmatched_in_elevation=d.unmatched_in_elevation,
+            unmatched_in_plan=d.unmatched_in_plan,
+            avg_correspondence_error_px=d.avg_correspondence_error_px,
+            max_correspondence_error_px=d.max_correspondence_error_px,
+            line_count=d.line_count,
+            confidence=d.confidence,
+            student_intent=request.student_intent,
+            student_difficulty=request.student_difficulty,
+            language=request.language,
+        )
     else:
         vps_desc = "\n".join(
             f"  - {vp.label}: {vp.point.x:.1f}, {vp.point.y:.1f} (Avg Error: {vp.avg_error_deg:.2f} deg, Supporting Lines: {vp.supporting_lines})"
@@ -341,6 +371,104 @@ def generate_pedagogical_critique(request: CritiqueRequest) -> CritiqueResponse:
         critique=critique_result,
         cached=False,
         validation_retries=retries_done,
+    )
+
+
+def generate_orthographic_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
+    """
+    The offline template for a Monge plate.
+
+    Says almost nothing qualitative, for the same reason the axonometric one does not: Plane B is a
+    claim about a picture, and this branch runs precisely when nothing looked at the picture.
+    """
+    student = request.student
+    d = request.dihedral
+    assert d is not None  # guaranteed by CritiqueRequest.exactly_one_analysis
+
+    measured: list[MeasuredFindingItem] = []
+
+    if d.ground_line is not None:
+        measured.append(
+            MeasuredFindingItem(
+                metric_name="ground_line_tilt",
+                measured_value=d.ground_line.angle_deg,
+                unit="degrees",
+                pedagogical_context=(
+                    f"The ground line sits {d.ground_line.angle_deg:.2f} degrees off horizontal. "
+                    "Everything else on this plate is measured against it."
+                ),
+            )
+        )
+
+    measured.append(
+        MeasuredFindingItem(
+            metric_name="perpendicularity_error",
+            measured_value=d.avg_perpendicularity_error_deg,
+            unit="degrees",
+            pedagogical_context=(
+                f"Across {len(d.reference_lines)} reference lines the average deviation from square "
+                f"to the ground line is {d.avg_perpendicularity_error_deg:.2f} degrees."
+            ),
+        )
+    )
+
+    if d.systematic_offset_px is not None:
+        measured.append(
+            MeasuredFindingItem(
+                metric_name="systematic_offset",
+                measured_value=d.systematic_offset_px,
+                unit="pixels",
+                pedagogical_context=(
+                    f"The plan as a whole sits {d.systematic_offset_px:+.2f} pixels sideways from "
+                    "the elevation. That is one placement mistake rather than one per vertex."
+                ),
+            )
+        )
+
+    measured.append(
+        MeasuredFindingItem(
+            metric_name="unmatched_vertex_count",
+            measured_value=float(d.unmatched_in_elevation + d.unmatched_in_plan),
+            unit="points",
+            pedagogical_context=(
+                f"{d.unmatched_in_elevation} vertices in the elevation and {d.unmatched_in_plan} in "
+                "the plan have no counterpart in the other view."
+            ),
+        )
+    )
+
+    pedagogical = PedagogicalSummary(
+        strengths=["The plate was legible enough for the engine to find its ground line"],
+        focus_area=(
+            "Carrying every vertex across the ground line before drawing the second view, so that "
+            "each corner in one has an answer in the other."
+        ),
+        encouragement=(
+            f"{student.name}, the measurements above are real. The written critique is not — no "
+            "model was reachable, so this text is a template."
+        ),
+    )
+    next_ex = NextExerciseRecommendation(
+        title="Two views of a stepped block",
+        description=(
+            "Draw the ground line first and keep it level. Construct the elevation, then drop a "
+            "reference line from every corner before starting the plan."
+        ),
+        target_metric="correspondence between the two views",
+        difficulty="beginner" if student.level.lower() == "beginner" else "intermediate",
+    )
+
+    return CritiqueOutput(
+        student_name=student.name,
+        level=student.level,
+        headline=f"Orthographic measurements for {student.name}",
+        measured_findings=measured,
+        qualitative_observations=[],
+        pedagogical_summary=pedagogical,
+        next_exercise=next_ex,
+        source="fallback",
+        model_version="deterministic-template",
+        validated=False,
     )
 
 

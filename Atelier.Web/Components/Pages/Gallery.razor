@@ -12,7 +12,7 @@
             <span class="text-primary">@Loc["Calibration dataset"]</span> @Loc["and golden cases"]
         </h2>
         <p class="text-body-secondary small mb-0">
-            @Loc["Benchmark drawings in both projection systems, each carrying an angular error of a known size, used to verify that the measurement moves with the drawing (ADR-001)."]
+            @Loc["Benchmark drawings in all three projection systems, each carrying an error of a known size, used to verify that the measurement moves with the drawing (ADR-001)."]
         </p>
     </div>
 
@@ -123,6 +123,48 @@
                 <h5 class="fw-bold text-body">08_cavalier_perfect.png</h5>
                 <img src="/samples/08_cavalier_perfect.png" alt="08_cavalier_perfect.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
                 <p class="text-body-secondary small">@Loc["Cavalier projection: a true square front face, with the receding axis at 45°. A different reference again, and the engine is told which one to use before it measures."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Advanced"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 9: Orthographic, correct -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-success mb-2 w-auto align-self-start">@Loc["Orthographic • views correspond"]</span>
+                <h5 class="fw-bold text-body">09_diedrico_perfect.png</h5>
+                <img src="/samples/09_diedrico_perfect.png" alt="09_diedrico_perfect.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
+                <p class="text-body-secondary small">@Loc["Elevation above the ground line, plan below, every vertex carried across on a square reference line. Not a picture of a solid: two flat views of one."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Advanced"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 10: Orthographic, plan displaced -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-warning text-dark mb-2 w-auto align-self-start">@Loc["Orthographic • plan 18 px out"]</span>
+                <h5 class="fw-bold text-body">10_diedrico_error_18px.png</h5>
+                <img src="/samples/10_diedrico_error_18px.png" alt="10_diedrico_error_18px.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
+                <p class="text-body-secondary small">@Loc["The plan drawn correctly but placed 18 px to the right. One placement mistake that every vertex inherits — reported once, not four times."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Advanced"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 11: Orthographic, orphan vertex -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-danger mb-2 w-auto align-self-start">@Loc["Orthographic • a corner with no counterpart"]</span>
+                <h5 class="fw-bold text-body">11_diedrico_vertice_huerfano.png</h5>
+                <img src="/samples/11_diedrico_vertice_huerfano.png" alt="11_diedrico_vertice_huerfano.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
+                <p class="text-body-secondary small">@Loc["A corner drawn in one view and never answered in the other. A construction error rather than a placement one, and the more serious of the two."]</p>
                 <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
                     <small class="text-info">@Loc["Target: Advanced"]</small>
                     <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>

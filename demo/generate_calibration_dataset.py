@@ -171,6 +171,78 @@ def generate_axonometric_drawing(
     return output_path
 
 
+def generate_dihedral_drawing(
+    output_path: Path,
+    correspondence_error_px: int = 0,
+    reference_slant_deg: float = 0.0,
+    lt_tilt_deg: float = 0.0,
+    omit_plan_vertex: bool = False,
+):
+    """
+    Generate a Monge (sistema diédrico) plate: elevation above the ground line, plan below.
+
+    Three separate errors can be injected, because they are three different mistakes and a single
+    "wrong" figure cannot tell them apart:
+
+    - `correspondence_error_px`: the plan shifted sideways, so its vertices no longer sit under the
+      elevation's. The classic failure of the system.
+    - `reference_slant_deg`: the reference lines drawn off square to the ground line.
+    - `lt_tilt_deg`: the ground line itself drawn crooked, which quietly rotates the reference
+      every other measurement is taken against.
+    - `omit_plan_vertex`: a corner drawn in the elevation and never answered in the plan.
+
+    No text is written on the canvas; burned-in labels were once the majority of what the detector
+    found.
+    """
+    canvas = np.ones((600, 800, 3), dtype=np.uint8) * 248
+    ink = (40, 40, 40)
+    faint = (150, 150, 150)
+
+    lt_y = 300.0
+    lt_x1, lt_x2 = 60.0, 740.0
+    tilt = math.radians(lt_tilt_deg)
+    # Rotate the ground line about its midpoint so the plate stays centred.
+    mid_x = (lt_x1 + lt_x2) / 2.0
+    lt_p1 = (lt_x1, lt_y - (lt_x1 - mid_x) * math.tan(tilt))
+    lt_p2 = (lt_x2, lt_y - (lt_x2 - mid_x) * math.tan(tilt))
+    cv2.line(canvas, (int(lt_p1[0]), int(lt_p1[1])), (int(lt_p2[0]), int(lt_p2[1])), ink, 2, cv2.LINE_AA)
+
+    # Elevation: a rectangle above the ground line.
+    ex1, ex2 = 260, 520
+    ey1, ey2 = 140, 260
+    cv2.rectangle(canvas, (ex1, ey1), (ex2, ey2), ink, 2)
+
+    # Plan: a rectangle below it, shifted by the injected correspondence error.
+    shift = correspondence_error_px
+    px1, px2 = ex1 + shift, ex2 + shift
+    py1, py2 = 350, 450
+    if omit_plan_vertex:
+        # Draw three sides only: the right-hand edge of the plan is never closed, so the
+        # elevation's right corner has nothing under it.
+        cv2.line(canvas, (px1, py1), (px2, py1), ink, 2, cv2.LINE_AA)
+        cv2.line(canvas, (px1, py1), (px1, py2), ink, 2, cv2.LINE_AA)
+        cv2.line(canvas, (px1, py2), (px2 - 90, py2), ink, 2, cv2.LINE_AA)
+    else:
+        cv2.rectangle(canvas, (px1, py1), (px2, py2), ink, 2)
+
+    # Reference lines carrying each vertex across the fold, drawn faint as construction lines are.
+    #
+    # They drop from the *elevation* vertex and stay square unless `reference_slant_deg` says
+    # otherwise. Anchoring their lower end to the shifted plan instead would have tilted them by
+    # the correspondence error, so a plate injected with one mistake would have carried two, and
+    # neither golden case would isolate what it claims to.
+    slant = math.radians(reference_slant_deg)
+    for x_top in (ex1, ex2):
+        top = (float(x_top), float(ey2))
+        bottom_y = float(py2)
+        dx = (bottom_y - top[1]) * math.tan(slant)
+        bottom = (float(x_top) + dx, bottom_y)
+        cv2.line(canvas, (int(top[0]), int(top[1])), (int(bottom[0]), int(bottom[1])), faint, 2, cv2.LINE_AA)
+
+    cv2.imwrite(str(output_path), canvas)
+    return output_path
+
+
 def main():
     dataset_dir = Path("demo/dataset")
     dataset_dir.mkdir(parents=True, exist_ok=True)
@@ -188,6 +260,11 @@ def main():
     generate_axonometric_drawing(dataset_dir / "06_isometric_perfect.png", system="isometric", error_deg=0.0)
     generate_axonometric_drawing(dataset_dir / "07_isometric_error_6deg.png", system="isometric", error_deg=6.0, perturbed_axis="X")
     generate_axonometric_drawing(dataset_dir / "08_cavalier_perfect.png", system="cavalier", error_deg=0.0)
+
+    # 4. Orthographic plates (sistema diedrico): two views folded about the ground line
+    generate_dihedral_drawing(dataset_dir / "09_diedrico_perfect.png")
+    generate_dihedral_drawing(dataset_dir / "10_diedrico_error_18px.png", correspondence_error_px=18)
+    generate_dihedral_drawing(dataset_dir / "11_diedrico_vertice_huerfano.png", omit_plan_vertex=True)
 
     print(f"[OK] Calibration dataset generated at: {dataset_dir}")
 

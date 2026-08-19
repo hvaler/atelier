@@ -10,6 +10,7 @@ public interface IAtelierAgentClient
     Task<AskPromptDataDto?> GetAskPromptAsync(string studentId);
     Task<GeometryAnalysisResultDto?> AnalyzeGeometryAsync(string imageBase64, int kPoints, bool generateOverlay = true);
     Task<AxonometricAnalysisResultDto?> AnalyzeAxonometricAsync(string imageBase64, string system, double? recedingAngleDeg = null, bool generateOverlay = true);
+    Task<DihedralAnalysisResultDto?> AnalyzeDihedralAsync(string imageBase64, bool generateOverlay = true);
     Task<CritiqueResponseDto?> GenerateCritiqueAsync(CritiqueRequestDto request);
     Task<DrawingGateResultDto?> ClassifyDrawingAsync(string imageBase64);
     Task<RoutingResultDto?> RouteIntentAsync(string? studentIntent, string studentLevel);
@@ -129,6 +130,38 @@ public class AtelierAgentClient : IAtelierAgentClient
         // No fallback, for the same reason the perspective path has none: a hardcoded set of axis
         // errors is indistinguishable from a working system, and that is precisely what this
         // project spent its time removing.
+        return null;
+    }
+
+
+    public async Task<DihedralAnalysisResultDto?> AnalyzeDihedralAsync(string imageBase64, bool generateOverlay = true)
+    {
+        if (string.IsNullOrWhiteSpace(imageBase64))
+        {
+            _logger.LogError("Refusing to request an orthographic analysis with no image.");
+            return null;
+        }
+
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("/api/analyze/dihedral", new DihedralAnalysisRequestDto
+            {
+                ImageBase64 = imageBase64,
+                GenerateOverlay = generateOverlay
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<DihedralAnalysisResultDto>();
+            }
+
+            _logger.LogError("atelier-agent refused the orthographic analysis: {Status}", response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to run orthographic analysis on atelier-agent.");
+        }
+
         return null;
     }
 

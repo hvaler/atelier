@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from src.models.axonometry import AxonometricAnalysisResult
 from src.models.critique import CritiqueOutput, NextExerciseRecommendation, StudentProfile
+from src.models.dihedral import DihedralAnalysisResult
 from src.models.geometry import GeometryAnalysisResult
 
 
@@ -44,6 +45,15 @@ class ExerciseRecord(BaseModel):
             "rather than coerced into the perspective one: an average axis deviation and an "
             "average convergence error are both 'degrees' and are not the same measurement, and a "
             "progress curve that mixed them would be a line through two different quantities."
+        ),
+    )
+    dihedral_analysis: DihedralAnalysisResult | None = Field(
+        None,
+        description=(
+            "Orthographic measurements, when that is what was drawn. A third field rather than a "
+            "shared one for the same reason as the second: a correspondence error in pixels and a "
+            "convergence error in degrees are not comparable, and a single progress curve through "
+            "all three would be a line through three different quantities."
         ),
     )
     critique: CritiqueOutput

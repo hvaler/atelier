@@ -612,4 +612,112 @@
   <data name="Benchmark drawings in both projection systems, each carrying an angular error of a known size, used to verify that the measurement moves with the drawing (ADR-001)." xml:space="preserve">
     <value>Dibujos de referencia en los dos sistemas de representación, cada uno con un error angular de tamaño conocido, para comprobar que la medida se mueve con el dibujo (ADR-001).</value>
   </data>
+  <data name="Orthographic projection" xml:space="preserve">
+    <value>Sistema diédrico</value>
+  </data>
+  <data name="Two flat views, checked against each other" xml:space="preserve">
+    <value>Dos vistas planas, comprobadas entre sí</value>
+  </data>
+  <data name="No ground line was found." xml:space="preserve">
+    <value>No se ha encontrado la línea de tierra.</value>
+  </data>
+  <data name="Without it there is no fold, nothing to measure perpendicular to, and no way to tell which view a mark belongs to. Nothing was measured." xml:space="preserve">
+    <value>Sin ella no hay charnela, no hay a qué medir la perpendicularidad y no se puede saber a qué vista pertenece cada trazo. No se ha medido nada.</value>
+  </data>
+  <data name="Correspondence overlay" xml:space="preserve">
+    <value>Superposición de correspondencia</value>
+  </data>
+  <data name="The plan as a whole sits {0} px sideways from the elevation ({1}% of the page). That is where the plan was placed, not how it was drawn — one correction, before anything else." xml:space="preserve">
+    <value>La planta entera está desplazada {0} px respecto al alzado ({1} % del ancho). Eso es dónde se ha colocado la planta, no cómo se ha dibujado: una sola corrección, y antes que nada.</value>
+  </data>
+  <data name="{0} vertex or vertices exist in one view with nothing answering them in the other. That is a construction error rather than a placement one: a corner was never carried across the ground line." xml:space="preserve">
+    <value>Hay {0} vértice(s) en una vista sin nada que les responda en la otra. Eso es un error de construcción, no de colocación: una esquina no se ha llevado nunca al otro lado de la LT.</value>
+  </data>
+  <data name="Elevation" xml:space="preserve">
+    <value>Alzado</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>Planta</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>Residuo</value>
+  </data>
+  <data name="Agreed" xml:space="preserve">
+    <value>Coincide</value>
+  </data>
+  <data name="yes" xml:space="preserve">
+    <value>sí</value>
+  </data>
+  <data name="no counterpart" xml:space="preserve">
+    <value>sin pareja</value>
+  </data>
+  <data name="Ground line, as drawn" xml:space="preserve">
+    <value>Línea de tierra, tal como está</value>
+  </data>
+  <data name="Reference lines off square" xml:space="preserve">
+    <value>Referencias fuera de escuadra</value>
+  </data>
+  <data name="Residual correspondence" xml:space="preserve">
+    <value>Correspondencia residual</value>
+  </data>
+  <data name="Vertices agreed" xml:space="preserve">
+    <value>Vértices coincidentes</value>
+  </data>
+  <data name="not measurable" xml:space="preserve">
+    <value>no medible</value>
+  </data>
+  <data name="the ground line as drawn" xml:space="preserve">
+    <value>la línea de tierra tal como se dibujó</value>
+  </data>
+  <data name="Orthographic plate (views correspond)" xml:space="preserve">
+    <value>Lámina de diédrico (las vistas se corresponden)</value>
+  </data>
+  <data name="Orthographic plate (plan 18 px out)" xml:space="preserve">
+    <value>Lámina de diédrico (planta 18 px desplazada)</value>
+  </data>
+  <data name="Orthographic plate (a corner never carried across)" xml:space="preserve">
+    <value>Lámina de diédrico (una esquina sin llevar al otro lado)</value>
+  </data>
+  <data name="ground line tilt" xml:space="preserve">
+    <value>inclinación de la línea de tierra</value>
+  </data>
+  <data name="perpendicularity error" xml:space="preserve">
+    <value>error de perpendicularidad</value>
+  </data>
+  <data name="systematic offset" xml:space="preserve">
+    <value>desplazamiento sistemático</value>
+  </data>
+  <data name="correspondence error" xml:space="preserve">
+    <value>error de correspondencia</value>
+  </data>
+  <data name="matched vertex count" xml:space="preserve">
+    <value>vértices coincidentes</value>
+  </data>
+  <data name="unmatched vertex count" xml:space="preserve">
+    <value>vértices sin pareja</value>
+  </data>
+  <data name="pixels" xml:space="preserve">
+    <value>píxeles</value>
+  </data>
+  <data name="Orthographic • views correspond" xml:space="preserve">
+    <value>Diédrico • las vistas se corresponden</value>
+  </data>
+  <data name="Orthographic • plan 18 px out" xml:space="preserve">
+    <value>Diédrico • planta desplazada 18 px</value>
+  </data>
+  <data name="Orthographic • a corner with no counterpart" xml:space="preserve">
+    <value>Diédrico • una esquina sin pareja</value>
+  </data>
+  <data name="Elevation above the ground line, plan below, every vertex carried across on a square reference line. Not a picture of a solid: two flat views of one." xml:space="preserve">
+    <value>Alzado sobre la línea de tierra, planta debajo, y cada vértice llevado al otro lado por una referencia a escuadra. No es la imagen de un sólido: son dos vistas planas de uno.</value>
+  </data>
+  <data name="The plan drawn correctly but placed 18 px to the right. One placement mistake that every vertex inherits — reported once, not four times." xml:space="preserve">
+    <value>La planta bien dibujada pero colocada 18 px a la derecha. Un error de colocación que heredan todos los vértices: se informa una vez, no cuatro.</value>
+  </data>
+  <data name="A corner drawn in one view and never answered in the other. A construction error rather than a placement one, and the more serious of the two." xml:space="preserve">
+    <value>Una esquina dibujada en una vista y nunca respondida en la otra. Es un error de construcción, no de colocación, y de los dos es el más grave.</value>
+  </data>
+  <data name="Benchmark drawings in all three projection systems, each carrying an error of a known size, used to verify that the measurement moves with the drawing (ADR-001)." xml:space="preserve">
+    <value>Dibujos de referencia en los tres sistemas de representación, cada uno con un error de tamaño conocido, para comprobar que la medida se mueve con el dibujo (ADR-001).</value>
+  </data>
 </root>

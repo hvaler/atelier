@@ -92,6 +92,33 @@ sistemático: tu pulso es excelente, solo necesitas ajustar la posición de la r
 and the critique contains no mention of a vanishing point, because there is no vanishing point in
 this drawing and the rubric forbids inventing one.
 
+### The third system: two flat views
+
+![A Monge plate with the plan displaced 18 px, reported as one placement error rather than four broken vertices](docs/img/07-diedrico.png)
+
+Not a picture of a solid at all — a *sistema diédrico* plate: an elevation above the ground line,
+a plan below it, and reference lines carrying each vertex across. What is measured here is neither
+convergence nor parallelism but **correspondence**: a point in one view must have its counterpart
+directly below it in the other.
+
+The plan in this plate is drawn correctly and *placed* 18 px to the right. Every vertex inherits
+that, so a naive reading reports four broken corners. Atelier reports one fact —
+**systematic offset: 18 px** — removes it, and then checks what is left, which is 1.8 px of
+residual and no orphans. The two mistakes it separates need different corrections:
+
+| Reading | What went wrong | What the student does |
+|---|---|---|
+| Systematic offset, no orphans | The plan was **placed** wrong on the page | Move it once, before anything else |
+| Orphan vertex | A corner was **never carried across** the ground line | Redraw the construction |
+
+The hard part of correspondence, in principle, is knowing which mark in the plan belongs to which
+vertex in the elevation. The engine never solves it and does not need to: in orthographic
+projection corresponding points share an abscissa, so comparing the two views' sets of vertex
+abscissae answers the question without pairing a single feature.
+
+**Cotas and alejamientos are not measured.** Those need a third view and real feature
+correspondence, and claiming them from two views would be inventing.
+
 ### In the student's language
 
 ![The studio in Spanish and in light theme, with a critique written in Spanish by Gemini](docs/img/05-espanol-claro.png)
@@ -176,6 +203,7 @@ exercise on this page was produced by analysing an actual drawing through the de
   4. **ADAPT**: Dynamic profile derivation (shifting tone from technical to encouraging automatically).
 - 🧠 **Two-stage pre-router, two models**: **Gemma 4** (`gemma-4-26b-a4b-it`, Gemini API) reads the student's own description and picks 1-point or 2-point — a beginner who writes *"the corner of a building"* is measured as two-point because they said so, not as one-point because of a field in their profile. **Gemini 3.5 Flash** (Vertex AI) then *looks at the photograph* and answers the question that saves the most work: **is this a perspective exercise at all?** A page of text or a blank sheet is refused before the geometry engine runs and before a critique spends tokens describing nothing. Both label their own provenance (`source: gemma | vertex | fallback`).
 - 📏 **Two projection systems, and the agent picks which** (`tools/axonometry.py`): conic perspective *and* axonometric — isometric, dimetric, cavalier. The vision gate looks at the photograph and decides which one it is **before** anything is measured, because running a parallel projection through the perspective path finds a vanishing point among edges that were never meant to meet, and then reports an error about it. The second mode is the more trustworthy of the two: perspective has to *estimate* the vanishing point with RANSAC from the student's own lines, so a consistently wrong drawing yields a vanishing point that agrees with it — whereas the axes of an isometric projection are 30°, 90° and 150° **by definition**, so nothing is inferred. An error injected at 6.00° is recovered as 6.00°, asserted to within 0.05° in the golden tests.
+- 📐 **Three projection systems, and three kinds of reference** — conic perspective, axonometric (`tools/axonometry.py`) and orthographic Monge plates (`tools/dihedral.py`). The vision gate looks at the photograph and decides which one it is **before** anything is measured. What makes them worth having together is that they are not the same tool three times: **conic infers its reference** (RANSAC estimates a vanishing point from the student's own lines, so a consistently wrong drawing yields one that agrees with it), **orthographic reads its reference off the page** (the ground line is a line the student actually drew — nothing is guessed, but a crooked one skews everything, so its tilt is reported as a measurement in its own right), and **axonometric is handed its reference** as a constant of the system. An error injected at 6.00° in an isometric plate comes back as 6.00°; a plan displaced by 18 px comes back as 18 px.
 - 🌍 **Taught in the student's own language**: The interface and the critique are both available in English and Spanish, chosen with one control and remembered in a cookie. This is not a translation layer bolted on top — the language is sent to the agent, so Gemini writes the critique itself in Spanish, and the anti-hallucination gate that forbids a number in Plane B recognises `4,2 grados` as well as `4.2 degrees`. A gate that only reads English would have stopped being a gate the moment the interface was translated.
 - 🌗 **Light and dark, decided before first paint**: Three states — light, dark, and follow-the-system, which is the default because a person who has already told their operating system how they want screens to look has answered the question once. The choice is applied by an inline script before the page renders, so there is no flash of the wrong theme.
 - 📈 **Append-Only Memory & Weekly Digests**: Event-sourced progression tracking in Google Cloud Firestore with automated weekly practice plans synthesized via Cloud Scheduler.
@@ -202,6 +230,8 @@ In the spirit of radical technical honesty, here is what is 100% implemented ver
 | **Vertical-line accuracy** | ⏳ *Not scored* | Verticals are correctly excluded from the convergence average, and their deviation from true vertical is not measured. BYU scores it; Atelier does not. |
 | **Axonometric projection (isometric, dimetric, cavalier)** | ✅ **Complete & benchmarked** | `POST /api/analyze/axonometric`. Measured against the fixed axes of the system rather than an estimated vanishing point, so the golden case recovers an injected 6° as 6° to within 0.05°. Selected by the vision gate, which distinguishes converging edges from parallel ones before anything is measured. Taught **before** conic perspective in the Spanish public syllabi ([PEDAGOGY §5](docs/PEDAGOGY.md)). |
 | **Axonometric exercises in the progression curve** | ⏳ *Deliberately excluded* | Axonometric exercises are stored, critiqued and counted towards tone adaptation, but they do not join the progress curve. An average axis deviation and an average convergence error are both measured in degrees and are not the same quantity; one line through both would show progress or regression nobody made. |
+| **Orthographic projection (sistema diédrico / Monge)** | ✅ **Complete & benchmarked** | `POST /api/analyze/dihedral`. Ground-line detection, reference-line squareness, and correspondence between the two views by shared abscissa. A plan displaced by 18 px is recovered as 18 px and reported as one systematic offset rather than one broken vertex per corner. Taught inside the same subject as conic perspective, and **before** it, in the Spanish public syllabi ([PEDAGOGY §5](docs/PEDAGOGY.md)). |
+| **Cotas & alejamientos between three views** | ⏳ *Not measured* | Checking that a height in the elevation equals the height in the profile needs a third view and real feature correspondence. Two views cannot support the claim, so it is not made. |
 | **3-Point Curvilinear Perspective ($k=3$)** | ⏳ *Planned for Phase 2* | 3-point worm/bird's-eye perspective is planned for high-level architectural rendering. Taught as *perspectiva de plano inclinado* alongside one- and two-point in a Spanish public fine-arts syllabus ([PEDAGOGY §5](docs/PEDAGOGY.md)), so it is the very next documented rung rather than a distant one. |
 | **Cast shadows & reflections** | ⏳ *Not measured* | Universidad de Granada's published *temario* devotes a topic to *"Perspectiva aplicada. Luz y sombra. Reflejos"*. Shadow construction converges on its own points and is geometric, so it is measurable in principle — the engine simply does not look for it ([PEDAGOGY §5](docs/PEDAGOGY.md)). |
 | **Whole-scene layout** | ⏳ *Out of current scope* | Sheridan runs six consecutive semesters of layout and The Animation Workshop teaches *Environment Design and Construction*; Atelier measures one construction at a time ([PEDAGOGY §5](docs/PEDAGOGY.md)). |
@@ -289,7 +319,7 @@ dotnet run
 All claims are backed by executable tests logged in [`docs/EVIDENCE.md`](docs/EVIDENCE.md).
 
 ```bash
-# Run Python backend tests (70 tests)
+# Run Python backend tests (90 tests)
 cd atelier-agent
 .venv\Scripts\python -m pytest tests -v
 

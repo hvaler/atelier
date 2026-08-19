@@ -148,32 +148,41 @@ def route_from_intent(student_intent: str | None, student_level: str = "beginner
 GATE_SYSTEM_PROMPT = """You look at a photograph of a page and decide whether it is a technical
 drawing exercise that a geometry engine should measure, and if so, which kind.
 
-There are two kinds, and telling them apart is the whole job:
+There are three kinds, and telling them apart is the whole job:
 
 - CONIC PERSPECTIVE: receding edges CONVERGE. Follow two edges that run away from the viewer and
   they meet, on the page or off it. There is a horizon.
 - AXONOMETRIC (parallel projection: isometric, dimetric, cavalier): receding edges stay PARALLEL.
   They never meet. An isometric cube reads as a regular hexagon; a cavalier box has a square front
   face with depth running off at a constant slant. There is no horizon and no vanishing point.
+- ORTHOGRAPHIC (sistema diedrico / Monge): NOT a picture of a solid at all. Two flat, separate
+  views of the same object - a plan and an elevation - laid out on the page and divided by one long
+  horizontal rule, the ground line, with thin vertical reference lines carrying points between
+  them. Nothing in it looks three-dimensional. Two flat outlines stacked above and below a long
+  horizontal line is this and nothing else.
 
 Answer with:
 - is_exercise: true only if there are straight construction lines forming a spatial construction.
   A finished illustration, a portrait, a photograph of an object, a page of text, a blank page, or
   an image too blurred to read straight edges: all false.
-- projection: 'conic' when edges converge, 'axonometric' when they stay parallel, 'none' when this
-  is not an exercise.
+- projection: 'conic' when edges converge, 'axonometric' when they stay parallel, 'orthographic'
+  for two flat views about a ground line, 'none' when this is not an exercise.
 - exercise_type: '1-point-box', '2-point-oblique', 'curvilinear', 'isometric', 'dimetric',
-  'cavalier' or 'not-an-exercise'
+  'cavalier', 'orthographic-two-view' or 'not-an-exercise'
 - axonometric_system: 'isometric', 'dimetric' or 'cavalier' when projection is axonometric; null
   otherwise. Isometric: three axes evenly spaced, the solid reads as a hexagon. Cavalier: one face
   is a true square or rectangle facing the viewer, and depth runs off at a slant.
 - recommended_k: for conic, 1 or 2. For axonometric, 3, because a parallel projection shows three
-  axes. 0 when it is not an exercise.
+  axes. For orthographic, 0 - it has neither vanishing points nor axes to count. 0 when it is not
+  an exercise.
 - reasoning: one short sentence saying what you saw
 
-Be strict, and do not guess between the two kinds. If the edges converge it is conic; if they stay
-parallel it is axonometric. Measuring an axonometric drawing as if it were perspective finds a
-vanishing point among lines that were never meant to meet, and then reports an error about it."""
+Be strict, and do not guess between the kinds. If the edges converge it is conic; if they stay
+parallel and the drawing shows a solid, it is axonometric; if it shows two flat views split by a
+long horizontal line, it is orthographic. Measuring an axonometric drawing as if it were
+perspective finds a vanishing point among lines that were never meant to meet, and then reports an
+error about it. Measuring an orthographic plate as either would be worse: there is no solid in it
+to measure at all."""
 
 
 class DrawingGateDecision(BaseModel):
@@ -183,15 +192,17 @@ class DrawingGateDecision(BaseModel):
     projection: str = Field(
         "conic",
         description=(
-            "'conic' when receding edges converge, 'axonometric' when they stay parallel, 'none' "
-            "when this is not an exercise. This selects the reference the engine measures against, "
-            "and the two references have nothing in common: conic estimates a vanishing point from "
-            "the drawing itself, axonometric compares against fixed axis angles."
+            "'conic' when receding edges converge, 'axonometric' when they stay parallel, "
+            "'orthographic' for two flat views about a ground line, 'none' when this is not an "
+            "exercise. This selects the reference the engine measures against, and the three have "
+            "nothing in common: conic estimates a vanishing point from the drawing, axonometric "
+            "compares against fixed axis angles, and orthographic compares the two views with each "
+            "other about the ground line."
         ),
     )
     exercise_type: str = Field(
         "not-an-exercise",
-        description="'1-point-box', '2-point-oblique', 'curvilinear', 'isometric', 'dimetric', 'cavalier' or 'not-an-exercise'",
+        description="'1-point-box', '2-point-oblique', 'curvilinear', 'isometric', 'dimetric', 'cavalier', 'orthographic-two-view' or 'not-an-exercise'",
     )
     axonometric_system: str | None = Field(
         None, description="'isometric', 'dimetric' or 'cavalier' when projection is axonometric"
@@ -276,6 +287,8 @@ def classify_drawing(image_bytes: bytes, mime_type: str = "image/png") -> Drawin
             elif decision.projection == "conic":
                 if decision.recommended_k not in (1, 2):
                     raise ValueError(f"Gate said conic but k={decision.recommended_k}.")
+            elif decision.projection == "orthographic":
+                pass  # Nothing further to check: neither a k nor a named axis system applies.
             else:
                 raise ValueError(f"Gate said exercise but projection={decision.projection!r}.")
 

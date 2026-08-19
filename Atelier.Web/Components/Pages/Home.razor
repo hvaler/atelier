@@ -54,6 +54,9 @@
                         <option value="06_isometric_perfect.png">@Loc["Isometric (axes exact)"]</option>
                         <option value="07_isometric_error_6deg.png">@Loc["Isometric (X axis set 6° wrong)"]</option>
                         <option value="08_cavalier_perfect.png">@Loc["Cavalier (45° receding axis)"]</option>
+                        <option value="09_diedrico_perfect.png">@Loc["Orthographic plate (views correspond)"]</option>
+                        <option value="10_diedrico_error_18px.png">@Loc["Orthographic plate (plan 18 px out)"]</option>
+                        <option value="11_diedrico_vertice_huerfano.png">@Loc["Orthographic plate (a corner never carried across)"]</option>
                     </select>
                 </div>
 
@@ -105,6 +108,10 @@
             else if (CurrentAxonometry is not null)
             {
                 <AxonometricViewer Analysis="CurrentAxonometry" OriginalImageBase64="@CurrentBase64" />
+            }
+            else if (CurrentDihedral is not null)
+            {
+                <DihedralViewer Analysis="CurrentDihedral" OriginalImageBase64="@CurrentBase64" />
             }
 
             <!-- Two-Plane Pedagogical Critique -->
@@ -167,8 +174,11 @@
     /// projection. Never both: the two are different measurements of different things, and a
     /// screen showing one while holding the other is how a stale reading gets read as fresh.</summary>
     private AxonometricAnalysisResultDto? CurrentAxonometry { get; set; }
-    /// <summary>True when either analysis produced something to critique.</summary>
-    private bool HasAnalysis => CurrentGeometry is not null || CurrentAxonometry is not null;
+    /// <summary>Set instead of the other two when the drawing is a Monge plate.</summary>
+    private DihedralAnalysisResultDto? CurrentDihedral { get; set; }
+    /// <summary>True when one of the three analyses produced something to critique.</summary>
+    private bool HasAnalysis =>
+        CurrentGeometry is not null || CurrentAxonometry is not null || CurrentDihedral is not null;
     private CritiqueOutputDto? CurrentCritique { get; set; }
     private string CurrentExerciseId { get; set; } = string.Empty;
     /// <summary>Whether the agent actually stored this exercise. The feedback step is only
@@ -196,6 +206,11 @@
             // Once a parallel projection is on screen, "1-point (k=1)" is describing a different
             // drawing. The badge names what is actually being measured against, not what the
             // student's profile level would have implied.
+            if (CurrentDihedral is not null)
+            {
+                return string.Format(Loc["Measured against: {0}"], Loc["the ground line as drawn"]);
+            }
+
             if (CurrentAxonometry is not null)
             {
                 var systemKey = CurrentAxonometry.System switch
@@ -276,7 +291,12 @@
         // measured against. Measuring an isometric cube as if it were perspective would find a
         // vanishing point among edges that were never meant to meet.
         var axonometricSystem = AxonometricSystemForSample(filename);
-        if (axonometricSystem is not null)
+        if (filename.StartsWith("09") || filename.StartsWith("10") || filename.StartsWith("11"))
+        {
+            CurrentDihedral = await AgentClient.AnalyzeDihedralAsync(CurrentBase64);
+            AgentUnavailable = CurrentDihedral is null;
+        }
+        else if (axonometricSystem is not null)
         {
             CurrentAxonometry = await AgentClient.AnalyzeAxonometricAsync(CurrentBase64, axonometricSystem);
             AgentUnavailable = CurrentAxonometry is null;
@@ -308,6 +328,7 @@
     {
         CurrentGeometry = null;
         CurrentAxonometry = null;
+        CurrentDihedral = null;
         CurrentCritique = null;
         ExerciseSaved = false;
         IntentMismatch = false;
@@ -346,7 +367,12 @@
         // path would produce a confident number about a point that does not exist in the drawing.
         // Only a gate that actually looked gets to make that call — the fallback stays conic,
         // which is the behaviour this page has always had.
-        if (gate is { Source: "vertex", Projection: "axonometric" } && gate.AxonometricSystem is { Length: > 0 } system)
+        if (gate is { Source: "vertex", Projection: "orthographic" })
+        {
+            CurrentDihedral = await AgentClient.AnalyzeDihedralAsync(CurrentBase64);
+            AgentUnavailable = CurrentDihedral is null;
+        }
+        else if (gate is { Source: "vertex", Projection: "axonometric" } && gate.AxonometricSystem is { Length: > 0 } system)
         {
             CurrentAxonometry = await AgentClient.AnalyzeAxonometricAsync(CurrentBase64, system);
             AgentUnavailable = CurrentAxonometry is null;
@@ -394,6 +420,7 @@
             // numbers and a figure invented for one drawing could match a figure from the other.
             Geometry = CurrentGeometry,
             Axonometry = CurrentAxonometry,
+            Dihedral = CurrentDihedral,
             Student = CurrentStudent,
             // The drawing itself. Plane B asks the model about line weight and spatial clarity;
             // without the image the validator rejects those observations, retries three times,
@@ -425,6 +452,7 @@
                 StudentDifficulty = context.Difficulty,
                 GeometryAnalysis = CurrentGeometry,
                 AxonometricAnalysis = CurrentAxonometry,
+                DihedralAnalysis = CurrentDihedral,
                 Critique = CurrentCritique
             });
 

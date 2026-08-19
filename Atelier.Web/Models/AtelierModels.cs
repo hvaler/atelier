@@ -264,6 +264,165 @@ public class AxonometricAnalysisResultDto
     public string? OverlayImageBase64 { get; set; }
 }
 
+
+public class GroundLineDto
+{
+    [JsonPropertyName("start")]
+    public Point2DDto Start { get; set; } = new();
+
+    [JsonPropertyName("end")]
+    public Point2DDto End { get; set; } = new();
+
+    /// <summary>
+    /// Tilt away from horizontal. Reported rather than corrected: every other figure on the plate
+    /// is measured against this line, so a crooked one has to be declared before the rest is
+    /// trusted.
+    /// </summary>
+    [JsonPropertyName("angle_deg")]
+    public double AngleDeg { get; set; }
+
+    [JsonPropertyName("length_px")]
+    public double LengthPx { get; set; }
+
+    [JsonPropertyName("source")]
+    public string Source { get; set; } = "detected";
+}
+
+public class ReferenceLineMeasurementDto
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("start")]
+    public Point2DDto Start { get; set; } = new();
+
+    [JsonPropertyName("end")]
+    public Point2DDto End { get; set; } = new();
+
+    [JsonPropertyName("perpendicularity_error_deg")]
+    public double PerpendicularityErrorDeg { get; set; }
+
+    [JsonPropertyName("crosses_ground_line")]
+    public bool CrossesGroundLine { get; set; }
+}
+
+public class CorrespondenceDto
+{
+    [JsonPropertyName("elevation_x")]
+    public double? ElevationX { get; set; }
+
+    [JsonPropertyName("plan_x")]
+    public double? PlanX { get; set; }
+
+    [JsonPropertyName("error_px")]
+    public double? ErrorPx { get; set; }
+
+    [JsonPropertyName("error_pct")]
+    public double? ErrorPct { get; set; }
+
+    [JsonPropertyName("matched")]
+    public bool Matched { get; set; }
+}
+
+/// <summary>
+/// Measurements of a Monge plate: two orthographic views checked against each other about the
+/// ground line. A third shape again, because what is measured here is correspondence rather than
+/// convergence or parallelism, and there is no vanishing point and no axis to report.
+/// </summary>
+public class DihedralAnalysisResultDto
+{
+    /// <summary>Null when no ground line was found, in which case nothing else was measured.</summary>
+    [JsonPropertyName("ground_line")]
+    public GroundLineDto? GroundLine { get; set; }
+
+    [JsonPropertyName("reference_lines")]
+    public List<ReferenceLineMeasurementDto> ReferenceLines { get; set; } = [];
+
+    [JsonPropertyName("correspondences")]
+    public List<CorrespondenceDto> Correspondences { get; set; } = [];
+
+    /// <summary>
+    /// How far the plan sits sideways from the elevation as a whole. One mistake with one
+    /// correction — the plan placed wrong on the page — rather than one broken vertex per corner.
+    /// </summary>
+    [JsonPropertyName("systematic_offset_px")]
+    public double? SystematicOffsetPx { get; set; }
+
+    [JsonPropertyName("systematic_offset_pct")]
+    public double? SystematicOffsetPct { get; set; }
+
+    [JsonPropertyName("avg_perpendicularity_error_deg")]
+    public double AvgPerpendicularityErrorDeg { get; set; }
+
+    [JsonPropertyName("max_perpendicularity_error_deg")]
+    public double MaxPerpendicularityErrorDeg { get; set; }
+
+    /// <summary>
+    /// Nullable, and that is the point. These are averages over the vertices the two views agreed
+    /// on; when they agreed on none there is no average, and reporting 0.00 would tell a student
+    /// their plate was perfectly aligned at the exact moment it was least aligned.
+    /// </summary>
+    [JsonPropertyName("avg_correspondence_error_px")]
+    public double? AvgCorrespondenceErrorPx { get; set; }
+
+    [JsonPropertyName("max_correspondence_error_px")]
+    public double? MaxCorrespondenceErrorPx { get; set; }
+
+    [JsonPropertyName("avg_correspondence_error_pct")]
+    public double? AvgCorrespondenceErrorPct { get; set; }
+
+    [JsonPropertyName("max_correspondence_error_pct")]
+    public double? MaxCorrespondenceErrorPct { get; set; }
+
+    [JsonPropertyName("matched_vertex_count")]
+    public int MatchedVertexCount { get; set; }
+
+    [JsonPropertyName("unmatched_in_elevation")]
+    public int UnmatchedInElevation { get; set; }
+
+    [JsonPropertyName("unmatched_in_plan")]
+    public int UnmatchedInPlan { get; set; }
+
+    [JsonPropertyName("elevation_line_count")]
+    public int ElevationLineCount { get; set; }
+
+    [JsonPropertyName("plan_line_count")]
+    public int PlanLineCount { get; set; }
+
+    [JsonPropertyName("line_count")]
+    public int LineCount { get; set; }
+
+    [JsonPropertyName("views_detected")]
+    public int ViewsDetected { get; set; }
+
+    [JsonPropertyName("confidence")]
+    public double Confidence { get; set; }
+
+    [JsonPropertyName("confidence_low")]
+    public bool ConfidenceLow { get; set; }
+
+    [JsonPropertyName("image_width")]
+    public int ImageWidth { get; set; }
+
+    [JsonPropertyName("image_height")]
+    public int ImageHeight { get; set; }
+
+    [JsonPropertyName("overlay_image_base64")]
+    public string? OverlayImageBase64 { get; set; }
+}
+
+public class DihedralAnalysisRequestDto
+{
+    [JsonPropertyName("image_base64")]
+    public string? ImageBase64 { get; set; }
+
+    [JsonPropertyName("correspondence_tolerance_pct")]
+    public double CorrespondenceTolerancePct { get; set; } = 1.5;
+
+    [JsonPropertyName("generate_overlay")]
+    public bool GenerateOverlay { get; set; } = true;
+}
+
 public class AxonometricAnalysisRequestDto
 {
     [JsonPropertyName("image_base64")]
@@ -405,6 +564,9 @@ public class ExerciseRecordDto
     [JsonPropertyName("axonometric_analysis")]
     public AxonometricAnalysisResultDto? AxonometricAnalysis { get; set; }
 
+    [JsonPropertyName("dihedral_analysis")]
+    public DihedralAnalysisResultDto? DihedralAnalysis { get; set; }
+
     [JsonPropertyName("critique")]
     public CritiqueOutputDto? Critique { get; set; }
 }
@@ -424,6 +586,9 @@ public class CritiqueRequestDto
 
     [JsonPropertyName("axonometry")]
     public AxonometricAnalysisResultDto? Axonometry { get; set; }
+
+    [JsonPropertyName("dihedral")]
+    public DihedralAnalysisResultDto? Dihedral { get; set; }
 
     [JsonPropertyName("student")]
     public StudentProfileDto Student { get; set; } = new();

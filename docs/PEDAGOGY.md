@@ -264,11 +264,21 @@ same ground from the other side, covering perspective **frontal, oblicua y de pl
 **Parallel projection is taught before conic perspective, not after it.** That ordering is a
 finding, not a detail, and it has a consequence for what a measuring tool should cover first.
 
-**Atelier now measures both.** `tools/axonometry.py` compares every detected edge against the fixed
-axes of isometric, dimetric or cavalier projection, and the vision gate decides which of the two
-systems a photograph is before anything is measured — because running a parallel projection through
+**Atelier now measures all three.** `tools/axonometry.py` compares every detected edge against the
+fixed axes of isometric, dimetric or cavalier projection; `tools/dihedral.py` checks the two views
+of a Monge plate against each other about the ground line. The vision gate decides which of the
+three a photograph is before anything is measured — because running a parallel projection through
 the perspective path finds a vanishing point among edges that were never meant to meet, and then
-reports an error about it.
+reports an error about it, and running an orthographic plate through either is worse still, since
+there is no solid in it to measure at all.
+
+The three differ in **where their reference comes from**, and that is the useful way to rank them:
+
+| System | Where the reference comes from | How much to trust it |
+|---|---|---|
+| Conic perspective | **Inferred.** RANSAC estimates a vanishing point from the student's own lines | Weakest. A consistently wrong drawing yields a vanishing point that agrees with it |
+| Orthographic (Monge) | **Read off the page.** The ground line is a line the student drew | Middle. Nothing is guessed, but a crooked ground line skews everything, so its tilt is reported as a figure in its own right |
+| Axonometric | **Given.** The axes are constants of the projection system | Strongest. Nothing is estimated; an error injected at 6.00° returns as 6.00° |
 
 The interesting part is that the second mode is **more** trustworthy than the first, which is the
 opposite of what a bolted-on feature usually is. Section 6 states the weakness of the conic path
@@ -286,6 +296,13 @@ It also separates two errors that a single average hides, and which need differe
 | Low per-line error, low systematic error | The axes were set right and followed steadily | Move on |
 | Low per-line error, **high systematic error** | Every edge of one family is off by the same amount — the set square was placed wrong | Fix the axis once, before drawing |
 | **High per-line error**, low systematic error | The axis was right and the hand wandered | Steadier construction, edge by edge |
+
+The orthographic engine draws the same distinction with a different pair. A plan displaced sideways
+as a whole is **one** mistake that every vertex inherits — the plan was placed wrong on the page —
+and it is reported once, as a systematic offset, then removed before the per-vertex check runs. What
+survives that is a genuinely unmatched vertex: a corner drawn in one view and never answered in the
+other, which is a construction error rather than a placement one and the more serious of the two.
+Averaged together the two are indistinguishable, and the correction for each is different.
 
 A published rubric cannot make that distinction, because making it requires measuring each family's
 mean direction separately and comparing it against a constant. This is the same argument as §6,

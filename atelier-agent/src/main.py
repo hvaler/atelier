@@ -6,8 +6,10 @@ from pydantic import BaseModel
 
 from src.config import settings
 from src.models.axonometry import AxonometricAnalysisRequest, AxonometricAnalysisResult
+from src.models.dihedral import DihedralAnalysisRequest, DihedralAnalysisResult
 from src.models.geometry import GeometryAnalysisRequest, GeometryAnalysisResult
 from src.tools.axonometry import analyze_axonometric
+from src.tools.dihedral import analyze_dihedral
 from src.tools.geometry import analyze_geometry, decode_image_base64
 
 app = FastAPI(
@@ -123,6 +125,39 @@ def analyze_axonometric_drawing(request: AxonometricAnalysisRequest) -> Axonomet
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+
+
+@app.post("/api/analyze/dihedral", response_model=DihedralAnalysisResult, status_code=status.HTTP_200_OK)
+def analyze_dihedral_drawing(request: DihedralAnalysisRequest) -> DihedralAnalysisResult:
+    """
+    Measure a Monge plate: two orthographic views against each other, about the ground line (ADR-001).
+
+    The third measurement shape and the third kind of reference. Conic infers its reference with
+    RANSAC, axonometric is handed it as a constant, and this one reads it off the page: the ground
+    line is a line the student actually drew, so nothing is estimated, but a crooked one skews
+    everything measured against it, which is why its tilt is reported as a figure in its own right.
+    """
+    if not request.image_base64:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="image_base64 must be provided in the request body.",
+        )
+
+    try:
+        image = decode_image_base64(request.image_base64)
+    except (ValueError, TypeError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid image format: {e!s}",
+        ) from e
+
+    return analyze_dihedral(
+        image=image,
+        correspondence_tolerance_pct=request.correspondence_tolerance_pct,
+        min_confidence_threshold=request.min_confidence_threshold,
+        generate_overlay_image=request.generate_overlay,
+    )
+
 
 
 

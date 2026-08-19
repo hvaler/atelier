@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import BaseModel, Field, model_validator
 
 from src.models.axonometry import AxonometricAnalysisResult
+from src.models.dihedral import DihedralAnalysisResult
 from src.models.geometry import GeometryAnalysisResult
 
 
@@ -19,7 +20,14 @@ class StudentProfile(BaseModel):
 class MeasuredFindingItem(BaseModel):
     metric_name: str = Field(..., description="Name of the deterministic metric from OpenCV (e.g. 'average_convergence_error', 'f1_error')")
     measured_value: float = Field(..., description="Exact numerical value measured by OpenCV")
-    unit: str = Field("degrees", description="Measurement unit ('degrees', 'points', 'lines')")
+    unit: str = Field(
+        "degrees",
+        description=(
+            "Measurement unit: 'degrees', 'pixels', 'points' or 'lines'. Pixels are for the "
+            "orthographic path, where a correspondence error is a distance on the page rather "
+            "than an angle."
+        ),
+    )
     pedagogical_context: str = Field(..., description="Instructor explanation grounded strictly on this measured metric")
 
 
@@ -97,6 +105,9 @@ class CritiqueRequest(BaseModel):
     axonometry: AxonometricAnalysisResult | None = Field(
         None, description="Deterministic measurements from OpenCV analyze_axonometric (parallel projection)"
     )
+    dihedral: DihedralAnalysisResult | None = Field(
+        None, description="Deterministic measurements from OpenCV analyze_dihedral (Monge, two orthographic views)"
+    )
     student: StudentProfile = Field(..., description="Student profile and learning level")
     student_intent: str | None = Field(None, description="What the student intended to practice (ASK step)")
     student_difficulty: str | None = Field(None, description="What part felt hardest during the drawing")
@@ -120,21 +131,29 @@ class CritiqueRequest(BaseModel):
         invented for the axonometric drawing could be waved through because it happened to match
         a vanishing-point coordinate from a perspective one.
         """
-        if (self.geometry is None) == (self.axonometry is None):
+        provided = [a is not None for a in (self.geometry, self.axonometry, self.dihedral)]
+        if sum(provided) != 1:
             raise ValueError(
-                "Provide exactly one of 'geometry' (conic perspective) or 'axonometry' "
-                "(parallel projection)."
+                "Provide exactly one of 'geometry' (conic perspective), 'axonometry' (parallel "
+                "projection) or 'dihedral' (Monge orthographic views)."
             )
         return self
 
     @property
     def analysis(self):
         """Whichever deterministic analysis this critique must be grounded in."""
-        return self.geometry if self.geometry is not None else self.axonometry
+        for candidate in (self.geometry, self.axonometry, self.dihedral):
+            if candidate is not None:
+                return candidate
+        return None
 
     @property
     def projection(self) -> str:
-        return "conic" if self.geometry is not None else "axonometric"
+        if self.geometry is not None:
+            return "conic"
+        if self.axonometry is not None:
+            return "axonometric"
+        return "orthographic"
 
 
 class CritiqueResponse(BaseModel):

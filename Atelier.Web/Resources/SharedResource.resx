@@ -612,4 +612,112 @@
   <data name="Benchmark drawings in both projection systems, each carrying an angular error of a known size, used to verify that the measurement moves with the drawing (ADR-001)." xml:space="preserve">
     <value>Benchmark drawings in both projection systems, each carrying an angular error of a known size, used to verify that the measurement moves with the drawing (ADR-001).</value>
   </data>
+  <data name="Orthographic projection" xml:space="preserve">
+    <value>Orthographic projection</value>
+  </data>
+  <data name="Two flat views, checked against each other" xml:space="preserve">
+    <value>Two flat views, checked against each other</value>
+  </data>
+  <data name="No ground line was found." xml:space="preserve">
+    <value>No ground line was found.</value>
+  </data>
+  <data name="Without it there is no fold, nothing to measure perpendicular to, and no way to tell which view a mark belongs to. Nothing was measured." xml:space="preserve">
+    <value>Without it there is no fold, nothing to measure perpendicular to, and no way to tell which view a mark belongs to. Nothing was measured.</value>
+  </data>
+  <data name="Correspondence overlay" xml:space="preserve">
+    <value>Correspondence overlay</value>
+  </data>
+  <data name="The plan as a whole sits {0} px sideways from the elevation ({1}% of the page). That is where the plan was placed, not how it was drawn — one correction, before anything else." xml:space="preserve">
+    <value>The plan as a whole sits {0} px sideways from the elevation ({1}% of the page). That is where the plan was placed, not how it was drawn — one correction, before anything else.</value>
+  </data>
+  <data name="{0} vertex or vertices exist in one view with nothing answering them in the other. That is a construction error rather than a placement one: a corner was never carried across the ground line." xml:space="preserve">
+    <value>{0} vertex or vertices exist in one view with nothing answering them in the other. That is a construction error rather than a placement one: a corner was never carried across the ground line.</value>
+  </data>
+  <data name="Elevation" xml:space="preserve">
+    <value>Elevation</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>Residual</value>
+  </data>
+  <data name="Agreed" xml:space="preserve">
+    <value>Agreed</value>
+  </data>
+  <data name="yes" xml:space="preserve">
+    <value>yes</value>
+  </data>
+  <data name="no counterpart" xml:space="preserve">
+    <value>no counterpart</value>
+  </data>
+  <data name="Ground line, as drawn" xml:space="preserve">
+    <value>Ground line, as drawn</value>
+  </data>
+  <data name="Reference lines off square" xml:space="preserve">
+    <value>Reference lines off square</value>
+  </data>
+  <data name="Residual correspondence" xml:space="preserve">
+    <value>Residual correspondence</value>
+  </data>
+  <data name="Vertices agreed" xml:space="preserve">
+    <value>Vertices agreed</value>
+  </data>
+  <data name="not measurable" xml:space="preserve">
+    <value>not measurable</value>
+  </data>
+  <data name="the ground line as drawn" xml:space="preserve">
+    <value>the ground line as drawn</value>
+  </data>
+  <data name="Orthographic plate (views correspond)" xml:space="preserve">
+    <value>Orthographic plate (views correspond)</value>
+  </data>
+  <data name="Orthographic plate (plan 18 px out)" xml:space="preserve">
+    <value>Orthographic plate (plan 18 px out)</value>
+  </data>
+  <data name="Orthographic plate (a corner never carried across)" xml:space="preserve">
+    <value>Orthographic plate (a corner never carried across)</value>
+  </data>
+  <data name="ground line tilt" xml:space="preserve">
+    <value>ground line tilt</value>
+  </data>
+  <data name="perpendicularity error" xml:space="preserve">
+    <value>perpendicularity error</value>
+  </data>
+  <data name="systematic offset" xml:space="preserve">
+    <value>systematic offset</value>
+  </data>
+  <data name="correspondence error" xml:space="preserve">
+    <value>correspondence error</value>
+  </data>
+  <data name="matched vertex count" xml:space="preserve">
+    <value>matched vertex count</value>
+  </data>
+  <data name="unmatched vertex count" xml:space="preserve">
+    <value>unmatched vertex count</value>
+  </data>
+  <data name="pixels" xml:space="preserve">
+    <value>pixels</value>
+  </data>
+  <data name="Orthographic • views correspond" xml:space="preserve">
+    <value>Orthographic • views correspond</value>
+  </data>
+  <data name="Orthographic • plan 18 px out" xml:space="preserve">
+    <value>Orthographic • plan 18 px out</value>
+  </data>
+  <data name="Orthographic • a corner with no counterpart" xml:space="preserve">
+    <value>Orthographic • a corner with no counterpart</value>
+  </data>
+  <data name="Elevation above the ground line, plan below, every vertex carried across on a square reference line. Not a picture of a solid: two flat views of one." xml:space="preserve">
+    <value>Elevation above the ground line, plan below, every vertex carried across on a square reference line. Not a picture of a solid: two flat views of one.</value>
+  </data>
+  <data name="The plan drawn correctly but placed 18 px to the right. One placement mistake that every vertex inherits — reported once, not four times." xml:space="preserve">
+    <value>The plan drawn correctly but placed 18 px to the right. One placement mistake that every vertex inherits — reported once, not four times.</value>
+  </data>
+  <data name="A corner drawn in one view and never answered in the other. A construction error rather than a placement one, and the more serious of the two." xml:space="preserve">
+    <value>A corner drawn in one view and never answered in the other. A construction error rather than a placement one, and the more serious of the two.</value>
+  </data>
+  <data name="Benchmark drawings in all three projection systems, each carrying an error of a known size, used to verify that the measurement moves with the drawing (ADR-001)." xml:space="preserve">
+    <value>Benchmark drawings in all three projection systems, each carrying an error of a known size, used to verify that the measurement moves with the drawing (ADR-001).</value>
+  </data>
 </root>

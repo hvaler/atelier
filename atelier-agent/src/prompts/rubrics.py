@@ -192,3 +192,113 @@ Please produce a structured critique JSON matching the required schema with:
 4. pedagogical_summary (strengths, single focus area, encouragement)
 5. next_exercise (title, description, target_metric, difficulty)
 """
+
+
+ORTHOGRAPHIC_INVARIANT = """
+THIS DRAWING IS NOT A PICTURE OF A SOLID. It is a Monge plate — sistema diedrico — two flat
+orthographic views of the same object, folded onto one page about the ground line. Every
+instruction above that mentions vanishing points, convergence, horizons or axis angles is about a
+different kind of drawing and does not apply. There is no depth in this image to comment on.
+
+What is measured instead:
+- CORRESPONDENCE. A point drawn in the elevation must have its counterpart directly below it in
+  the plan. That is the invariant of the system.
+- The REFERENCE LINES that carry a point between the views must be perpendicular to the ground
+  line.
+- The GROUND LINE itself should be straight and level; everything else is measured against it, so
+  if it is crooked, say so first.
+
+Two errors are reported and they are not the same mistake:
+- A SYSTEMATIC OFFSET means the plan as a whole sits sideways from the elevation. One mistake, one
+  correction: the plan was placed wrong on the page. It does not mean the drawing inside it is bad.
+- An UNMATCHED VERTEX means a corner exists in one view and nothing answers it in the other. That
+  is a construction error, and it is the more serious of the two.
+
+Use only the vocabulary of descriptive geometry: ground line, elevation, plan, reference line,
+correspondence, orthographic projection. Never 'vanishing point', never 'horizon', never
+'perspective', never 'axis angle'.
+"""
+
+
+def build_orthographic_user_prompt(
+    student_name: str,
+    level: str,
+    ground_line_tilt_deg: float,
+    reference_line_count: int,
+    avg_perpendicularity_error_deg: float,
+    max_perpendicularity_error_deg: float,
+    systematic_offset_px: float | None,
+    systematic_offset_pct: float | None,
+    matched_vertex_count: int,
+    unmatched_in_elevation: int,
+    unmatched_in_plan: int,
+    avg_correspondence_error_px: float | None,
+    max_correspondence_error_px: float | None,
+    line_count: int,
+    confidence: float,
+    student_intent: str | None = None,
+    student_difficulty: str | None = None,
+    language: str = "en",
+) -> str:
+    """Construct the user prompt for an orthographic critique."""
+    intent_clause = f"- Student intended to practice: {student_intent!r}\n" if student_intent else ""
+    diff_clause = f"- Student reported difficulty with: {student_difficulty!r}\n" if student_difficulty else ""
+
+    language_name = {"es": "Spanish (Spain)", "en": "English"}.get(language, "English")
+    language_clause = (
+        f"OUTPUT LANGUAGE: Write every piece of prose — headline, pedagogical_context, "
+        f"observation, strengths, focus_area, encouragement, and the whole next_exercise — in "
+        f"{language_name}. Field names, the 'status' and 'difficulty' enums, and metric_name stay "
+        f"in English: they are identifiers the application matches on, not text anyone reads.\n\n"
+    )
+
+    # Null is not zero, and the prompt has to say which it is. An average over an empty set printed
+    # as 0.00 would invite the model to congratulate a student whose views do not correspond at all.
+    def figure(value, unit):
+        return f"{value:.2f} {unit}" if value is not None else "NOT MEASURABLE (no vertex pair matched)"
+
+    offset_line = (
+        f"- Systematic Sideways Offset Of The Plan: {systematic_offset_px:+.2f} pixels "
+        f"({systematic_offset_pct:+.2f}% of the drawing width)"
+        if systematic_offset_px is not None
+        else "- Systematic Sideways Offset Of The Plan: NOT MEASURABLE (too few shared vertices)"
+    )
+
+    return f"""{language_clause}STUDENT CONTEXT:
+- Name: {student_name}
+- Level: {level}
+{intent_clause}{diff_clause}
+DETERMINISTIC MEASUREMENT PAYLOAD (from OpenCV, ADR-001):
+- Projection System: orthographic / Monge (two flat views; no vanishing point and no axes exist here)
+- Ground Line Tilt: {ground_line_tilt_deg:.2f} degrees from horizontal
+- Reference Lines Found: {reference_line_count}
+- Average Deviation From Square To The Ground Line: {avg_perpendicularity_error_deg:.2f} degrees
+- Worst Deviation From Square: {max_perpendicularity_error_deg:.2f} degrees
+{offset_line}
+- Vertices The Two Views Agreed On: {matched_vertex_count}
+- Vertices In The Elevation With No Counterpart: {unmatched_in_elevation}
+- Vertices In The Plan With No Counterpart: {unmatched_in_plan}
+- Average Residual Correspondence Error: {figure(avg_correspondence_error_px, "pixels")}
+- Worst Residual Correspondence Error: {figure(max_correspondence_error_px, "pixels")}
+- Line Segments Analyzed: {line_count}
+- Measurement Confidence: {confidence:.2f} (Scale 0.0 to 1.0)
+
+METRIC NAMES: every measured_findings entry must use one of these exact metric_name values, and
+no others: ground_line_tilt, perpendicularity_error, systematic_offset, correspondence_error,
+matched_vertex_count, unmatched_vertex_count, line_count. They are identifiers the interface looks
+up to label and translate the finding.
+
+This rule applies to metric_name ONLY. next_exercise.target_metric is prose a student reads, so
+write it as a short phrase in their language, never as an identifier.
+
+Do NOT cite a figure reported as NOT MEASURABLE. There is no number there to cite, and inventing
+one is the single failure this system exists to prevent.
+
+Please produce a structured critique JSON matching the required schema with:
+1. headline
+2. measured_findings (citing ONLY the numbers above)
+3. qualitative_observations (line weight, cleanliness, clarity of the two views) — from the
+   attached image only, and with no numeric figures
+4. pedagogical_summary (strengths, single focus area, encouragement)
+5. next_exercise (title, description, target_metric, difficulty)
+"""
