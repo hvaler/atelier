@@ -70,7 +70,7 @@
     <value>principiante</value>
   </data>
   <data name="advanced" xml:space="preserve">
-    <value>avanzado</value>
+    <value>Avanzado</value>
   </data>
   <data name="Atelier — Studio Master Perspective AI" xml:space="preserve">
     <value>Atelier — Maestro de estudio en perspectiva</value>
@@ -83,15 +83,6 @@
   </data>
   <data name="Active Student:" xml:space="preserve">
     <value>Estudiante:</value>
-  </data>
-  <data name="Young Tester (Age 9)" xml:space="preserve">
-    <value>Estudiante de 9 años</value>
-  </data>
-  <data name="Sofia (Animation Adv.)" xml:space="preserve">
-    <value>Sofía (animación, avanzado)</value>
-  </data>
-  <data name="Sofia (Advanced)" xml:space="preserve">
-    <value>Sofía (avanzado)</value>
   </data>
   <data name="📂 Select Perspective Drawing" xml:space="preserve">
     <value>📂 Elige el dibujo</value>
@@ -719,5 +710,83 @@
   </data>
   <data name="Benchmark drawings in all three projection systems, each carrying an error of a known size, used to verify that the measurement moves with the drawing (ADR-001)." xml:space="preserve">
     <value>Dibujos de referencia en los tres sistemas de representación, cada uno con un error de tamaño conocido, para comprobar que la medida se mueve con el dibujo (ADR-001).</value>
+  </data>
+  <data name="Collapse or expand the sidebar" xml:space="preserve">
+    <value>Plegar o desplegar la barra lateral</value>
+  </data>
+  <data name="Progress through the analysis" xml:space="preserve">
+    <value>Avance del análisis</value>
+  </data>
+  <data name="Context" xml:space="preserve">
+    <value>Contexto</value>
+  </data>
+  <data name="Critique" xml:space="preserve">
+    <value>Crítica</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Nivel</value>
+  </data>
+  <data name="Basic" xml:space="preserve">
+    <value>Básico</value>
+  </data>
+  <data name="Choose a drawing" xml:space="preserve">
+    <value>Elige un dibujo</value>
+  </data>
+  <data name="Pick a calibration sample or upload a photograph of your own work." xml:space="preserve">
+    <value>Escoge una muestra de calibración o sube una foto de tu propio trabajo.</value>
+  </data>
+  <data name="Before we look, two questions" xml:space="preserve">
+    <value>Antes de mirar, dos preguntas</value>
+  </data>
+  <data name="Your answers set the register of the critique. They never change the measurement." xml:space="preserve">
+    <value>Tus respuestas fijan el registro de la crítica. No cambian nunca la medida.</value>
+  </data>
+  <data name="What the measurements say" xml:space="preserve">
+    <value>Lo que dicen las medidas</value>
+  </data>
+  <data name="The geometry measures, the AI teaches." xml:space="preserve">
+    <value>La geometría mide, la IA enseña.</value>
+  </data>
+  <data name="Calibration samples" xml:space="preserve">
+    <value>Muestras de calibración</value>
+  </data>
+  <data name="Or upload your own drawing" xml:space="preserve">
+    <value>O sube tu propio dibujo</value>
+  </data>
+  <data name="Atelier looks at the photograph first and decides which system of representation it is, before measuring anything." xml:space="preserve">
+    <value>Atelier mira primero la foto y decide en qué sistema de representación está, antes de medir nada.</value>
+  </data>
+  <data name="Analyse another drawing" xml:space="preserve">
+    <value>Analizar otro dibujo</value>
+  </data>
+  <data name="Your history" xml:space="preserve">
+    <value>Tu historial</value>
+  </data>
+  <data name="Exercises analysed" xml:space="preserve">
+    <value>Ejercicios analizados</value>
+  </data>
+  <data name="{0} recorded" xml:space="preserve">
+    <value>{0} registrados</value>
+  </data>
+  <data name="Loading history…" xml:space="preserve">
+    <value>Cargando el historial…</value>
+  </data>
+  <data name="History could not be loaded." xml:space="preserve">
+    <value>No se ha podido cargar el historial.</value>
+  </data>
+  <data name="Nothing yet. Analyse a drawing and it will appear here." xml:space="preserve">
+    <value>Todavía nada. Analiza un dibujo y aparecerá aquí.</value>
+  </data>
+  <data name="Conic" xml:space="preserve">
+    <value>Cónica</value>
+  </data>
+  <data name="Axonometric" xml:space="preserve">
+    <value>Axonométrica</value>
+  </data>
+  <data name="Orthographic" xml:space="preserve">
+    <value>Diédrico</value>
+  </data>
+  <data name="Unknown system" xml:space="preserve">
+    <value>Sistema desconocido</value>
   </data>
 </root>

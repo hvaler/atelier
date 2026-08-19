@@ -27,7 +27,7 @@ def _request(language: str) -> CritiqueRequest:
             image_width=800,
             image_height=600,
         ),
-        student=StudentProfile(student_id="young-tester-01", name="Young Tester", level="beginner"),
+        student=StudentProfile(student_id="level-basic", name="basic", level="beginner"),
         language=language,
     )
 
@@ -65,23 +65,23 @@ class TestCacheKey:
 
 class TestAskQuestions:
     def test_spanish_questions_are_spanish(self):
-        ask = ask_clarification("young-tester-01", language="es")
+        ask = ask_clarification("level-basic", language="es")
         assert "¿" in ask.difficulty_question
         assert all(s for s in ask.quick_intent_suggestions)
 
     def test_english_is_the_default(self):
-        ask = ask_clarification("young-tester-01")
+        ask = ask_clarification("level-basic")
         assert "What" in ask.intent_question or "what" in ask.intent_question
 
     def test_unknown_language_falls_back_to_english_rather_than_emptiness(self):
         """A language we do not have is answered in one we do, not with blanks."""
-        ask = ask_clarification("young-tester-01", language="eu")
+        ask = ask_clarification("level-basic", language="eu")
         assert ask.intent_question
         assert len(ask.quick_intent_suggestions) == 3
 
     def test_the_two_levels_stay_distinct_in_spanish(self):
         """The nine-year-old is asked about boxes; the animation student about construction."""
-        beginner = ask_clarification("young-tester-01", language="es")
-        advanced = ask_clarification("sofia-01", language="es")
+        beginner = ask_clarification("level-basic", language="es")
+        advanced = ask_clarification("level-advanced", language="es")
         assert beginner.intent_question != advanced.intent_question
         assert beginner.quick_intent_suggestions != advanced.quick_intent_suggestions

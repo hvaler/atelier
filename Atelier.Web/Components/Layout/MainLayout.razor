@@ -1,34 +1,102 @@
 ﻿@inherits LayoutComponentBase
 @using Atelier.Web.Components.Shared
+@inject IJSRuntime JS
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<CascadingValue Value="this">
+    <div class="shell @(RailCollapsed ? "is-collapsed" : "")">
+        <aside class="rail">
+            <NavMenu Collapsed="RailCollapsed" />
+        </aside>
 
-    <main>
-        <div class="top-row px-4 d-flex align-items-center gap-3">
-            @* This was the Blazor template's link to Microsoft's ASP.NET docs, still pointing
-               there on a submitted demo. "About" on a judged project should go to the project. *@
-            <a href="https://github.com/hvaler/atelier" target="_blank" rel="noopener">@Loc["About Atelier"]</a>
-            <a href="https://github.com/hvaler/atelier/blob/main/docs/PEDAGOGY.md" target="_blank" rel="noopener">@Loc["How it grades"]</a>
+        <div class="main">
+            <header class="topbar">
+                @* The toggle lives in the bar rather than in the rail: when the rail is a strip of
+                   icons there is nowhere in it for a control that says "make me wider". *@
+                <button class="rail-toggle" type="button" @onclick="ToggleRailAsync"
+                        title="@Loc["Collapse or expand the sidebar"]"
+                        aria-expanded="@(!RailCollapsed)">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M2 3.5h12M2 8h12M2 12.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                </button>
 
-            @* Both controls sit together at the far right: they are the two things about this page
-               a person changes once and then forgets. *@
-            <div class="ms-auto d-flex align-items-center gap-2">
-                <CulturePicker />
-                <ThemeToggle />
-            </div>
+                @* Whatever page is open can put its own progress indicator here. The studio uses
+                   it for the three steps; the other pages leave it empty. *@
+                @if (TopBarContent is not null)
+                {
+                    @TopBarContent
+                }
+
+                <div class="spacer"></div>
+
+                <nav class="topbar-links">
+                    <a href="https://github.com/hvaler/atelier" target="_blank" rel="noopener">@Loc["About Atelier"]</a>
+                    <a href="https://github.com/hvaler/atelier/blob/main/docs/PEDAGOGY.md" target="_blank" rel="noopener">@Loc["How it grades"]</a>
+                </nav>
+
+                <div class="d-flex align-items-center gap-2">
+                    <CulturePicker />
+                    <ThemeToggle />
+                </div>
+            </header>
+
+            <article class="content">
+                @Body
+            </article>
         </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    </div>
+</CascadingValue>
 
 <div id="blazor-error-ui" data-nosnippet>
     @Loc["An unhandled error has occurred."]
     <a href="." class="reload">@Loc["Reload"]</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    /// <summary>
+    /// Whether the rail is showing icons only. Read back from localStorage after the first
+    /// render rather than assumed, so a returning reader does not watch it snap open and shut.
+    /// </summary>
+    public bool RailCollapsed { get; private set; }
+
+    /// <summary>
+    /// Content the current page wants in the top bar — the studio's step indicator, in practice.
+    /// A cascade rather than a layout parameter, because Blazor layouts take only the body.
+    /// </summary>
+    public RenderFragment? TopBarContent { get; private set; }
+
+    public void SetTopBar(RenderFragment? content)
+    {
+        TopBarContent = content;
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            RailCollapsed = await JS.InvokeAsync<bool>("atelierGetRailCollapsed");
+            StateHasChanged();
+        }
+        catch (JSException)
+        {
+            // Prerendering, or JS unavailable. The rail simply starts expanded.
+        }
+    }
+
+    private async Task ToggleRailAsync()
+    {
+        RailCollapsed = !RailCollapsed;
+        try
+        {
+            await JS.InvokeVoidAsync("atelierSetRailCollapsed", RailCollapsed);
+        }
+        catch (JSException)
+        {
+            // The choice still applies for this session even if it cannot be remembered.
+        }
+    }
+}

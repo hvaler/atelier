@@ -1,0 +1,98 @@
+@namespace Atelier.Web.Components.Shared
+@inject IAtelierAgentClient AgentClient
+
+@* Past exercises, newest first. Each row carries the projection it was measured in, because the
+   headline figure means a different thing in each — an axis deviation and a convergence error are
+   both degrees and are not comparable — and a list that hid that would invite reading the column
+   as a trend. *@
+<section class="card p-4">
+    <div class="d-flex justify-content-between align-items-baseline mb-3">
+        <div>
+            <div class="eyebrow">@Loc["Your history"]</div>
+            <h5 class="mb-0 mt-1">@Loc["Exercises analysed"]</h5>
+        </div>
+        @if (Items is { Count: > 0 })
+        {
+            <span class="chip">@(Loc["{0} recorded", Items.Count])</span>
+        }
+    </div>
+
+    @if (Loading)
+    {
+        <p class="text-body-secondary small mb-0">@Loc["Loading history…"]</p>
+    }
+    else if (Items is null)
+    {
+        @* The agent did not answer. Said plainly rather than shown as an empty list, because
+           "you have done nothing yet" and "we could not ask" look identical otherwise. *@
+        <p class="small mb-0" style="color: var(--bad);">@Loc["History could not be loaded."]</p>
+    }
+    else if (Items.Count == 0)
+    {
+        <p class="text-body-secondary small mb-0">@Loc["Nothing yet. Analyse a drawing and it will appear here."]</p>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="history-row">
+                <div class="history-meta">
+                    <span class="history-when">@FormatWhen(item.CreatedAt)</span>
+                    <span class="chip is-@item.Projection">@Loc[ProjectionKey(item.Projection)]</span>
+                </div>
+                <div class="history-figure">
+                    <div class="history-metric">
+                        @* Null is rendered as a dash, never as zero: an exercise whose figure was
+                           not measurable did not measure zero. *@
+                        @(item.MetricValue is double v
+                            ? $"{v:F1} {Loc[item.MetricUnit].Value}"
+                            : "—")
+                    </div>
+                    <div class="text-body-secondary metric-label" style="font-size: var(--t-xs);">
+                        @Loc[item.MetricName]
+                    </div>
+                </div>
+                <div class="history-headline" title="@item.Headline">@item.Headline</div>
+            </div>
+        }
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public string StudentId { get; set; } = string.Empty;
+
+    /// <summary>Bumped by the parent after saving an exercise, to force a refetch.</summary>
+    [Parameter]
+    public int Revision { get; set; }
+
+    private List<ExerciseSummaryDto>? Items;
+    private bool Loading = true;
+    private string _loadedFor = string.Empty;
+    private int _loadedRevision = -1;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_loadedFor == StudentId && _loadedRevision == Revision) return;
+        _loadedFor = StudentId;
+        _loadedRevision = Revision;
+
+        Loading = true;
+        Items = await AgentClient.GetExerciseHistoryAsync(StudentId);
+        Loading = false;
+    }
+
+    private static string ProjectionKey(string projection) => projection switch
+    {
+        "axonometric" => "Axonometric",
+        "orthographic" => "Orthographic",
+        "conic" => "Conic",
+        _ => "Unknown system",
+    };
+
+    /// <summary>Short, local, and in the reader's culture — the list is scanned, not read.</summary>
+    private static string FormatWhen(string iso) =>
+        DateTimeOffset.TryParse(iso, out var when)
+            ? when.ToLocalTime().ToString("d MMM HH:mm")
+            : iso;
+}

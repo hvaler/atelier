@@ -1,133 +1,472 @@
 /* ==============================================================================
-   Atelier Studio — palette and typography, in two themes.
+   Atelier — a measuring instrument for technical drawing.
 
-   Every colour is a token, and the tokens are redefined per theme rather than
-   overridden per component. Bootstrap 5.3 stamps data-bs-theme on <html>; these
-   follow it, so a component written once looks right in both.
+   The visual language comes from the subject rather than from a UI kit. What this
+   tool actually is: a set square applied to a drawing. So the surfaces are paper,
+   the text is graphite, the rules are hairlines rather than shadows, and every
+   figure is set in a monospace face with tabular figures — because a measurement
+   is data, and data in a column has to line up.
 
-   The dark ground is the default because a drawing photographed on white paper
-   reads better against it. Light exists because some people work in daylight.
+   The accent is the cyan the OpenCV overlay already draws the horizon line in, so
+   the interface and the thing it renders agree with each other.
 
-   Ochre Gold #f59e0b, Horizon Cyan #06b6d4, Emerald #10b981 are the severity
-   colours shared with the OpenCV overlay legend; they do not change with theme,
-   because "this line is 8 degrees off" means the same thing in either.
+   Severity green / amber / red are NOT the accent. They are the engine's own
+   error bands, they mean the same thing in both themes, and they never change.
+
+   Everything is a token, redefined per theme rather than overridden per component.
+   Bootstrap 5.3 stamps data-bs-theme on <html>; its own variables are remapped
+   onto these tokens below, so retheming happens once instead of per widget.
    ============================================================================== */
 
 :root,
 :root[data-bs-theme="dark"] {
-    --atelier-bg: #0b0f13;
-    --atelier-surface: #121820;
-    --atelier-surface-hover: #1b222d;
-    --atelier-sidebar: #070a0e;
-    --atelier-input: #06090c;
-    --atelier-text: #f8fafc;
-    --atelier-muted: #94a3b8;
-    --atelier-border: rgba(148, 163, 184, 0.15);
-    --atelier-hover-wash: rgba(255, 255, 255, 0.05);
-    --atelier-primary: #3b82f6;
-    --atelier-cyan: #06b6d4;
-    --atelier-amber: #f59e0b;
-    --atelier-emerald: #10b981;
+    --paper: #0b0e12;
+    --surface: #141a21;
+    --surface-2: #1b232c;
+    --surface-3: #232d38;
+    --ink: #eef2f6;
+    --graphite: #8b97a5;
+    --graphite-dim: #616d7b;
+    --line: #232c36;
+    --line-strong: #33404d;
+    --accent: #22d3ee;
+    --accent-ink: #04222a;
+    --accent-soft: #0d2b34;
+    --rail: #070a0d;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 8px 24px -12px rgba(0, 0, 0, .7);
 }
 
 :root[data-bs-theme="light"] {
-    --atelier-bg: #f5f6f8;
-    --atelier-surface: #ffffff;
-    --atelier-surface-hover: #eef1f5;
-    --atelier-sidebar: #ffffff;
-    --atelier-input: #ffffff;
-    --atelier-text: #101418;
-    --atelier-muted: #5b6672;
-    --atelier-border: rgba(16, 20, 24, 0.14);
-    --atelier-hover-wash: rgba(16, 20, 24, 0.05);
-    --atelier-primary: #2563eb;
-    --atelier-cyan: #0891b2;
-    --atelier-amber: #b45309;
-    --atelier-emerald: #047857;
+    --paper: #f7f5f1;
+    --surface: #ffffff;
+    --surface-2: #f2efe9;
+    --surface-3: #e8e4dc;
+    --ink: #12161c;
+    --graphite: #5b6672;
+    --graphite-dim: #7d8894;
+    --line: #e3dfd7;
+    --line-strong: #cdc7bc;
+    --accent: #0e7490;
+    --accent-ink: #ffffff;
+    --accent-soft: #e2f2f6;
+    --rail: #12161c;
+    --shadow: 0 1px 2px rgba(18, 22, 28, .06), 0 8px 24px -14px rgba(18, 22, 28, .25);
+}
+
+/* The engine's error bands. Identical in both themes on purpose: "this edge is
+   8 degrees off" does not become a different fact in daylight. */
+:root {
+    --ok: #12b76a;
+    --warn: #dc9a0b;
+    --bad: #e0484d;
+
+    --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI Variable Text",
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono",
+                 "Roboto Mono", Consolas, monospace;
+
+    --t-xs: .75rem;
+    --t-sm: .8125rem;
+    --t-md: .9375rem;
+    --t-lg: 1.0625rem;
+    --t-xl: 1.3125rem;
+    --t-2xl: 1.6875rem;
+    --t-3xl: 2.125rem;
+
+    --s-1: 4px;
+    --s-2: 8px;
+    --s-3: 12px;
+    --s-4: 16px;
+    --s-5: 24px;
+    --s-6: 32px;
+    --s-7: 48px;
+
+    --r-sm: 6px;
+    --r: 10px;
+    --r-lg: 14px;
+
+    --rail-w: 232px;
+    --rail-w-collapsed: 60px;
+}
+
+/* ------------------------------------------------------------------ Bootstrap remap
+   Bootstrap 5.3 is variable-driven, so retheming it means redefining its tokens
+   rather than fighting its rules with !important on every component. */
+:root,
+:root[data-bs-theme="dark"],
+:root[data-bs-theme="light"] {
+    --bs-body-bg: var(--paper);
+    --bs-body-color: var(--ink);
+    --bs-emphasis-color: var(--ink);
+    --bs-secondary-color: var(--graphite);
+    --bs-tertiary-color: var(--graphite-dim);
+    --bs-body-bg-rgb: 0, 0, 0;
+    --bs-border-color: var(--line);
+    --bs-border-color-translucent: var(--line);
+    --bs-secondary-bg: var(--surface-2);
+    --bs-tertiary-bg: var(--surface);
+    --bs-primary: var(--accent);
+    --bs-link-color: var(--accent);
+    --bs-link-hover-color: var(--accent);
+    --bs-border-radius: var(--r);
+    --bs-border-radius-sm: var(--r-sm);
+    --bs-border-radius-lg: var(--r-lg);
+    --bs-border-radius-xl: var(--r-lg);
+    --bs-body-font-family: var(--font-ui);
+    --bs-body-font-size: var(--t-md);
+    --bs-success: var(--ok);
+    --bs-warning: var(--warn);
+    --bs-danger: var(--bad);
+    --bs-info: var(--accent);
 }
 
 html, body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: var(--atelier-bg);
-    color: var(--atelier-text);
+    font-family: var(--font-ui);
+    background-color: var(--paper);
+    color: var(--ink);
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    letter-spacing: -.015em;
+    font-weight: 620;
+}
 
+/* Every digit in this application is a measurement. They are set in a monospace
+   face with tabular figures so that a column of them reads as a column. */
+.font-monospace, .metric, code, kbd, pre, samp,
+table.table td, table.table th {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+}
+
+.metric {
+    font-size: var(--t-2xl);
+    font-weight: 600;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+}
+
+.eyebrow {
+    font-size: var(--t-xs);
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--graphite);
+}
+
+/* ------------------------------------------------------------------ surfaces */
+.card,
 .bg-body-tertiary {
-    background-color: var(--atelier-surface) !important;
-    border: 1px solid var(--atelier-border) !important;
+    background-color: var(--surface) !important;
+    border: 1px solid var(--line) !important;
+    border-radius: var(--r-lg);
+    box-shadow: none;
 }
 
-.card {
-    background-color: var(--atelier-surface);
-    border: 1px solid var(--atelier-border);
-    backdrop-filter: blur(12px);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+.bg-body-secondary {
+    background-color: var(--surface-2) !important;
 }
+
+.card.shadow-sm { box-shadow: var(--shadow) !important; }
+
+hr, .border-top, .border-bottom { border-color: var(--line) !important; }
+
+/* ------------------------------------------------------------------ controls */
+.btn {
+    border-radius: var(--r-sm);
+    font-weight: 550;
+    font-size: var(--t-md);
+    transition: background-color .12s ease, border-color .12s ease, color .12s ease;
+}
+
+.btn-primary {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+}
+
+.btn-primary:hover, .btn-primary:focus-visible {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    filter: brightness(1.08);
+}
+
+.btn-outline-secondary {
+    color: var(--graphite);
+    border-color: var(--line-strong);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--surface-2);
+    border-color: var(--line-strong);
+    color: var(--ink);
+}
+
+.form-control, .form-select {
+    background-color: var(--surface-2);
+    color: var(--ink);
+    border-color: var(--line-strong);
+    border-radius: var(--r-sm);
+    font-size: var(--t-md);
+}
+
+.form-control::placeholder { color: var(--graphite-dim); }
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--surface-2);
+    color: var(--ink);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* Blazor gives the page heading tabindex="-1" and focuses it after a navigation so a screen
+   reader lands in the right place. That is correct, and it must not draw a ring: a box around a
+   title nobody clicked reads as a rendering fault. Suppressed only for elements that exist to
+   receive focus programmatically — never for anything a person can tab to. */
+[tabindex="-1"]:focus { outline: none; }
+
+/* Scoped to things you can actually operate. Blazor moves focus to the page heading after a
+   navigation, which is correct for a screen reader and looks like a rendering bug when it draws
+   a ring around a title nobody clicked. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ the step flow */
+.stepper {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.stepper li { display: flex; align-items: center; gap: var(--s-2); }
+
+.stepper .rule {
+    width: 28px;
+    height: 1px;
+    background: var(--line-strong);
+}
+
+.step-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    font-family: var(--font-mono);
+    font-size: var(--t-xs);
+    color: var(--graphite);
+    background: var(--surface);
+    flex: none;
+}
+
+.step-label {
+    font-size: var(--t-sm);
+    color: var(--graphite);
+    white-space: nowrap;
+}
+
+.stepper li.is-current .step-dot {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+}
+
+.stepper li.is-current .step-label { color: var(--ink); font-weight: 600; }
+
+.stepper li.is-done .step-dot {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.stepper button {
+    background: none;
+    border: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    cursor: pointer;
+}
+
+.stepper button[disabled] { cursor: default; opacity: .55; }
+
+/* ------------------------------------------------------------------ sample picker */
+.sample-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    gap: var(--s-3);
+}
+
+.sample-card {
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--surface);
+    padding: var(--s-2);
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    transition: border-color .12s ease, background-color .12s ease;
+}
+
+.sample-card:hover { border-color: var(--line-strong); background: var(--surface-2); }
+
+.sample-card.is-selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+.sample-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+    background: #fff;
+    border-radius: var(--r-sm);
+}
+
+.sample-card .name {
+    font-size: var(--t-xs);
+    color: var(--ink);
+    line-height: 1.3;
+}
+
+.sample-card .sys {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--graphite-dim);
+}
+
+.dropzone {
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--r);
+    padding: var(--s-5);
+    text-align: center;
+    color: var(--graphite);
+    background: var(--surface-2);
+}
+
+/* ------------------------------------------------------------------ history */
+.history-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--s-1) var(--s-3);
+    align-items: baseline;
+    padding: var(--s-3) 0;
+    border-top: 1px solid var(--line);
+}
+
+.history-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    flex-wrap: wrap;
+}
+
+.history-figure { text-align: right; }
+
+.history-row:first-child { border-top: 0; }
+
+/* Grid and flex children default to min-width:auto, which refuses to shrink below their content.
+   Without this the headline cannot ellipsise, the 1fr column grows to fit it, and the whole page
+   acquires a horizontal scrollbar — which is the one thing a layout must never do. */
+.history-row > * { min-width: 0; }
+
+.history-when {
+    font-family: var(--font-mono);
+    font-size: var(--t-xs);
+    color: var(--graphite-dim);
+}
+
+.history-headline {
+    grid-column: 1 / -1;
+    font-size: var(--t-sm);
+    color: var(--ink);
+    /* Two lines, then ellipsis. A single nowrap line had about forty pixels in the sidebar and
+       clipped every headline to three characters, which tells the reader nothing at all. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.history-metric {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--t-sm);
+    color: var(--ink);
+    white-space: nowrap;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+    padding: 2px 7px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    color: var(--graphite);
+    white-space: nowrap;
+}
+
+.chip.is-conic { border-color: var(--accent); color: var(--accent); }
+.chip.is-axonometric { border-color: var(--ok); color: var(--ok); }
+.chip.is-orthographic { border-color: var(--warn); color: var(--warn); }
+
+/* ------------------------------------------------------------------ misc */
+.min-vh-40 { min-height: 420px; }
 
 .backdrop-blur {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
 
-.min-vh-40 {
-    min-height: 420px;
-}
-
-.btn-primary {
-    background-color: var(--atelier-primary);
-    border-color: var(--atelier-primary);
+.table { --bs-table-bg: transparent; }
+.table > :not(caption) > * > * { border-bottom-color: var(--line); }
+.table thead th {
+    font-family: var(--font-ui);
+    font-size: var(--t-xs);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--graphite);
     font-weight: 600;
 }
 
-.btn-primary:hover {
-    background-color: #2563eb;
-    border-color: #2563eb;
-}
-
-.form-control, .form-select {
-    background-color: var(--atelier-input) !important;
-    color: var(--atelier-text) !important;
-    border-color: var(--atelier-border) !important;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: var(--atelier-primary) !important;
-    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
-}
-
-/* Sidebar navigation */
-.sidebar {
-    background-color: var(--atelier-sidebar);
-    border-right: 1px solid var(--atelier-border);
-}
-
-.nav-link {
-    color: var(--atelier-muted);
-    font-weight: 500;
-    border-radius: 0.5rem;
-    margin: 0.25rem 0.5rem;
-    transition: all 0.15s ease;
-}
-
-.nav-link:hover {
-    color: var(--atelier-text);
-    background-color: var(--atelier-hover-wash);
-}
-
-.nav-link.active {
-    color: #ffffff;
-    background-color: var(--atelier-primary) !important;
-}
 /* Metric and aspect names arrive as identifiers (average_convergence_error) and are looked up for
    display, so what lands here is an ordinary phrase in the reader's language. Sentence case is the
    only correct casing for that: Bootstrap's text-capitalize would render "Error Medio De
    Convergencia", capitalising a preposition that no Spanish reader would capitalise. */
-.metric-label {
-    text-transform: none;
-}
+.metric-label { text-transform: none; }
+.metric-label::first-letter { text-transform: uppercase; }
 
-.metric-label::first-letter {
-    text-transform: uppercase;
+/* Wide content — tables, overlays, code — scrolls inside its own container. The body never does. */
+body { overflow-x: hidden; }
+.table-responsive { overflow-x: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }

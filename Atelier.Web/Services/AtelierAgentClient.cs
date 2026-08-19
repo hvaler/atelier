@@ -11,6 +11,7 @@ public interface IAtelierAgentClient
     Task<GeometryAnalysisResultDto?> AnalyzeGeometryAsync(string imageBase64, int kPoints, bool generateOverlay = true);
     Task<AxonometricAnalysisResultDto?> AnalyzeAxonometricAsync(string imageBase64, string system, double? recedingAngleDeg = null, bool generateOverlay = true);
     Task<DihedralAnalysisResultDto?> AnalyzeDihedralAsync(string imageBase64, bool generateOverlay = true);
+    Task<List<ExerciseSummaryDto>?> GetExerciseHistoryAsync(string studentId, int limit = 20);
     Task<CritiqueResponseDto?> GenerateCritiqueAsync(CritiqueRequestDto request);
     Task<DrawingGateResultDto?> ClassifyDrawingAsync(string imageBase64);
     Task<RoutingResultDto?> RouteIntentAsync(string? studentIntent, string studentLevel);
@@ -61,7 +62,7 @@ public class AtelierAgentClient : IAtelierAgentClient
             return new AskPromptDataDto
             {
                 StudentId = studentId,
-                StudentName = studentId.Contains("sofia") ? "Sofia" : "Young Tester (Age 9)",
+                StudentName = studentId,
                 IntentQuestion = "What kind of 3D form or perspective exercise were you practicing?",
                 DifficultyQuestion = "Which part or axis felt hardest to calibrate?",
                 QuickIntentSuggestions = ["1-Point Frontal Box", "2-Point Oblique Cube", "Stepped Architectural Volume"],
@@ -163,6 +164,24 @@ public class AtelierAgentClient : IAtelierAgentClient
         }
 
         return null;
+    }
+
+
+    public async Task<List<ExerciseSummaryDto>?> GetExerciseHistoryAsync(string studentId, int limit = 20)
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<List<ExerciseSummaryDto>>(
+                $"/api/students/{studentId}/exercises?limit={limit}");
+        }
+        catch (Exception ex)
+        {
+            // Null, not an empty list. "You have not done anything yet" and "we could not ask"
+            // look identical to a reader once both render as an empty table, and only one of them
+            // is true.
+            _logger.LogWarning(ex, "Failed to load exercise history for {StudentId}", studentId);
+            return null;
+        }
     }
 
     public async Task<CritiqueResponseDto?> GenerateCritiqueAsync(CritiqueRequestDto request)
@@ -362,7 +381,9 @@ public class AtelierAgentClient : IAtelierAgentClient
 
     private static List<StudentProfileDto> GetFallbackStudents() =>
     [
-        new StudentProfileDto { StudentId = "young-tester-01", Name = "Young Tester (Age 9)", Level = "beginner", TonePreference = "encouraging" },
-        new StudentProfileDto { StudentId = "sofia-01", Name = "Sofia", Level = "advanced", TonePreference = "technical" }
+        // Levels, not people. The profile is a difficulty setting that decides the rubric's
+        // register; there is no person in it to name.
+        new StudentProfileDto { StudentId = "level-basic", Name = "basic", Level = "beginner", TonePreference = "encouraging" },
+        new StudentProfileDto { StudentId = "level-advanced", Name = "advanced", Level = "advanced", TonePreference = "technical" }
     ];
 }

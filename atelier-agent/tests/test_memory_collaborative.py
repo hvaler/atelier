@@ -64,32 +64,42 @@ def make_dummy_geometry(f1_err: float = 2.0, f2_err: float = 2.0) -> GeometryAna
 
 
 def test_multi_student_initialization():
-    """Verify independent student profiles (Young Tester beginner, Sofia advanced) exist from day 1."""
+    """
+    Two profiles exist from the start, and they are difficulty levels rather than people.
+
+    The distinction is the point: a level decides the register of the rubric and the tone of the
+    critique, and there is nobody in it to greet, so nothing downstream may interpolate a name.
+    """
     repo = MemoryRepository()
     students = repo.list_students()
 
     assert len(students) >= 2
+    # The "name" is the level word, because the profile is a level. Asserting on the pair rather
+    # than on a person is the point of the change.
     names = {s.name for s in students}
-    assert any("Tester" in n or "Student" in n for n in names)
-    assert "Sofia" in names
+    assert {"basic", "advanced"} <= names
 
-    tester = repo.get_student("young-tester-01")
-    assert tester.level == "beginner"
+    basic = repo.get_student("level-basic")
+    assert basic.level == "beginner"
 
-    sofia = repo.get_student("sofia-01")
-    assert sofia.level == "advanced"
+    advanced = repo.get_student("level-advanced")
+    assert advanced.level == "advanced"
 
 
 def test_verb1_ask_clarification():
     """Verb 1: ASK returns tailored questions based on student level."""
-    ask_tester = ask_clarification("young-tester-01")
-    assert len(ask_tester.intent_question) > 5
-    assert "box" in ask_tester.intent_question.lower() or "3d" in ask_tester.intent_question.lower()
-    assert len(ask_tester.quick_intent_suggestions) >= 2
+    ask_basic = ask_clarification("level-basic")
+    assert len(ask_basic.intent_question) > 5
+    assert "box" in ask_basic.intent_question.lower() or "3d" in ask_basic.intent_question.lower()
+    assert len(ask_basic.quick_intent_suggestions) >= 2
 
-    ask_sofia = ask_clarification("sofia-01")
-    assert "Sofia" in ask_sofia.intent_question
-    assert "perspective" in ask_sofia.intent_question.lower() or "setup" in ask_sofia.intent_question.lower()
+    ask_advanced = ask_clarification("level-advanced")
+    # No name is interpolated any more; what must hold is that the two levels ask
+    # different questions, in the register of their level.
+    assert ask_advanced.intent_question != ask_basic.intent_question
+    # The advanced question asks about a construction rather than a box: the register is what
+    # distinguishes the two levels now that neither carries a name.
+    assert "construction" in ask_advanced.intent_question.lower() or "exercise" in ask_advanced.intent_question.lower()
 
 
 def test_profile_adaptation_over_event_stream():
@@ -150,24 +160,24 @@ def test_profile_adaptation_over_event_stream():
 def test_verb2_guide_next_exercise():
     """Verb 2: GUIDE recommends appropriate next exercise."""
     repo = MemoryRepository()
-    rec_tester = repo.derive_profile("young-tester-01").recommended_next_exercise
+    rec_tester = repo.derive_profile("level-basic").recommended_next_exercise
     assert rec_tester.difficulty == "beginner"
 
-    rec_sofia = repo.derive_profile("sofia-01").recommended_next_exercise
+    rec_sofia = repo.derive_profile("level-advanced").recommended_next_exercise
     assert rec_sofia.difficulty == "advanced"
 
 
 def test_verb3_capture_feedback():
     """Verb 3: CAPTURE records feedback event in memory."""
     repo = MemoryRepository()
-    student_id = "sofia-01"
+    student_id = "level-advanced"
     ex_id = "ex-test-capture"
 
     ex = ExerciseRecord(
         exercise_id=ex_id,
         student_id=student_id,
         geometry_analysis=make_dummy_geometry(),
-        critique=make_dummy_critique("Sofia", "advanced"),
+        critique=make_dummy_critique("advanced", "advanced"),
     )
     repo.save_exercise(ex)
 
@@ -191,21 +201,22 @@ def test_api_collaborative_endpoints():
     students_data = resp_list.json()
     assert len(students_data) >= 2
 
-    # 2. ASK questions for Young Tester
-    resp_ask = client.get("/api/students/young-tester-01/ask")
+    # 2. ASK questions for the basic level. The response carries no personal name to assert on;
+    #    what must hold is that it asks something.
+    resp_ask = client.get("/api/students/level-basic/ask")
     assert resp_ask.status_code == 200
-    assert "Tester" in resp_ask.json()["student_name"] or "Student" in resp_ask.json()["student_name"]
+    assert resp_ask.json()["intent_question"].endswith("?")
 
     # 3. Post new exercise
     ex_id = f"ex-api-{uuid.uuid4().hex[:6]}"
     geom = make_dummy_geometry(f1_err=2.5, f2_err=2.8)
-    critique = make_dummy_critique("Young Tester", "beginner")
+    critique = make_dummy_critique("basic", "beginner")
 
     resp_save_ex = client.post(
         "/api/exercises",
         json={
             "exercise_id": ex_id,
-            "student_id": "young-tester-01",
+            "student_id": "level-basic",
             "student_intent": "Drawing a box on the floor",
             "geometry_analysis": geom.model_dump(),
             "critique": critique.model_dump(),
@@ -217,7 +228,7 @@ def test_api_collaborative_endpoints():
     resp_fb = client.post(
         f"/api/exercises/{ex_id}/feedback",
         json={
-            "student_id": "young-tester-01",
+            "student_id": "level-basic",
             "helpful": True,
             "note": "Super helpful tips!",
         },
@@ -226,13 +237,13 @@ def test_api_collaborative_endpoints():
     assert resp_fb.json()["helpful"] is True
 
     # 5. ADAPT / Get derived profile
-    resp_prof = client.get("/api/students/young-tester-01/profile")
+    resp_prof = client.get("/api/students/level-basic/profile")
     assert resp_prof.status_code == 200
     prof_data = resp_prof.json()
     assert prof_data["total_exercises"] >= 1
     assert len(prof_data["progress_curve"]) >= 1
 
     # 6. GUIDE next exercise
-    resp_guide = client.get("/api/students/young-tester-01/guide")
+    resp_guide = client.get("/api/students/level-basic/guide")
     assert resp_guide.status_code == 200
     assert resp_guide.json()["difficulty"] == "beginner"

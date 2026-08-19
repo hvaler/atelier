@@ -571,6 +571,45 @@ public class ExerciseRecordDto
     public CritiqueOutputDto? Critique { get; set; }
 }
 
+
+/// <summary>
+/// One past exercise, small enough to list. Deliberately not the full record: that carries the
+/// whole analysis including a base64 overlay, and twenty of those is a payload no list can use.
+/// </summary>
+public class ExerciseSummaryDto
+{
+    [JsonPropertyName("exercise_id")]
+    public string ExerciseId { get; set; } = string.Empty;
+
+    [JsonPropertyName("created_at")]
+    public string CreatedAt { get; set; } = string.Empty;
+
+    [JsonPropertyName("projection")]
+    public string Projection { get; set; } = "conic";
+
+    [JsonPropertyName("headline")]
+    public string Headline { get; set; } = string.Empty;
+
+    [JsonPropertyName("metric_name")]
+    public string MetricName { get; set; } = string.Empty;
+
+    /// <summary>Null when the figure was not measurable. Never coerced to zero.</summary>
+    [JsonPropertyName("metric_value")]
+    public double? MetricValue { get; set; }
+
+    [JsonPropertyName("metric_unit")]
+    public string MetricUnit { get; set; } = "degrees";
+
+    [JsonPropertyName("source")]
+    public string Source { get; set; } = "fallback";
+
+    [JsonPropertyName("student_intent")]
+    public string? StudentIntent { get; set; }
+
+    [JsonPropertyName("feedback_count")]
+    public int FeedbackCount { get; set; }
+}
+
 public class CritiqueRequestDto
 {
     [JsonPropertyName("image_base64")]
@@ -668,7 +707,11 @@ public class DerivedProfileDto
     public int TotalExercises { get; set; }
 
     [JsonPropertyName("overall_avg_error_deg")]
-    public double OverallAvgErrorDeg { get; set; }
+    /// <summary>
+    /// Null when no conic exercise has been recorded. Never coerced to zero: a mean over an empty
+    /// set is undefined, and 0.0° reads as a perfect average on a profile with nothing in it.
+    /// </summary>
+    public double? OverallAvgErrorDeg { get; set; }
 
     [JsonPropertyName("progress_curve")]
     public List<ProgressPointDto> ProgressCurve { get; set; } = [];

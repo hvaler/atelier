@@ -13,6 +13,7 @@ from src.models.critique import (
 from src.models.memory import (
     DerivedProfile,
     ExerciseRecord,
+    ExerciseSummary,
     FeedbackEvent,
     ProgressPoint,
     get_current_utc_iso,
@@ -39,8 +40,8 @@ class MemoryRepository:
         # Initialize default demo profiles for multi-student support from day 1
         self.register_student(
             StudentProfile(
-                student_id="young-tester-01",
-                name="Young Tester (Age 9)",
+                student_id="level-basic",
+                name="basic",
                 level="beginner",
                 tone_preference="encouraging",
                 recurring_issues=[],
@@ -48,8 +49,8 @@ class MemoryRepository:
         )
         self.register_student(
             StudentProfile(
-                student_id="sofia-01",
-                name="Sofia",
+                student_id="level-advanced",
+                name="advanced",
                 level="advanced",
                 tone_preference="technical",
                 recurring_issues=[],
@@ -145,7 +146,7 @@ class MemoryRepository:
                 )
             )
 
-        overall_avg = float(np.mean(all_errors)) if all_errors else 0.0
+        overall_avg = float(np.mean(all_errors)) if all_errors else None
 
         # 2. Analyze feedback events to derive tone preference
         all_feedbacks: list[FeedbackEvent] = []
@@ -190,7 +191,7 @@ class MemoryRepository:
             recurring_issues.append("Left Vanishing Point (F1) angle divergence")
         if len(f2_errors) >= 2:
             recurring_issues.append("Right Vanishing Point (F2) depth consistency")
-        if not recurring_issues and overall_avg > 4.0:
+        if not recurring_issues and overall_avg is not None and overall_avg > 4.0:
             recurring_issues.append("General horizon alignment and construction pressure")
 
         # 4. Determine current focus and guide next exercise
@@ -227,7 +228,7 @@ class MemoryRepository:
         return DerivedProfile(
             student=student,
             total_exercises=len(exercises),
-            overall_avg_error_deg=round(overall_avg, 2),
+            overall_avg_error_deg=round(overall_avg, 2) if overall_avg is not None else None,
             progress_curve=progress_curve,
             recurring_issues=recurring_issues,
             derived_tone_preference=derived_tone,
@@ -264,3 +265,52 @@ def _build_memory_repo() -> MemoryRepository:
 
 
 memory_repo = _build_memory_repo()
+
+
+def summarise_exercise(record: ExerciseRecord) -> ExerciseSummary:
+    """
+    Reduce a stored exercise to the one line a history list shows.
+
+    Each system contributes a different headline figure, because each measures a different thing.
+    Showing "0.8" for all three under one column header would invite comparing an axis deviation
+    with a convergence error, and they are not the same quantity.
+    """
+    projection = "unknown"
+    metric_name = ""
+    metric_value: float | None = None
+    metric_unit = "degrees"
+
+    if record.geometry_analysis is not None:
+        projection = "conic"
+        metric_name = "average convergence error"
+        metric_value = record.geometry_analysis.avg_convergence_error_deg
+    elif record.axonometric_analysis is not None:
+        projection = "axonometric"
+        metric_name = "average axis error"
+        metric_value = record.axonometric_analysis.avg_axis_error_deg
+    elif record.dihedral_analysis is not None:
+        projection = "orthographic"
+        d = record.dihedral_analysis
+        # The systematic offset is the more useful of the two when it exists; when it does not,
+        # the residual is. Null stays null: an average over no matched pair is not zero.
+        if d.systematic_offset_px is not None:
+            metric_name = "systematic offset"
+            metric_value = d.systematic_offset_px
+            metric_unit = "pixels"
+        else:
+            metric_name = "correspondence error"
+            metric_value = d.avg_correspondence_error_px
+            metric_unit = "pixels"
+
+    return ExerciseSummary(
+        exercise_id=record.exercise_id,
+        created_at=record.created_at,
+        projection=projection,
+        headline=record.critique.headline if record.critique else "",
+        metric_name=metric_name,
+        metric_value=metric_value,
+        metric_unit=metric_unit,
+        source=record.critique.source if record.critique else "fallback",
+        student_intent=record.student_intent,
+        feedback_count=len(record.feedback_events),
+    )

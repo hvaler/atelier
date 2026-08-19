@@ -19,11 +19,11 @@
 
         <!-- Student Selector -->
         <div class="btn-group btn-group-sm bg-body-tertiary p-1 rounded-pill" role="group">
-            <button type="button" class="btn @(ActiveStudentId == "young-tester-01" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SwitchStudent("young-tester-01")'>
-                @Loc["Young Tester (Age 9)"]
+            <button type="button" class="btn @(ActiveStudentId == "level-basic" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SwitchStudent("level-basic")'>
+                @Loc["Basic"]
             </button>
-            <button type="button" class="btn @(ActiveStudentId == "sofia-01" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SwitchStudent("sofia-01")'>
-                @Loc["Sofia (Advanced)"]
+            <button type="button" class="btn @(ActiveStudentId == "level-advanced" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SwitchStudent("level-advanced")'>
+                @Loc["advanced"]
             </button>
         </div>
     </div>
@@ -33,7 +33,7 @@
 </div>
 
 @code {
-    private string ActiveStudentId { get; set; } = "young-tester-01";
+    private string ActiveStudentId { get; set; } = "level-basic";
     private DerivedProfileDto? DerivedProfile { get; set; }
     private WeeklyDigestDto? WeeklyDigest { get; set; }
 

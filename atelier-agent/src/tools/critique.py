@@ -119,7 +119,7 @@ def generate_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
         pedagogical = PedagogicalSummary(
             strengths=["Clear 3D box structure", "Good confidence in drawing straight edges"],
             focus_area="Keeping pencil pressure light when aiming towards the horizon dot.",
-            encouragement=f"Fantastic work, {student.name}! Every box you draw makes your 3D vision stronger!",
+            encouragement="Fantastic work! Every box you draw makes your 3D vision stronger.",
         )
         next_ex = NextExerciseRecommendation(
             title="3 Floating Cubes in 1-Point Perspective",
@@ -127,7 +127,7 @@ def generate_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
             target_metric="1-point convergence consistency",
             difficulty="beginner",
         )
-        headline = f"Awesome 3D Box Practice, {student.name}!"
+        headline = "Awesome 3D box practice"
     else:
         qualitative = [
             QualitativeObservationItem(
@@ -144,7 +144,7 @@ def generate_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
         pedagogical = PedagogicalSummary(
             strengths=["Consistent vanishing point convergence", "Solid vertical alignment on primary axes"],
             focus_area="Tightening convergence on secondary depth lines extending to F1.",
-            encouragement=f"Very solid technical discipline, {student.name}. Your spatial reading is clean and ready for complex volumetric forms.",
+            encouragement="Very solid technical discipline. Your spatial reading is clean and ready for complex volumetric forms.",
         )
         next_ex = NextExerciseRecommendation(
             title="2-Point Perspective: Stepped Architectural Form",
@@ -152,7 +152,7 @@ def generate_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
             target_metric="2-point convergence & dimensional consistency",
             difficulty="advanced",
         )
-        headline = f"Perspective Analysis: Strong Volumetric Control, {student.name}"
+        headline = "Perspective analysis: strong volumetric control"
 
     return CritiqueOutput(
         student_name=student.name,
@@ -444,8 +444,8 @@ def generate_orthographic_fallback_critique(request: CritiqueRequest) -> Critiqu
             "each corner in one has an answer in the other."
         ),
         encouragement=(
-            f"{student.name}, the measurements above are real. The written critique is not — no "
-            "model was reachable, so this text is a template."
+            "The measurements above are real. The written critique is not — no model was "
+            "reachable, so this text is a template."
         ),
     )
     next_ex = NextExerciseRecommendation(
@@ -461,7 +461,7 @@ def generate_orthographic_fallback_critique(request: CritiqueRequest) -> Critiqu
     return CritiqueOutput(
         student_name=student.name,
         level=student.level,
-        headline=f"Orthographic measurements for {student.name}",
+        headline="Orthographic measurements",
         measured_findings=measured,
         qualitative_observations=[],
         pedagogical_summary=pedagogical,
@@ -533,8 +533,8 @@ def generate_axonometric_fallback_critique(request: CritiqueRequest) -> Critique
             "fixed by the system, so it is decided once rather than judged edge by edge."
         ),
         encouragement=(
-            f"{student.name}, the measurements above are real. The written critique is not — no "
-            "model was reachable, so this text is a template."
+            "The measurements above are real. The written critique is not — no model was "
+            "reachable, so this text is a template."
         ),
     )
     next_ex = NextExerciseRecommendation(
@@ -550,7 +550,7 @@ def generate_axonometric_fallback_critique(request: CritiqueRequest) -> Critique
     return CritiqueOutput(
         student_name=student.name,
         level=student.level,
-        headline=f"Axonometric measurements for {student.name}",
+        headline="Axonometric measurements",
         measured_findings=measured,
         qualitative_observations=[],
         pedagogical_summary=pedagogical,

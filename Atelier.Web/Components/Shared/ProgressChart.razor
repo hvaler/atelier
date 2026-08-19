@@ -15,7 +15,7 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-body-tertiary text-body text-center">
                     <small class="text-body-secondary d-block">@Loc["Overall Avg Error"]</small>
-                    <strong class="fs-3 text-primary">@Profile.OverallAvgErrorDeg.ToString("F1")°</strong>
+                    <strong class="fs-3 text-primary">@(Profile.OverallAvgErrorDeg is double avg ? $"{avg:F1}°" : "—")</strong>
                 </div>
             </div>
             <div class="col-md-3">

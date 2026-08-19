@@ -62,7 +62,7 @@ def process_gcs_upload_event(event: GcsEventPayload) -> GcsProcessingResponse:
     """Process a drawing uploaded to GCS inbox triggered via Eventarc (google.cloud.storage.object.v1.finalized)."""
     # 1. Parse student_id from object name '{student_id}/{filename}'
     parts = event.name.split("/")
-    student_id = parts[0] if len(parts) > 1 else "young-tester-01"
+    student_id = parts[0] if len(parts) > 1 else "level-basic"
 
     student = memory_repo.get_student(student_id)
     if not student:

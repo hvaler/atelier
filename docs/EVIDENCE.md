@@ -288,6 +288,12 @@ curl -s https://atelier-agent-773993294789.europe-west1.run.app/api/students/you
 ```
 
 ### Verified Output (Live Firestore API)
+
+> Captured **before** the profiles were changed from named personas to difficulty levels
+> (`level-basic` / `level-advanced`). The payload is reproduced as it was returned rather than
+> edited to match the current identifiers: a record of a run is evidence, and evidence that has
+> been tidied up to agree with today's code is not evidence of anything.
+
 ```json
 {
   "student": {

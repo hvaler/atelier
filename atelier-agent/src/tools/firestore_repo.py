@@ -60,18 +60,24 @@ class FirestoreMemoryRepository(MemoryRepository):
     # ---- seeding -------------------------------------------------------------------------
 
     def ensure_seed_students(self) -> None:
-        """Create the two demo profiles if they are absent. Never overwrites a real one."""
+        """
+        Create the two profiles if they are absent. Never overwrites a real one.
+
+        They are difficulty levels rather than people. A level decides the register of the rubric
+        and the tone of the critique; there is nobody in it to name, so the `name` field carries
+        the level word and nothing downstream interpolates it into prose.
+        """
         for student in (
             StudentProfile(
-                student_id="young-tester-01",
-                name="Young Tester (Age 9)",
+                student_id="level-basic",
+                name="basic",
                 level="beginner",
                 tone_preference="encouraging",
                 recurring_issues=[],
             ),
             StudentProfile(
-                student_id="sofia-01",
-                name="Sofia",
+                student_id="level-advanced",
+                name="advanced",
                 level="advanced",
                 tone_preference="technical",
                 recurring_issues=[],

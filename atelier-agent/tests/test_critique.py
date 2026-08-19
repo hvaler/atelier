@@ -47,7 +47,7 @@ def test_level_aware_critique_beginner():
     """Verify that critique generated for beginner student uses warm, intuitive vocabulary."""
     student = StudentProfile(
         student_id="student-beginner-01",
-        name="Young Tester",
+        name="basic",
         level="beginner",
         tone_preference="encouraging",
     )
@@ -63,7 +63,7 @@ def test_level_aware_critique_beginner():
     response = generate_pedagogical_critique(request)
     critique = response.critique
 
-    assert critique.student_name == "Young Tester"
+    assert critique.student_name == "basic"
     assert critique.level == "beginner"
     assert critique.validated is True
     # Beginner next exercise should be beginner level
@@ -75,8 +75,8 @@ def test_level_aware_critique_beginner():
 def test_level_aware_critique_advanced():
     """Verify that critique generated for advanced animation student uses studio master terminology."""
     student = StudentProfile(
-        student_id="student-advanced-01",
-        name="Sofia",
+        student_id="level-advanced",
+        name="advanced",
         level="advanced",
         tone_preference="technical",
     )
@@ -92,7 +92,7 @@ def test_level_aware_critique_advanced():
     response = generate_pedagogical_critique(request)
     critique = response.critique
 
-    assert critique.student_name == "Sofia"
+    assert critique.student_name == "advanced"
     assert critique.level == "advanced"
     assert critique.validated is True
     assert critique.next_exercise.difficulty == "advanced"

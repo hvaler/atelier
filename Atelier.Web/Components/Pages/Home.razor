@@ -1,172 +1,157 @@
 @page "/"
 @namespace Atelier.Web.Components.Pages
 @using Atelier.Web.Components.Shared
+@using Atelier.Web.Components.Layout
 @inject IAtelierAgentClient AgentClient
 @inject IWebHostEnvironment Env
 
 <PageTitle>@Loc["Atelier — Studio Master Perspective AI"]</PageTitle>
 
-<div class="container-xl py-4">
-    <!-- Top Studio Master Bar -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle border-opacity-25">
-        <div>
-            <h2 class="fw-bold text-body mb-0">
-                <span class="text-primary">Atelier</span> @Loc["Studio"]
-            </h2>
-            <p class="text-body-secondary small mb-0">
-                @Loc["The geometry measures, the AI teaches, the student grows."]
-            </p>
-        </div>
-
-        <!-- Student Switcher -->
-        <div class="d-flex align-items-center gap-3 bg-body-tertiary p-2 rounded-4 border border-secondary-subtle border-opacity-25 shadow-sm">
-            <span class="text-body-secondary small ps-2">@Loc["Active Student:"]</span>
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn @(CurrentStudentId == "young-tester-01" ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SelectStudent("young-tester-01")'>
-                    @Loc["Young Tester (Age 9)"]
-                </button>
-                <button type="button" class="btn @(CurrentStudentId == "sofia-01" ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SelectStudent("sofia-01")'>
-                    @Loc["Sofia (Animation Adv.)"]
-                </button>
-            </div>
-            <span class="badge @(CurrentStudent?.Level == "beginner" ? "bg-info text-dark" : "bg-warning text-dark") rounded-pill px-3 py-2">
-                @(Loc[CurrentStudent?.Level ?? "beginner"].Value.ToUpperInvariant())
-            </span>
-        </div>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div>
+        <div class="eyebrow">@Loc["Studio"]</div>
+        <h1 style="font-size: var(--t-2xl); margin: 4px 0 0;">@StepHeading</h1>
+        <p class="text-body-secondary mb-0" style="font-size: var(--t-sm);">@StepSubheading</p>
     </div>
 
-    <!-- Main Studio Workspace Grid -->
-    <div class="row g-4">
-        <!-- Left Column: Drawing Setup & Collaboration -->
-        <div class="col-lg-5">
-            <!-- Source Picker Card -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary text-body mb-4">
-                <h5 class="fw-bold text-body mb-3">@Loc["📂 Select Perspective Drawing"]</h5>
-
-                <div class="mb-3">
-                    <label class="form-label text-body-secondary small">@Loc["Pre-Calibrated Golden Sample:"]</label>
-                    <select class="form-select bg-body-secondary text-body border-secondary-subtle" @onchange="OnSampleSelected">
-                        <option value="01_1point_perfect.png">@Loc["1-Point Perspective (Perfect 0° error)"]</option>
-                        <option value="02_1point_error_4deg.png">@Loc["1-Point Perspective (Slight 4° error)"]</option>
-                        <option value="03_1point_error_9deg.png">@Loc["1-Point Perspective (Deliberate 9° error)"]</option>
-                        <option value="04_2point_perfect.png">@Loc["2-Point Perspective (Perfect F1/F2)"]</option>
-                        <option value="05_2point_error_6deg.png">@Loc["2-Point Perspective (F1 Drift 6° error)"]</option>
-                        <option value="06_isometric_perfect.png">@Loc["Isometric (axes exact)"]</option>
-                        <option value="07_isometric_error_6deg.png">@Loc["Isometric (X axis set 6° wrong)"]</option>
-                        <option value="08_cavalier_perfect.png">@Loc["Cavalier (45° receding axis)"]</option>
-                        <option value="09_diedrico_perfect.png">@Loc["Orthographic plate (views correspond)"]</option>
-                        <option value="10_diedrico_error_18px.png">@Loc["Orthographic plate (plan 18 px out)"]</option>
-                        <option value="11_diedrico_vertice_huerfano.png">@Loc["Orthographic plate (a corner never carried across)"]</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label text-body-secondary small">@Loc["Or Upload Student Drawing Photo:"]</label>
-                    <InputFile OnChange="HandleFileSelected" class="form-control bg-body-secondary text-body border-secondary-subtle" accept="image/*" />
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-secondary">
-                        @TargetModeLabel
-                    </span>
-                    <button class="btn btn-outline-info btn-sm rounded-pill" @onclick="ReloadAskPrompt">
-                        @Loc["Refresh Questions"]
-                    </button>
-                </div>
-            </div>
-
-            <!-- Verb 1: ASK Clarifying Questions Card -->
-            @if (AskData != null && !AnalysisCompleted)
-            {
-                <CollaborativeDialog Mode="ask"
-                                     AskData="AskData"
-                                     StudentId="@CurrentStudentId"
-                                     OnAskCompleted="HandleAskCompleted" />
-            }
-
-            <!-- Verb 3: CAPTURE Feedback Card. Only offered when the exercise was actually
-                 stored — asking for feedback on something that does not exist is how the screen
-                 came to report a profile as adapted over an empty database. -->
-            @if (AnalysisCompleted && ExerciseSaved)
-            {
-                <CollaborativeDialog Mode="feedback"
-                                     ExerciseId="@CurrentExerciseId"
-                                     StudentId="@CurrentStudentId" />
-            }
-        </div>
-
-        <!-- Right Column: Multimodal Geometric Overlay & Two-Plane Critique -->
-        <div class="col-lg-7">
-            <!-- Multimodal Overlay (The Star Feature). Only when there is a measurement to show:
-                 with the panel always rendered, a refused upload still displayed the header, the
-                 confidence from the *previous* drawing and the severity legend over a page of
-                 text — a screen that says "nothing was measured" while looking like it did. -->
-            @if (CurrentGeometry is not null)
-            {
-                <OverlayViewer Geometry="CurrentGeometry" OriginalImageBase64="@CurrentBase64" />
-            }
-            else if (CurrentAxonometry is not null)
-            {
-                <AxonometricViewer Analysis="CurrentAxonometry" OriginalImageBase64="@CurrentBase64" />
-            }
-            else if (CurrentDihedral is not null)
-            {
-                <DihedralViewer Analysis="CurrentDihedral" OriginalImageBase64="@CurrentBase64" />
-            }
-
-            <!-- Two-Plane Pedagogical Critique -->
-            @* The gate refused this photograph. Said plainly, with the model's own reason, because
-               "we did not measure this" is a useful answer and a silent zero is not. *@
-            @if (NotAnExercise is not null)
-            {
-                <div class="alert alert-warning border-0 rounded-4">
-                    <strong>@Loc["This does not look like a perspective exercise."]</strong>
-                    <div class="small mt-1">@NotAnExercise</div>
-                    <div class="small mt-2 text-muted">
-                        @Loc["Nothing was measured. Upload a drawing with construction lines running to a vanishing point and Atelier will look again."]
-                    </div>
-                </div>
-            }
-            @* The student's description and their drawing disagree. Neither is corrected behind
-               their back: the drawing was measured as drawn, and the difference is named. *@
-            @if (IntentMismatch && Routing is not null && CurrentGeometry is not null)
-            {
-                <div class="alert alert-info border-0 rounded-4 py-2">
-                    <strong>@Loc["Your description and your drawing do not match."]</strong>
-                    <div class="small mt-1">
-                        @(Loc["You described a {0} — {1} This drawing was measured as {2}-point, which is what it looks like. Nothing was changed; worth a second look at either the drawing or the description.", Routing.ExerciseType, Routing.Reasoning, CurrentGeometry.KRequested])
-                    </div>
-                </div>
-            }
-            @if (AgentUnavailable)
-            {
-                <div class="alert alert-danger border-0 rounded-4">
-                    <strong>@Loc["The analysis service did not answer."]</strong>
-                    <div class="small mt-1">
-                        @Loc["Nothing is shown rather than something invented. This page used to fill in hardcoded numbers here, which looked exactly like a working system."]
-                    </div>
-                </div>
-            }
-            @if (IsAnalyzing)
-            {
-                <div class="card border-0 shadow-sm rounded-4 p-5 bg-body-tertiary text-center text-body">
-                    <div class="spinner-border text-primary mb-3 mx-auto" role="status"></div>
-                    <h5>@Loc["Studio Master is examining drawing geometry & formulating critique..."]</h5>
-                    <p class="text-body-secondary small">@Loc["Invoking Gemini Flash on Vertex AI with level-aware rubric calibration."]</p>
-                </div>
-            }
-            else if (CurrentCritique != null)
-            {
-                <TwoPlaneCritique Critique="CurrentCritique" />
-            }
+    @* Levels, not people. The profile is a difficulty setting: it decides the rubric's register
+       and the tone of the critique, and nothing about it is a person. *@
+    <div class="d-flex align-items-center gap-2">
+        <span class="eyebrow">@Loc["Level"]</span>
+        <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn @(CurrentStudentId == BasicId ? "btn-primary" : "btn-outline-secondary")"
+                    @onclick="() => SelectLevelAsync(BasicId)">@Loc["Basic"]</button>
+            <button type="button" class="btn @(CurrentStudentId == AdvancedId ? "btn-primary" : "btn-outline-secondary")"
+                    @onclick="() => SelectLevelAsync(AdvancedId)">@Loc["advanced"]</button>
         </div>
     </div>
 </div>
 
+@* ---------------------------------------------------------------- step 1: the drawing *@
+@if (CurrentStep == 0)
+{
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <section class="card p-4 mb-4">
+                <div class="eyebrow mb-3">@Loc["Calibration samples"]</div>
+                <div class="sample-grid">
+                    @foreach (var s in Samples)
+                    {
+                        <button type="button"
+                                class="sample-card @(SelectedSample == s.File ? "is-selected" : "")"
+                                @onclick="() => LoadSampleDrawingAsync(s.File)">
+                            <img src="/samples/@s.File" alt="@s.File" loading="lazy" />
+                            <span class="sys">@Loc[s.SystemKey]</span>
+                            <span class="name">@Loc[s.LabelKey]</span>
+                        </button>
+                    }
+                </div>
+            </section>
+
+            <section class="card p-4">
+                <div class="eyebrow mb-3">@Loc["Or upload your own drawing"]</div>
+                <div class="dropzone">
+                    <InputFile OnChange="HandleFileSelected" class="form-control" accept="image/*" />
+                    <p class="mb-0 mt-3" style="font-size: var(--t-sm);">
+                        @Loc["Atelier looks at the photograph first and decides which system of representation it is, before measuring anything."]
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-4">
+            <ExerciseHistory StudentId="@CurrentStudentId" Revision="HistoryRevision" />
+        </div>
+    </div>
+}
+
+@* ---------------------------------------------------------------- step 2: the context *@
+@if (CurrentStep == 1)
+{
+    <div class="row g-4">
+        <div class="col-lg-5">
+            @if (AskData is not null)
+            {
+                <CollaborativeDialog Mode="ask" AskData="AskData" StudentId="@CurrentStudentId"
+                                     OnAskCompleted="HandleAskCompleted" />
+            }
+        </div>
+        <div class="col-lg-7">
+            @RenderMeasurement
+        </div>
+    </div>
+}
+
+@* ---------------------------------------------------------------- step 3: the critique *@
+@if (CurrentStep == 2)
+{
+    <div class="row g-4">
+        <div class="col-lg-7">
+            @RenderMeasurement
+        </div>
+        <div class="col-lg-5">
+            @if (IsAnalyzing)
+            {
+                <section class="card p-5 text-center">
+                    <div class="spinner-border text-primary mb-3 mx-auto" role="status"></div>
+                    <h5>@Loc["Studio Master is examining drawing geometry & formulating critique..."]</h5>
+                    <p class="text-body-secondary small mb-0">@Loc["Invoking Gemini Flash on Vertex AI with level-aware rubric calibration."]</p>
+                </section>
+            }
+            else if (CurrentCritique is not null)
+            {
+                <TwoPlaneCritique Critique="CurrentCritique" />
+
+                @if (ExerciseSaved)
+                {
+                    <CollaborativeDialog Mode="feedback" ExerciseId="@CurrentExerciseId" StudentId="@CurrentStudentId" />
+                }
+
+                <button type="button" class="btn btn-outline-secondary w-100 mt-3" @onclick="StartOverAsync">
+                    @Loc["Analyse another drawing"]
+                </button>
+            }
+        </div>
+    </div>
+}
+
 @code {
-    private string CurrentStudentId { get; set; } = "young-tester-01";
+    private const string BasicId = "level-basic";
+    private const string AdvancedId = "level-advanced";
+
+    /// <summary>Deep link from the gallery: /?sample=07_isometric_error_6deg.png</summary>
+    [SupplyParameterFromQuery(Name = "sample")]
+    public string? SampleFromQuery { get; set; }
+
+    [CascadingParameter]
+    private MainLayout? Shell { get; set; }
+
+    private sealed record SampleDef(string File, string LabelKey, string SystemKey, string? Axonometric, bool Orthographic, int KPoints);
+
+    /// <summary>
+    /// The calibration set, and which reference each drawing is measured against. This table is
+    /// the single place that knows: measuring an isometric cube as if it were perspective would
+    /// find a vanishing point among edges that were never meant to meet.
+    /// </summary>
+    private static readonly SampleDef[] Samples =
+    [
+        new("01_1point_perfect.png",            "1-Point Perspective (Perfect 0° error)",      "Conic", null, false, 1),
+        new("02_1point_error_4deg.png",         "1-Point Perspective (Slight 4° error)",       "Conic", null, false, 1),
+        new("03_1point_error_9deg.png",         "1-Point Perspective (Deliberate 9° error)",   "Conic", null, false, 1),
+        new("04_2point_perfect.png",            "2-Point Perspective (Perfect F1/F2)",         "Conic", null, false, 2),
+        new("05_2point_error_6deg.png",         "2-Point Perspective (F1 Drift 6° error)",     "Conic", null, false, 2),
+        new("06_isometric_perfect.png",         "Isometric (axes exact)",                      "Axonometric", "isometric", false, 0),
+        new("07_isometric_error_6deg.png",      "Isometric (X axis set 6° wrong)",             "Axonometric", "isometric", false, 0),
+        new("08_cavalier_perfect.png",          "Cavalier (45° receding axis)",                "Axonometric", "cavalier",  false, 0),
+        new("09_diedrico_perfect.png",          "Orthographic plate (views correspond)",       "Orthographic", null, true, 0),
+        new("10_diedrico_error_18px.png",       "Orthographic plate (plan 18 px out)",         "Orthographic", null, true, 0),
+        new("11_diedrico_vertice_huerfano.png", "Orthographic plate (a corner never carried across)", "Orthographic", null, true, 0),
+    ];
+
+    private string CurrentStudentId { get; set; } = BasicId;
     private StudentProfileDto? CurrentStudent { get; set; }
     private AskPromptDataDto? AskData { get; set; }
+    private string SelectedSample { get; set; } = string.Empty;
 
     private string? CurrentBase64 { get; set; }
     private GeometryAnalysisResultDto? CurrentGeometry { get; set; }
@@ -179,6 +164,7 @@
     /// <summary>True when one of the three analyses produced something to critique.</summary>
     private bool HasAnalysis =>
         CurrentGeometry is not null || CurrentAxonometry is not null || CurrentDihedral is not null;
+
     private CritiqueOutputDto? CurrentCritique { get; set; }
     private string CurrentExerciseId { get; set; } = string.Empty;
     /// <summary>Whether the agent actually stored this exercise. The feedback step is only
@@ -196,54 +182,59 @@
     /// their drawing was measured as. Reported, never silently acted on.</summary>
     private bool IntentMismatch { get; set; }
 
-    /// <summary>The perspective the rubric will expect for this student, in their language.
-    /// Built here rather than inline because a nested localiser lookup inside a Razor
-    /// conditional is unreadable in markup.</summary>
-    private string TargetModeLabel
-    {
-        get
-        {
-            // Once a parallel projection is on screen, "1-point (k=1)" is describing a different
-            // drawing. The badge names what is actually being measured against, not what the
-            // student's profile level would have implied.
-            if (CurrentDihedral is not null)
-            {
-                return string.Format(Loc["Measured against: {0}"], Loc["the ground line as drawn"]);
-            }
-
-            if (CurrentAxonometry is not null)
-            {
-                var systemKey = CurrentAxonometry.System switch
-                {
-                    "dimetric" => "Dimetric projection",
-                    "cavalier" => "Cavalier projection",
-                    _ => "Isometric projection",
-                };
-                return string.Format(Loc["Measured against: {0}"], Loc[systemKey]);
-            }
-
-            return string.Format(
-                Loc["Target Mode: {0}"],
-                CurrentStudent?.Level == "beginner" ? Loc["1-Point (k=1)"] : Loc["2-Point (k=2)"]);
-        }
-    }
-
     private bool IsAnalyzing { get; set; }
-    private bool AnalysisCompleted { get; set; }
+    /// <summary>Bumped after a save so the history panel refetches rather than showing a stale list.</summary>
+    private int HistoryRevision { get; set; }
+
+    private int CurrentStep { get; set; }
+
+    private string StepHeading => CurrentStep switch
+    {
+        1 => Loc["Before we look, two questions"],
+        2 => Loc["What the measurements say"],
+        _ => Loc["Choose a drawing"],
+    };
+
+    private string StepSubheading => CurrentStep switch
+    {
+        1 => Loc["Your answers set the register of the critique. They never change the measurement."],
+        2 => Loc["The geometry measures, the AI teaches."],
+        _ => Loc["Pick a calibration sample or upload a photograph of your own work."],
+    };
 
     protected override async Task OnInitializedAsync()
     {
         await LoadStudentAsync(CurrentStudentId);
-        await LoadSampleDrawingAsync("01_1point_perfect.png");
+
+        // A deep link from the gallery names its own sample and is analysed straight away, which
+        // is the point of following the link. Without one the page stays on step 1 and waits:
+        // analysing something nobody chose would skip the first step of a three-step flow and
+        // land the reader on "Context" for a drawing they never picked.
+        var requested = Samples.FirstOrDefault(s => s.File == SampleFromQuery);
+        if (requested is not null)
+        {
+            await LoadSampleDrawingAsync(requested.File);
+        }
     }
 
-    private async Task SelectStudent(string studentId)
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // The step indicator belongs in the top bar, which the layout owns.
+        Shell?.SetTopBar(@<StepIndicator Current="CurrentStep" OnStepSelected="GoToStepAsync" />);
+    }
+
+    private Task GoToStepAsync(int step)
+    {
+        if (step < CurrentStep) CurrentStep = step;
+        return Task.CompletedTask;
+    }
+
+    private async Task SelectLevelAsync(string studentId)
     {
         CurrentStudentId = studentId;
         await LoadStudentAsync(studentId);
-        AnalysisCompleted = false;
-        CurrentCritique = null;
-        await ReloadAskPrompt();
+        CurrentStep = 0;
+        ClearAnalysis();
     }
 
     private async Task LoadStudentAsync(string studentId)
@@ -252,8 +243,8 @@
         CurrentStudent = students.FirstOrDefault(s => s.StudentId == studentId) ?? new StudentProfileDto
         {
             StudentId = studentId,
-            Name = studentId.Contains("sofia") ? "Sofia" : "Young Tester (Age 9)",
-            Level = studentId.Contains("sofia") ? "advanced" : "beginner"
+            Name = studentId == AdvancedId ? "advanced" : "basic",
+            Level = studentId == AdvancedId ? "advanced" : "beginner"
         };
         await ReloadAskPrompt();
     }
@@ -263,62 +254,41 @@
         AskData = await AgentClient.GetAskPromptAsync(CurrentStudentId);
     }
 
-    private async Task OnSampleSelected(ChangeEventArgs e)
-    {
-        var filename = e.Value?.ToString() ?? "01_1point_perfect.png";
-        await LoadSampleDrawingAsync(filename);
-    }
-
     private async Task LoadSampleDrawingAsync(string filename)
     {
-        // Read the actual calibration PNG and analyse it.
-        //
-        // This used to pass string.Empty. The agent rejects an empty image with 400, the client
-        // silently substituted hardcoded constants, and so every sample produced identical
-        // output: picking "deliberate 9 degree error" showed the same 1.8 degrees as "perfect".
-        // The five files under wwwroot/samples carry known injected errors, which is the whole
-        // point of them — the measured number has to move when the drawing does.
+        // Read the actual calibration PNG and analyse it. This used to pass string.Empty; the
+        // agent rejected it with 400, the client silently substituted hardcoded constants, and
+        // every sample produced identical output. The measured number has to move when the
+        // drawing does, which is the whole point of a calibration set.
+        var def = Samples.FirstOrDefault(s => s.File == filename) ?? Samples[0];
+        SelectedSample = def.File;
         IsAnalyzing = true;
-        AnalysisCompleted = false;
         ClearAnalysis();
 
-        var path = Path.Combine(Env.WebRootPath, "samples", filename);
+        var path = Path.Combine(Env.WebRootPath, "samples", def.File);
         CurrentBase64 = File.Exists(path)
             ? Convert.ToBase64String(await File.ReadAllBytesAsync(path))
             : string.Empty;
 
-        // The calibration set now holds both kinds, so the sample decides which reference it is
-        // measured against. Measuring an isometric cube as if it were perspective would find a
-        // vanishing point among edges that were never meant to meet.
-        var axonometricSystem = AxonometricSystemForSample(filename);
-        if (filename.StartsWith("09") || filename.StartsWith("10") || filename.StartsWith("11"))
+        if (def.Orthographic)
         {
             CurrentDihedral = await AgentClient.AnalyzeDihedralAsync(CurrentBase64);
             AgentUnavailable = CurrentDihedral is null;
         }
-        else if (axonometricSystem is not null)
+        else if (def.Axonometric is { Length: > 0 } system)
         {
-            CurrentAxonometry = await AgentClient.AnalyzeAxonometricAsync(CurrentBase64, axonometricSystem);
+            CurrentAxonometry = await AgentClient.AnalyzeAxonometricAsync(CurrentBase64, system);
             AgentUnavailable = CurrentAxonometry is null;
         }
         else
         {
-            var kPoints = filename.StartsWith("04") || filename.StartsWith("05") ? 2 : 1;
-            CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, kPoints, generateOverlay: true);
+            CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, def.KPoints, generateOverlay: true);
             AgentUnavailable = CurrentGeometry is null;
         }
 
         IsAnalyzing = false;
+        if (HasAnalysis) CurrentStep = 1;
     }
-
-    /// <summary>Which projection system a calibration sample was drawn in, or null for conic.</summary>
-    private static string? AxonometricSystemForSample(string filename) => filename switch
-    {
-        "06_isometric_perfect.png" => "isometric",
-        "07_isometric_error_6deg.png" => "isometric",
-        "08_cavalier_perfect.png" => "cavalier",
-        _ => null,
-    };
 
     /// <summary>
     /// Drop every measurement from the previous drawing. Leaving one behind is how a refused
@@ -333,6 +303,14 @@
         ExerciseSaved = false;
         IntentMismatch = false;
         NotAnExercise = null;
+        AgentUnavailable = false;
+    }
+
+    private async Task StartOverAsync()
+    {
+        CurrentStep = 0;
+        ClearAnalysis();
+        await ReloadAskPrompt();
     }
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
@@ -345,26 +323,23 @@
         await stream.CopyToAsync(ms);
         CurrentBase64 = Convert.ToBase64String(ms.ToArray());
 
+        SelectedSample = string.Empty;
         IsAnalyzing = true;
-        AnalysisCompleted = false;
         ClearAnalysis();
 
-        // The gate first. A photograph that is not a perspective exercise — a page of text, a
-        // blank sheet, a picture of the cat — would otherwise go through RANSAC, produce a
-        // vanishing point from whatever edges exist, and earn a critique about line weight.
-        // Measuring the wrong thing carefully is worse than not measuring it.
+        // The gate first. A photograph that is not an exercise — a page of text, a blank sheet, a
+        // picture of the cat — would otherwise go through RANSAC, produce a vanishing point from
+        // whatever edges exist, and earn a critique about line weight. Measuring the wrong thing
+        // carefully is worse than not measuring it.
         var gate = await AgentClient.ClassifyDrawingAsync(CurrentBase64);
         if (gate is { IsExercise: false })
         {
             NotAnExercise = gate.Reasoning;
-            AnalysisCompleted = false;
             IsAnalyzing = false;
             return;
         }
 
         // The gate does not only decide whether to measure; it decides what to measure against.
-        // A parallel projection has no vanishing point, so running it through the perspective
-        // path would produce a confident number about a point that does not exist in the drawing.
         // Only a gate that actually looked gets to make that call — the fallback stays conic,
         // which is the behaviour this page has always had.
         if (gate is { Source: "vertex", Projection: "orthographic" })
@@ -388,12 +363,14 @@
         }
 
         IsAnalyzing = false;
+        if (HasAnalysis) CurrentStep = 1;
     }
 
     private async Task HandleAskCompleted((string Intent, string Difficulty) context)
     {
         if (!HasAnalysis || CurrentStudent == null) return;
 
+        CurrentStep = 2;
         IsAnalyzing = true;
         ExerciseSaved = false;
 
@@ -402,12 +379,9 @@
         //
         // The words do NOT win. An earlier version re-measured on the router's say-so, and a
         // one-point box described as "the corner of a building" came back as two-point: 29.9
-        // degrees of average error, 89.2 on the worst line, two vanishing points found in a
-        // drawing that has one. That is this project's own principle broken — the measurement is
-        // the evidence and the description is a claim, so the claim does not overrule it.
-        //
-        // What the disagreement is good for is saying so. "You described a corner; this reads as
-        // one-point" is useful to a student in a way that neither signal is alone.
+        // degrees of average error in a drawing that has one vanishing point. The measurement is
+        // the evidence and the description is a claim, so the claim does not overrule it. What
+        // the disagreement is good for is saying so.
         Routing = await AgentClient.RouteIntentAsync(context.Intent, CurrentStudent.Level);
         IntentMismatch = Routing is { Source: "gemma", RecommendedK: 1 or 2 }
                          && CurrentGeometry is not null
@@ -415,22 +389,19 @@
 
         var critiqueReq = new CritiqueRequestDto
         {
-            // Exactly one of the two. The agent refuses a request carrying both, because the
-            // anti-hallucination whitelist would then be the union of two unrelated sets of
-            // numbers and a figure invented for one drawing could match a figure from the other.
+            // Exactly one of the three. The agent refuses a request carrying more, because the
+            // anti-hallucination whitelist would then be the union of unrelated sets of numbers.
             Geometry = CurrentGeometry,
             Axonometry = CurrentAxonometry,
             Dihedral = CurrentDihedral,
             Student = CurrentStudent,
             // The drawing itself. Plane B asks the model about line weight and spatial clarity;
-            // without the image the validator rejects those observations, retries three times,
-            // and falls back to the template — which is what happened, silently, until this line.
+            // without the image the validator rejects those observations and falls back to the
+            // template — which is what happened, silently, until this line.
             ImageBase64 = CurrentBase64,
             StudentIntent = context.Intent,
             StudentDifficulty = context.Difficulty,
-            // Off by default. Under a rule that mandates an unedited live execution, demoing a
-            // disk read is not demoing an agent — and a cached critique cannot be about the
-            // drawing that was just uploaded.
+            // Off by default: a cached critique cannot be about the drawing just uploaded.
             UseCache = false
         };
 
@@ -458,9 +429,63 @@
 
             CurrentExerciseId = saved?.ExerciseId ?? string.Empty;
             ExerciseSaved = saved is not null;
+            if (ExerciseSaved) HistoryRevision++;
         }
 
         IsAnalyzing = false;
-        AnalysisCompleted = true;
     }
+
+    /// <summary>
+    /// The measurement panel, shared by steps 2 and 3. Exactly one viewer renders, because
+    /// exactly one analysis exists.
+    /// </summary>
+    private RenderFragment RenderMeasurement => @<text>
+        @if (NotAnExercise is not null)
+        {
+            <div class="alert alert-warning border-0 rounded-4">
+                <strong>@Loc["This does not look like a perspective exercise."]</strong>
+                <div class="small mt-1">@NotAnExercise</div>
+                <div class="small mt-2 text-body-secondary">
+                    @Loc["Nothing was measured. Upload a drawing with construction lines running to a vanishing point and Atelier will look again."]
+                </div>
+            </div>
+        }
+        @if (AgentUnavailable)
+        {
+            <div class="alert alert-danger border-0 rounded-4">
+                <strong>@Loc["The analysis service did not answer."]</strong>
+                <div class="small mt-1">
+                    @Loc["Nothing is shown rather than something invented. This page used to fill in hardcoded numbers here, which looked exactly like a working system."]
+                </div>
+            </div>
+        }
+        @if (IsAnalyzing && !HasAnalysis)
+        {
+            <section class="card p-5 text-center">
+                <div class="spinner-border text-primary mb-3 mx-auto" role="status"></div>
+                <p class="text-body-secondary mb-0">@Loc["Analyzing geometry with deterministic OpenCV engine..."]</p>
+            </section>
+        }
+        @if (CurrentGeometry is not null)
+        {
+            <OverlayViewer Geometry="CurrentGeometry" OriginalImageBase64="@CurrentBase64" />
+        }
+        else if (CurrentAxonometry is not null)
+        {
+            <AxonometricViewer Analysis="CurrentAxonometry" OriginalImageBase64="@CurrentBase64" />
+        }
+        else if (CurrentDihedral is not null)
+        {
+            <DihedralViewer Analysis="CurrentDihedral" OriginalImageBase64="@CurrentBase64" />
+        }
+        @if (IntentMismatch && Routing is not null && CurrentGeometry is not null)
+        {
+            <div class="alert alert-info border-0 rounded-4 py-2">
+                <strong>@Loc["Your description and your drawing do not match."]</strong>
+                <div class="small mt-1">
+                    @(Loc["You described a {0} — {1} This drawing was measured as {2}-point, which is what it looks like. Nothing was changed; worth a second look at either the drawing or the description.", Routing.ExerciseType, Routing.Reasoning, CurrentGeometry.KRequested])
+                </div>
+            </div>
+        }
+    </text>;
 }

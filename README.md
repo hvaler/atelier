@@ -92,6 +92,22 @@ sistemático: tu pulso es excelente, solo necesitas ajustar la posición de la r
 and the critique contains no mention of a vanishing point, because there is no vanishing point in
 this drawing and the rubric forbids inventing one.
 
+### The studio, step by step
+
+![The studio on step one: eleven calibration samples grouped by projection system, with the reader's own history beside them](docs/img/08-estudio-paso1.png)
+
+Three steps — **drawing → context → critique** — with the indicator in the top bar and a rail that
+collapses to icons. Step one is choosing: the page analyses nothing until a drawing is picked,
+because a three-step flow that starts on step two is not a flow.
+
+Each sample carries the projection system it belongs to, because that decides what it is measured
+against. The history beside them is the reader's own: every past exercise with its system, the one
+figure worth showing, and the headline of the critique that was written at the time. A figure that
+was not measurable renders as a dash — never as zero.
+
+The profile is a **difficulty level**, not a person. It sets the register of the rubric and the tone
+of the critique, and nothing downstream interpolates a name into anything.
+
 ### The third system: two flat views
 
 ![A Monge plate with the plan displaced 18 px, reported as one placement error rather than four broken vertices](docs/img/07-diedrico.png)

@@ -84,15 +84,6 @@
   <data name="Active Student:" xml:space="preserve">
     <value>Active Student:</value>
   </data>
-  <data name="Young Tester (Age 9)" xml:space="preserve">
-    <value>Young Tester (Age 9)</value>
-  </data>
-  <data name="Sofia (Animation Adv.)" xml:space="preserve">
-    <value>Sofia (Animation Adv.)</value>
-  </data>
-  <data name="Sofia (Advanced)" xml:space="preserve">
-    <value>Sofia (Advanced)</value>
-  </data>
   <data name="📂 Select Perspective Drawing" xml:space="preserve">
     <value>📂 Select Perspective Drawing</value>
   </data>
@@ -719,5 +710,83 @@
   </data>
   <data name="Benchmark drawings in all three projection systems, each carrying an error of a known size, used to verify that the measurement moves with the drawing (ADR-001)." xml:space="preserve">
     <value>Benchmark drawings in all three projection systems, each carrying an error of a known size, used to verify that the measurement moves with the drawing (ADR-001).</value>
+  </data>
+  <data name="Collapse or expand the sidebar" xml:space="preserve">
+    <value>Collapse or expand the sidebar</value>
+  </data>
+  <data name="Progress through the analysis" xml:space="preserve">
+    <value>Progress through the analysis</value>
+  </data>
+  <data name="Context" xml:space="preserve">
+    <value>Context</value>
+  </data>
+  <data name="Critique" xml:space="preserve">
+    <value>Critique</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="Basic" xml:space="preserve">
+    <value>Basic</value>
+  </data>
+  <data name="Choose a drawing" xml:space="preserve">
+    <value>Choose a drawing</value>
+  </data>
+  <data name="Pick a calibration sample or upload a photograph of your own work." xml:space="preserve">
+    <value>Pick a calibration sample or upload a photograph of your own work.</value>
+  </data>
+  <data name="Before we look, two questions" xml:space="preserve">
+    <value>Before we look, two questions</value>
+  </data>
+  <data name="Your answers set the register of the critique. They never change the measurement." xml:space="preserve">
+    <value>Your answers set the register of the critique. They never change the measurement.</value>
+  </data>
+  <data name="What the measurements say" xml:space="preserve">
+    <value>What the measurements say</value>
+  </data>
+  <data name="The geometry measures, the AI teaches." xml:space="preserve">
+    <value>The geometry measures, the AI teaches.</value>
+  </data>
+  <data name="Calibration samples" xml:space="preserve">
+    <value>Calibration samples</value>
+  </data>
+  <data name="Or upload your own drawing" xml:space="preserve">
+    <value>Or upload your own drawing</value>
+  </data>
+  <data name="Atelier looks at the photograph first and decides which system of representation it is, before measuring anything." xml:space="preserve">
+    <value>Atelier looks at the photograph first and decides which system of representation it is, before measuring anything.</value>
+  </data>
+  <data name="Analyse another drawing" xml:space="preserve">
+    <value>Analyse another drawing</value>
+  </data>
+  <data name="Your history" xml:space="preserve">
+    <value>Your history</value>
+  </data>
+  <data name="Exercises analysed" xml:space="preserve">
+    <value>Exercises analysed</value>
+  </data>
+  <data name="{0} recorded" xml:space="preserve">
+    <value>{0} recorded</value>
+  </data>
+  <data name="Loading history…" xml:space="preserve">
+    <value>Loading history…</value>
+  </data>
+  <data name="History could not be loaded." xml:space="preserve">
+    <value>History could not be loaded.</value>
+  </data>
+  <data name="Nothing yet. Analyse a drawing and it will appear here." xml:space="preserve">
+    <value>Nothing yet. Analyse a drawing and it will appear here.</value>
+  </data>
+  <data name="Conic" xml:space="preserve">
+    <value>Conic</value>
+  </data>
+  <data name="Axonometric" xml:space="preserve">
+    <value>Axonometric</value>
+  </data>
+  <data name="Orthographic" xml:space="preserve">
+    <value>Orthographic</value>
+  </data>
+  <data name="Unknown system" xml:space="preserve">
+    <value>Unknown system</value>
   </data>
 </root>

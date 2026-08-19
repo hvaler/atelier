@@ -32,6 +32,15 @@
                 return r;
             };
             window.atelierGetTheme = function () { return localStorage.getItem('atelier-theme') || 'system'; };
+
+            // The rail's width is remembered the same way and for the same reason: someone who
+            // collapsed it once should not have to collapse it again on every page.
+            window.atelierSetRailCollapsed = function (collapsed) {
+                localStorage.setItem('atelier-rail-collapsed', collapsed ? '1' : '0');
+            };
+            window.atelierGetRailCollapsed = function () {
+                return localStorage.getItem('atelier-rail-collapsed') === '1';
+            };
         })();
     </script>
     <HeadOutlet @rendermode="InteractiveServer" />

@@ -87,9 +87,11 @@ def build_critique_user_prompt(
     )
 
     return f"""{language_clause}STUDENT CONTEXT:
-- Name: {student_name}
 - Level: {level}
 {intent_clause}{diff_clause}
+ADDRESS THE READER DIRECTLY, in the second person. There is no name to use: the profile is a
+difficulty level, not a person, so never invent one and never write a placeholder.
+
 DETERMINISTIC MEASUREMENT PAYLOAD (from OpenCV, ADR-001):
 - Perspective Mode: {k_points}-point perspective (k={k_points})
 - Average Angular Convergence Error: {avg_error_deg:.2f} degrees
@@ -162,9 +164,11 @@ def build_axonometric_user_prompt(
     )
 
     return f"""{language_clause}STUDENT CONTEXT:
-- Name: {student_name}
 - Level: {level}
 {intent_clause}{diff_clause}
+ADDRESS THE READER DIRECTLY, in the second person. There is no name to use: the profile is a
+difficulty level, not a person, so never invent one and never write a placeholder.
+
 DETERMINISTIC MEASUREMENT PAYLOAD (from OpenCV, ADR-001):
 - Projection System: {system} (parallel projection — no vanishing point exists in this drawing)
 - Average Axis Deviation: {avg_error_deg:.2f} degrees
@@ -265,9 +269,11 @@ def build_orthographic_user_prompt(
     )
 
     return f"""{language_clause}STUDENT CONTEXT:
-- Name: {student_name}
 - Level: {level}
 {intent_clause}{diff_clause}
+ADDRESS THE READER DIRECTLY, in the second person. There is no name to use: the profile is a
+difficulty level, not a person, so never invent one and never write a placeholder.
+
 DETERMINISTIC MEASUREMENT PAYLOAD (from OpenCV, ADR-001):
 - Projection System: orthographic / Monge (two flat views; no vanishing point and no axes exist here)
 - Ground Line Tilt: {ground_line_tilt_deg:.2f} degrees from horizontal

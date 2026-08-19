@@ -170,7 +170,13 @@ from src.models.critique import (
     NextExerciseRecommendation,
     StudentProfile,
 )
-from src.models.memory import AskPromptData, DerivedProfile, ExerciseRecord, FeedbackEvent
+from src.models.memory import (
+    AskPromptData,
+    DerivedProfile,
+    ExerciseRecord,
+    ExerciseSummary,
+    FeedbackEvent,
+)
 from src.tools.collaborative import (
     adapt_profile,
     ask_clarification,
@@ -178,7 +184,7 @@ from src.tools.collaborative import (
     guide_next_exercise,
 )
 from src.tools.critique import generate_pedagogical_critique
-from src.tools.memory import memory_repo
+from src.tools.memory import memory_repo, summarise_exercise
 
 
 class FeedbackRequest(BaseModel):
@@ -223,6 +229,23 @@ def get_next_guided_exercise(student_id: str) -> NextExerciseRecommendation:
         return guide_next_exercise(student_id)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+@app.get(
+    "/api/students/{student_id}/exercises",
+    response_model=list[ExerciseSummary],
+    status_code=status.HTTP_200_OK,
+)
+def list_student_exercises(student_id: str, limit: int = 20) -> list[ExerciseSummary]:
+    """
+    The student's own history, newest first.
+
+    Summaries rather than records: a stored exercise carries the full analysis of whichever system
+    was measured, overlay image included, and twenty of those is a payload no list can use.
+    """
+    records = memory_repo.get_student_exercises(student_id)
+    records = sorted(records, key=lambda r: r.created_at, reverse=True)[: max(1, min(limit, 100))]
+    return [summarise_exercise(r) for r in records]
 
 
 @app.post("/api/exercises", response_model=ExerciseRecord, status_code=status.HTTP_201_CREATED)

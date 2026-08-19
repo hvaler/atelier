@@ -15,7 +15,7 @@ from src.tools.memory import memory_repo
 # in both — the nine-year-old is asked about boxes, the animation student about construction axes.
 _ASK_SCRIPTS: dict[tuple[str, str], dict[str, object]] = {
     ("en", "beginner"): {
-        "intent": "Hi {name}! What kind of 3D shape or box were you practicing today?",
+        "intent": "What kind of 3D shape or box were you practising today?",
         "difficulty": "Which line or corner felt the most tricky to get right?",
         "intents": [
             "My first 3D box on a table",
@@ -29,7 +29,7 @@ _ASK_SCRIPTS: dict[tuple[str, str], dict[str, object]] = {
         ],
     },
     ("en", "advanced"): {
-        "intent": "Hello {name}. What perspective exercise or spatial setup were you working on?",
+        "intent": "Which exercise or spatial construction were you working on?",
         "difficulty": "Which construction axis or plane felt hardest to calibrate?",
         "intents": [
             "2-Point perspective volumetric cube cluster",
@@ -43,7 +43,7 @@ _ASK_SCRIPTS: dict[tuple[str, str], dict[str, object]] = {
         ],
     },
     ("es", "beginner"): {
-        "intent": "¡Hola, {name}! ¿Qué caja o forma en 3D estabas practicando hoy?",
+        "intent": "¿Qué caja o forma en 3D estabas practicando hoy?",
         "difficulty": "¿Qué línea o esquina te ha costado más?",
         "intents": [
             "Mi primera caja en 3D sobre una mesa",
@@ -57,7 +57,7 @@ _ASK_SCRIPTS: dict[tuple[str, str], dict[str, object]] = {
         ],
     },
     ("es", "advanced"): {
-        "intent": "Hola, {name}. ¿Qué ejercicio de perspectiva o montaje espacial estabas haciendo?",
+        "intent": "¿Qué ejercicio o construcción espacial estabas haciendo?",
         "difficulty": "¿Qué eje de construcción o plano te ha costado más calibrar?",
         "intents": [
             "Grupo de cubos volumétricos en perspectiva de 2 puntos",
@@ -88,7 +88,9 @@ def ask_clarification(student_id: str, language: str = "en") -> AskPromptData:
     return AskPromptData(
         student_id=student.student_id,
         student_name=student.name,
-        intent_question=script["intent"].format(name=student.name),
+        # No name interpolation. The profiles are levels, not people: there is nobody to greet,
+        # and a question addressed to "basic" would read worse than one addressed to no one.
+        intent_question=script["intent"],
         difficulty_question=script["difficulty"],
         quick_intent_suggestions=list(script["intents"]),
         quick_difficulty_suggestions=list(script["difficulties"]),

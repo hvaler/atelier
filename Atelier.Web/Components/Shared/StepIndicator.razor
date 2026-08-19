@@ -1,0 +1,38 @@
+@namespace Atelier.Web.Components.Shared
+
+@* Three steps, shown in the top bar. A step you have already completed is clickable, because
+   going back to change what you wrote is a normal thing to want; a step you have not reached is
+   not, because there is nothing there yet. The indicator never advances on its own — the page
+   tells it where the reader is. *@
+<ol class="stepper" aria-label="@Loc["Progress through the analysis"]">
+    @for (var i = 0; i < Labels.Length; i++)
+    {
+        var index = i;
+        var state = index < Current ? "is-done" : index == Current ? "is-current" : "";
+        var reachable = index < Current && OnStepSelected.HasDelegate;
+
+        <li class="@state">
+            <button type="button" disabled="@(!reachable)"
+                    aria-current="@(index == Current ? "step" : null)"
+                    @onclick="() => OnStepSelected.InvokeAsync(index)">
+                <span class="step-dot">@(index + 1)</span>
+                <span class="step-label">@Loc[Labels[index]]</span>
+            </button>
+        </li>
+        @if (index < Labels.Length - 1)
+        {
+            <li aria-hidden="true"><span class="rule"></span></li>
+        }
+    }
+</ol>
+
+@code {
+    /// <summary>Zero-based index of the step the reader is on.</summary>
+    [Parameter]
+    public int Current { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnStepSelected { get; set; }
+
+    private static readonly string[] Labels = ["Drawing", "Context", "Critique"];
+}

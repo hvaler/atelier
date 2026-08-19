@@ -17,7 +17,7 @@
 ### Phase 2: Live UI Demonstration — Blazor Server (0:45 - 2:15)
 - **Visual**: Screen recording of `Atelier.Web` running live.
 - **Demonstrate**:
-  1. **Student Switcher**: Switch to **Young Tester (Age 9, Beginner)**.
+  1. **Level switch**: select **Basic**.
   2. **Verb 1 (ASK)**: Show the clarifying dialogue card (*"What kind of 3D box were you practicing today? Which corner felt hardest?"*).
   3. **Multimodal Overlay (The Star UX)**:
      - Click **🎨 Annotated Overlay**: show the traffic-light color-coded lines (Green $<2.5^\circ$, Yellow, Red $>6.0^\circ$), horizon line ($LH$) in cyan, and vanishing points.
@@ -28,7 +28,7 @@
      - Point out **Plane B (Studio Observations)**: gentle, encouraging feedback on line weight and box faces.
   5. **Verb 3 (CAPTURE) & Verb 4 (ADAPT)**:
      - Click **👍 Helpful** + enter a brief note. Show the profile adaptation banner.
-  6. **Level-Aware Shift**: Switch to **Sofia (Advanced)**:
+  6. **Level-aware shift**: switch to **Advanced**:
      - Show how vocabulary instantly switches to studio master technical terms ($LH$, $LT$, true magnitude, $F_1/F_2$ oblique convergence).
      - Navigate to **📈 Student Progression**. Read the figures off the page as they are — they come
        from Firestore and they are low because they are real. **Do not promise a smooth improvement

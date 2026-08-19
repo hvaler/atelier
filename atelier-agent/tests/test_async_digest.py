@@ -82,23 +82,25 @@ def test_gcs_upload_event_processing():
     # produce the same measurement. Now it asserts the number that belongs to this file.
     payload = GcsEventPayload(
         bucket="atelier-hack-inbox",
-        name="young-tester-01/03_1point_error_9deg.png",
+        name="level-basic/03_1point_error_9deg.png",
         image_base64=_dataset_b64("03_1point_error_9deg.png"),
     )
 
     response = process_gcs_upload_event(payload)
 
     assert response.status_code == "processed" if hasattr(response, "status_code") else response.status == "processed"
-    assert response.student_id == "young-tester-01"
-    assert "Tester" in response.student_name or "Student" in response.student_name
+    assert response.student_id == "level-basic"
+    # The profile is a level, so the name it carries is the level word. Asserting the id and
+    # the level is what actually matters: the ingested file went to the right profile.
+    assert response.student_name == "basic"
     assert response.k_detected >= 1
     assert len(response.critique_headline) > 5
 
     # Verify that exercise record was persisted in memory_repo
-    exercises = memory_repo.get_student_exercises("young-tester-01")
+    exercises = memory_repo.get_student_exercises("level-basic")
     assert len(exercises) >= 1
     latest = exercises[-1]
-    assert latest.student_id == "young-tester-01"
+    assert latest.student_id == "level-basic"
     assert latest.source == "folder"
 
 
@@ -135,13 +137,13 @@ def test_weekly_digest_generation_with_improvement():
 
 def test_weekly_digest_beginner_vs_advanced_plans():
     """Beginner students get 1-point foundation drills, advanced get complex 2-point architectural drills."""
-    # Beginner: young-tester-01
-    digest_beginner = generate_weekly_digest("young-tester-01")
+    # Beginner level
+    digest_beginner = generate_weekly_digest("level-basic")
     assert any("cube" in p.title.lower() or "box" in p.title.lower() for p in digest_beginner.next_week_practice_plan)
 
-    # Advanced: Sofia
-    digest_sofia = generate_weekly_digest("sofia-01")
-    assert any("2-point" in p.title.lower() or "prism" in p.title.lower() or "architectural" in p.title.lower() for p in digest_sofia.next_week_practice_plan)
+    # Advanced level
+    digest_advanced = generate_weekly_digest("level-advanced")
+    assert any("2-point" in p.title.lower() or "prism" in p.title.lower() or "architectural" in p.title.lower() for p in digest_advanced.next_week_practice_plan)
 
 
 def test_api_gcs_upload_endpoint():
@@ -150,7 +152,7 @@ def test_api_gcs_upload_endpoint():
         "/api/events/gcs-upload",
         json={
             "bucket": "atelier-hack-inbox",
-            "name": "sofia-01/04_2point_perfect.png",
+            "name": "level-advanced/04_2point_perfect.png",
             "contentType": "image/png",
             "image_base64": _dataset_b64("04_2point_perfect.png"),
         },
@@ -159,7 +161,7 @@ def test_api_gcs_upload_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "processed"
-    assert data["student_id"] == "sofia-01"
+    assert data["student_id"] == "level-advanced"
     assert "critique_headline" in data
 
 
@@ -168,14 +170,14 @@ def test_api_weekly_digest_endpoint():
     response = client.post(
         "/api/digest/weekly",
         json={
-            "student_id": "sofia-01",
+            "student_id": "level-advanced",
             "week_id": "2026-W34",
         },
     )
 
     assert response.status_code == 200
     data = response.json()
-    assert data["student_id"] == "sofia-01"
+    assert data["student_id"] == "level-advanced"
     assert data["week_id"] == "2026-W34"
     assert len(data["next_week_practice_plan"]) == 3
 
@@ -197,7 +199,7 @@ def test_gcs_ingestion_refuses_an_object_it_cannot_read():
     try:
         response = client.post(
             "/api/events/gcs-upload",
-            json={"bucket": "atelier-hack-inbox", "name": "young-tester-01/missing.png"},
+            json={"bucket": "atelier-hack-inbox", "name": "level-basic/missing.png"},
         )
         assert response.status_code == 400, response.text
         assert "not exist" in response.text or "readable" in response.text

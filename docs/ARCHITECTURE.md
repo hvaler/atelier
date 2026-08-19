@@ -89,7 +89,7 @@ graph TB
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Student as 🎨 Student (Young Tester / Sofia)
+    actor Student as 🎨 Student (basic / advanced level)
     participant Web as 💻 Atelier.Web (Blazor)
     participant Agent as 🤖 atelier-agent (Cloud Run)
     participant CV as 📐 OpenCV Engine

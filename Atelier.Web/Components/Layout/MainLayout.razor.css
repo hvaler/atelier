@@ -1,87 +1,89 @@
-.page {
-    position: relative;
+/* The shell: a fixed rail, a sticky top bar, and a content column.
+
+   Grid rather than the template's float-and-media-query arrangement, because the
+   rail now has two widths and a grid column is the one place that has to know. */
+
+.shell {
+    display: grid;
+    grid-template-columns: var(--rail-w) 1fr;
+    min-height: 100vh;
+    transition: grid-template-columns .16s ease;
+}
+
+.shell.is-collapsed {
+    grid-template-columns: var(--rail-w-collapsed) 1fr;
+}
+
+.rail {
+    background: var(--rail);
+    border-right: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
-main {
-    flex: 1;
+.main {
+    min-width: 0; /* lets wide tables scroll inside their own container */
+    display: flex;
+    flex-direction: column;
 }
 
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
     display: flex;
     align-items: center;
+    gap: var(--s-4);
+    padding: var(--s-3) var(--s-5);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
-    }
+.topbar .spacer { margin-left: auto; }
 
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
-
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-@media (max-width: 640.98px) {
-    .top-row {
-        justify-content: space-between;
-    }
-
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
-    }
+.topbar-links {
+    display: flex;
+    gap: var(--s-4);
+    font-size: var(--t-sm);
 }
 
-@media (min-width: 641px) {
-    .page {
-        flex-direction: row;
-    }
+.topbar-links a { color: var(--graphite); text-decoration: none; }
+.topbar-links a:hover { color: var(--ink); text-decoration: underline; }
 
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-    }
+.rail-toggle {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    color: var(--graphite);
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex: none;
+}
 
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
+.rail-toggle:hover { background: var(--surface-2); color: var(--ink); }
 
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
-    }
+.content {
+    padding: var(--s-5);
+    max-width: 1320px;
+    width: 100%;
 }
 
 #blazor-error-ui {
     color-scheme: light only;
-    background: lightyellow;
+    background: #ffe082;
+    color: #12161c;
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
     display: none;
     left: 0;
     padding: 0.6rem 1.25rem 0.7rem 1.25rem;
@@ -90,9 +92,21 @@ main {
     z-index: 1000;
 }
 
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+/* Under 720px the rail becomes a strip of icons and stays out of the way. The
+   content column is what people came for. */
+@media (max-width: 720px) {
+    .shell, .shell.is-collapsed {
+        grid-template-columns: var(--rail-w-collapsed) 1fr;
     }
+
+    .content { padding: var(--s-4); }
+    .topbar { padding: var(--s-3) var(--s-4); }
+    .topbar-links { display: none; }
+}

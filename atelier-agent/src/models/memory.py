@@ -61,6 +61,29 @@ class ExerciseRecord(BaseModel):
     created_at: str = Field(default_factory=get_current_utc_iso)
 
 
+class ExerciseSummary(BaseModel):
+    """
+    One past exercise, small enough to list.
+
+    Deliberately not `ExerciseRecord`. That carries the full analysis of whichever system was
+    measured, including a base64 overlay image — hundreds of kilobytes each, and a history of
+    twenty would be a payload nobody can use. This carries what a list needs and nothing else.
+    """
+
+    exercise_id: str
+    created_at: str
+    projection: str = Field(
+        "conic", description="'conic', 'axonometric', 'orthographic' or 'unknown'"
+    )
+    headline: str = Field("", description="The critique headline, as written at the time")
+    metric_name: str = Field("", description="The one figure worth showing in a list")
+    metric_value: float | None = Field(None, description="Its value, or null when there was none")
+    metric_unit: str = Field("degrees")
+    source: str = Field("fallback", description="Whether a model wrote the critique or a template did")
+    student_intent: str | None = None
+    feedback_count: int = 0
+
+
 class ProgressPoint(BaseModel):
     timestamp: str
     exercise_id: str
@@ -73,7 +96,15 @@ class DerivedProfile(BaseModel):
 
     student: StudentProfile
     total_exercises: int
-    overall_avg_error_deg: float
+    overall_avg_error_deg: float | None = Field(
+        None,
+        description=(
+            "Mean convergence error across the conic exercises, or null when there are none. "
+            "Null rather than zero for the same reason the orthographic aggregates are: a mean "
+            "over an empty set is undefined, and printing 0.0 tells a reader their average error "
+            "is perfect at the exact moment nothing has been measured."
+        ),
+    )
     progress_curve: list[ProgressPoint]
     recurring_issues: list[str]
     derived_tone_preference: str
