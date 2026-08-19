@@ -15,7 +15,7 @@ graph TB
 
     subgraph "Google Cloud Platform (GCP)"
         subgraph "Ingestion & Storage"
-            GCS["🗄️ Google Cloud Storage\ngs://atelier-inbox/{studentId}/\n(Private Bucket)"]
+            GCS["🗄️ Google Cloud Storage\ngs://atelier-hack-inbox/{studentId}/\n(Private Bucket)"]
             Eventarc["⚡ Eventarc\nStorage Object Finalized"]
             Scheduler["⏰ Cloud Scheduler\nWeekly Digest Cron"]
         end

@@ -44,7 +44,7 @@
                     ▼                                                   ▼
  ┌─────────────────────────────────────┐             ┌─────────────────────────────────────┐
  │       STUDENT WEB CLIENT            │             │      BACKGROUND GCS INGESTION       │
- │  Atelier.Web (Blazor Server .NET10) │             │  gs://atelier-inbox/{studentId}/    │
+ │  Atelier.Web (Blazor Server .NET10) │             │  gs://atelier-hack-inbox/{studentId}/    │
  │  - Multimodal Overlay (Original/AI) │             │  - Private Family Bucket (ADR-006)  │
  │  - Two-Plane Level-Aware Critique   │             │  - Eventarc Object Finalized        │
  │  - Progress Curve (Native SVG)      │             │  - Cloud Scheduler Weekly Digest    │
@@ -94,7 +94,7 @@
   4. **ADAPT**: Dynamic profile derivation (shifting tone from technical to encouraging automatically).
 - 🧠 **Gemma Pre-Router on Vertex AI (+0.2 pts Bonus)**: Lightweight routing step to classify drawing types and optimize edge-detection parameters before heavy LLM processing.
 - 📈 **Append-Only Memory & Weekly Digests**: Event-sourced progression tracking in Google Cloud Firestore with automated weekly practice plans synthesized via Cloud Scheduler.
-- 🔒 **Async-First & Privacy-Preserving (ADR-004, ADR-006)**: Private Google Cloud Storage inbox (`gs://atelier-inbox/{studentId}/`), Eventarc triggers, signed URLs, and first-names-only privacy model for young students.
+- 🔒 **Async-First & Privacy-Preserving (ADR-004, ADR-006)**: Private Google Cloud Storage inbox (`gs://atelier-hack-inbox/{studentId}/`), Eventarc triggers, signed URLs, and first-names-only privacy model for young students.
 
 ---
 

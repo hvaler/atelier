@@ -56,7 +56,9 @@ else
 fi
 
 # 5. Create GCS buckets
-INBOX_BUCKET="atelier-inbox-${PROJECT_ID}"
+# One name, everywhere. It appeared as atelier-inbox, atelier-inbox-$PROJECT_ID and
+# atelier-hack-inbox across code, scripts and docs; only the last one exists.
+INBOX_BUCKET="atelier-hack-inbox"
 echo "🪣 Creating private GCS bucket '$INBOX_BUCKET'..."
 if ! gcloud storage buckets describe "gs://${INBOX_BUCKET}" &>/dev/null; then
   gcloud storage buckets create "gs://${INBOX_BUCKET}" \

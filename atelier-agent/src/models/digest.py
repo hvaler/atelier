@@ -38,7 +38,7 @@ class WeeklyDigestRequest(BaseModel):
 class GcsEventPayload(BaseModel):
     """Payload received from Eventarc on google.cloud.storage.object.v1.finalized event."""
 
-    bucket: str = Field("atelier-inbox", description="GCS bucket name")
+    bucket: str = Field("atelier-hack-inbox", description="GCS bucket name")
     name: str = Field(..., description="Object name in format '{student_id}/{filename}'")
     contentType: str | None = Field("image/png", description="MIME content type")
     image_base64: str | None = Field(None, description="Direct Base64 payload if forwarded via webhook/demo")

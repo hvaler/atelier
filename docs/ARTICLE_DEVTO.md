@@ -62,7 +62,7 @@ Atelier is not a one-shot chatbot; it acts as a proactive studio partner orchest
 
 ## 4. Asynchronous Pipeline & Cloud Run Deployment
 
-- **Async-first Ingestion**: Students or parents drop sketchbook photos into a private Google Cloud Storage bucket (`atelier-inbox/{studentId}/`). Eventarc fires a CloudEvent to the Cloud Run agent service, executing geometry calculation and critique in the background.
+- **Async-first Ingestion**: Students or parents drop sketchbook photos into a private Google Cloud Storage bucket (`atelier-hack-inbox/{studentId}/`). Eventarc fires a CloudEvent to the Cloud Run agent service, executing geometry calculation and critique in the background.
 - **Weekly Digest**: Cloud Scheduler triggers weekly aggregations, calculating the error reduction percentage and prescribing a 3-day practice plan (Monday, Wednesday, Friday) for the upcoming week.
 - **Production Hardening**: Deployed on Google Cloud Run with `.NET 10` (using `KnownIPNetworks.Clear()` for proxy header termination) and Python FastAPI microservices.
 

@@ -41,7 +41,7 @@
      - `atelier-agent` (Python/FastAPI) and `atelier-web` (.NET 10) active revisions and metrics.
      - Open **Logs Tab** showing incoming `/api/analyze`, `/api/critique`, and `/api/router/classify` requests.
   2. **Cloud Storage & Eventarc**:
-     - `gs://atelier-inbox/` bucket and the Eventarc trigger (`google.cloud.storage.object.v1.finalized`).
+     - `gs://atelier-hack-inbox/` bucket and the Eventarc trigger (`google.cloud.storage.object.v1.finalized`).
   3. **Cloud Firestore**:
      - Show the `students/{studentId}/exercises/` and `feedback/` collection tree demonstrating the append-only event-sourcing model.
   4. **Vertex AI Studio**:
