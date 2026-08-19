@@ -1,5 +1,6 @@
 """Pydantic data models for pedagogical critique and student profiles (ADR-001 & ADR-005)."""
 
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -40,8 +41,19 @@ class NextExerciseRecommendation(BaseModel):
     difficulty: str = Field("appropriate", description="'beginner', 'intermediate', or 'advanced'")
 
 
-class CritiqueOutput(BaseModel):
-    """Structured pedagogical critique in two distinct planes (ADR-001)."""
+class CritiqueLlmOutput(BaseModel):
+    """
+    The critique as the model is allowed to produce it (ADR-001).
+
+    This is the `response_schema` handed to Gemini, and it deliberately carries **no provenance
+    fields**. When `model_version` was part of the schema the model filled it in itself, and the
+    cached outputs prove what that costs: real Gemini responses came back claiming
+    `"Atelier-v2.1-Pro"`, `"Atelier-v1"` and `"Atelier-v2"`, while the entries that read
+    `"gemini-3.5-flash"` were the offline template. The field said the opposite of the truth.
+
+    A system whose thesis is that the model may not assert a measurement must not let it assert
+    which model produced the answer either. Provenance is set by the server in `CritiqueOutput`.
+    """
 
     student_name: str
     level: str
@@ -56,8 +68,24 @@ class CritiqueOutput(BaseModel):
     )
     pedagogical_summary: PedagogicalSummary
     next_exercise: NextExerciseRecommendation
-    model_version: str = Field("gemini-3.5-flash", description="Underlying model used for critique")
-    validated: bool = Field(True, description="Whether the critique passed all anti-hallucination validation gates")
+
+
+class CritiqueOutput(CritiqueLlmOutput):
+    """A critique plus the provenance the server knows and the model does not."""
+
+    source: Literal["vertex", "fallback"] = Field(
+        "fallback",
+        description=(
+            "Where this critique came from. 'vertex' means Gemini answered; 'fallback' means the "
+            "deterministic studio template did. Defaults to 'fallback' on purpose: unless "
+            "something proves a model was involved, none was."
+        ),
+    )
+    model_version: str = Field(
+        "deterministic-template",
+        description="Set by the server, never by the model. Names the template when source is 'fallback'.",
+    )
+    validated: bool = Field(False, description="Whether the critique passed all anti-hallucination validation gates")
 
 
 class CritiqueRequest(BaseModel):

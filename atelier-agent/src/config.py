@@ -12,8 +12,20 @@ class Settings(BaseSettings):
     gcp_project: str = os.getenv("GCP_PROJECT", "atelier-hack")
     gcp_location: str = os.getenv("GCP_LOCATION", "europe-west3")
     firestore_db: str = os.getenv("FIRESTORE_DATABASE", "(default)")
-    inbox_bucket: str = os.getenv("INBOX_BUCKET", "atelier-inbox")
+    inbox_bucket: str = os.getenv("INBOX_BUCKET", "atelier-hack-inbox")
     gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+
+    #: Where the *model* lives, which is not where the *service* lives.
+    #:
+    #: These were the same variable, and `deploy.sh` set it from the Cloud Run region. The
+    #: service runs in europe-west1, where `gemini-3.5-flash` is not published: every call in
+    #: production returned `404 NOT_FOUND` and fell into the deterministic template, invisibly,
+    #: because the failure was swallowed. The mandatory "Gemini 3.5 or newer" requirement was
+    #: met by the code and broken by the deployment.
+    #:
+    #: europe-west3 rather than `global`: both serve the model, and west3 keeps a nine-year-old's
+    #: drawings inside the EU and co-located with the Firestore database (eur3).
+    gemini_location: str = os.getenv("GEMINI_LOCATION", "europe-west3")
 
     model_config = SettingsConfigDict(
         env_file=".env",

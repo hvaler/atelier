@@ -1,6 +1,7 @@
 """Gemma lightweight pre-router on Vertex AI using Google GenAI SDK for exercise classification and parameters tuning (+0.2 pts ATA Bonus)."""
 
 from pydantic import BaseModel, Field
+
 from src.config import settings
 
 
@@ -28,7 +29,7 @@ def classify_drawing_with_gemma(
         _client = genai.Client(
             vertexai=True,
             project=settings.gcp_project,
-            location=settings.gcp_location,
+            location=settings.gemini_location,
         )
 
         is_advanced = student_level_hint.lower() == "advanced"

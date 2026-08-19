@@ -2,10 +2,12 @@
 
 import hashlib
 import json
+import logging
 from pathlib import Path
 
 from src.config import settings
 from src.models.critique import (
+    CritiqueLlmOutput,
     CritiqueOutput,
     CritiqueRequest,
     CritiqueResponse,
@@ -20,6 +22,8 @@ from src.prompts.rubrics import (
     build_critique_user_prompt,
 )
 from src.tools.validator import validate_critique_measurements
+
+logger = logging.getLogger(__name__)
 
 
 def get_cache_key(request: CritiqueRequest) -> str:
@@ -136,7 +140,8 @@ def generate_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
         qualitative_observations=qualitative,
         pedagogical_summary=pedagogical,
         next_exercise=next_ex,
-        model_version=settings.gemini_model,
+        source="fallback",
+        model_version="deterministic-template",
         validated=True,
     )
 
@@ -155,7 +160,7 @@ def call_vertex_ai_critique(
         client = genai.Client(
             vertexai=True,
             project=settings.gcp_project,
-            location=settings.gcp_location,
+            location=settings.gemini_location,
         )
 
         response = client.models.generate_content(
@@ -164,19 +169,35 @@ def call_vertex_ai_critique(
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
                 response_mime_type="application/json",
-                response_schema=CritiqueOutput,
+                response_schema=CritiqueLlmOutput,
                 temperature=0.2,
             ),
         )
 
-        if response.text:
-            data = json.loads(response.text)
-            return CritiqueOutput(**data)
-        else:
+        if not response.text:
             raise ValueError("Empty response from Vertex AI Gemini model.")
 
-    except Exception:
-        # Fallback to deterministic studio template if offline or Vertex API credentials unavailable
+        data = json.loads(response.text)
+        # Provenance is stamped here, by the server, from what actually happened.
+        return CritiqueOutput(
+            **CritiqueLlmOutput(**data).model_dump(),
+            source="vertex",
+            model_version=settings.gemini_model,
+        )
+
+    except Exception as exc:  # noqa: BLE001 - see below
+        # Deliberately broad: a missing credential, a quota error, a renamed model and a network
+        # fault must all end in a usable critique rather than a 500 in front of a child.
+        #
+        # But it is **logged and labelled**. This used to be a bare `except` that returned the
+        # template with `validated=True` and `model_version="gemini-3.5-flash"`, so deleting
+        # Vertex AI from the project would have changed nothing anyone could observe. The caller,
+        # the UI and the tests now get `source="fallback"` and this line lands in Cloud Logging.
+        logger.warning(
+            "Vertex AI critique failed (%s: %s); serving the deterministic studio template instead.",
+            type(exc).__name__,
+            exc,
+        )
         return generate_fallback_critique(request)
 
 

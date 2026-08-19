@@ -7,6 +7,12 @@ set -euo pipefail
 
 PROJECT_ID="${1:-$(gcloud config get-value project)}"
 REGION="${2:-europe-west1}"
+
+# Where the *model* lives, which is not where the *service* lives. `gemini-3.5-flash` is not
+# published in europe-west1: pointing Vertex at the Cloud Run region made every critique in
+# production return 404 and fall silently into the deterministic template. Overridable, but it
+# must never again be derived from ${REGION}.
+GEMINI_REGION="${3:-europe-west3}"
 REPO_NAME="atelier-repo"
 TAG="$(git rev-parse --short HEAD 2>/dev/null || echo 'latest')"
 
@@ -36,7 +42,7 @@ if [ -z "$AGENT_EXISTS" ]; then
     --max-instances=5 \
     --memory=1Gi \
     --cpu=1 \
-    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION}"
+    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION},GEMINI_LOCATION=${GEMINI_REGION}"
 else
   echo "   [Subsequent Deploy] Deploying candidate revision for smoke test..."
   gcloud run deploy atelier-agent \
@@ -52,7 +58,7 @@ else
     --max-instances=5 \
     --memory=1Gi \
     --cpu=1 \
-    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION}"
+    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION},GEMINI_LOCATION=${GEMINI_REGION}"
 
   CANDIDATE_AGENT_URL="https://candidate---atelier-agent-$(gcloud run services describe atelier-agent --region="$REGION" --format='value(status.address.url)' | sed 's|https://||')"
   echo "🧪 Running smoke test on candidate: ${CANDIDATE_AGENT_URL}/api/health..."

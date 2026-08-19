@@ -30,6 +30,12 @@ class HealthResponse(BaseModel):
     version: str
     environment: str
     gcp_project: str
+    # Which model, and where it is being asked for. Reported because the alternative was
+    # discovering from Cloud Logging that every critique had 404'd for days: the service ran in
+    # a region where this model is not published, and the failure was swallowed. A health check
+    # that cannot show its own model configuration cannot tell you it is misconfigured.
+    gemini_model: str
+    gemini_location: str
 
 
 @app.get("/api/health", response_model=HealthResponse, status_code=status.HTTP_200_OK)
@@ -44,6 +50,8 @@ def health_check() -> HealthResponse:
         version=settings.app_version,
         environment=settings.environment,
         gcp_project=settings.gcp_project,
+        gemini_model=settings.gemini_model,
+        gemini_location=settings.gemini_location,
     )
 
 
