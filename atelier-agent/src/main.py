@@ -217,22 +217,22 @@ def list_student_digests(student_id: str) -> list[WeeklyDigest]:
     return get_student_digests(student_id)
 
 
-from src.tools.gemma_router import GemmaClassificationResult, classify_drawing_with_gemma
+from src.tools.pre_router import RoutingResult, route_from_intent
 
 
 class RouterRequest(BaseModel):
-    image_width: int = 800
-    image_height: int = 600
+    """What the router needs: the student's words, and their level as the fallback."""
+
+    student_intent: str | None = None
     student_level_hint: str = "beginner"
 
 
-@app.post("/api/router/classify", response_model=GemmaClassificationResult, status_code=status.HTTP_200_OK)
-def classify_with_gemma(request: RouterRequest) -> GemmaClassificationResult:
-    """Gemma lightweight pre-router on Vertex AI for exercise routing & parameter tuning (+0.2 pts ATA Bonus)."""
-    return classify_drawing_with_gemma(
-        image_width=request.image_width,
-        image_height=request.image_height,
-        student_level_hint=request.student_level_hint,
+@app.post("/api/router/classify", response_model=RoutingResult, status_code=status.HTTP_200_OK)
+def classify_drawing_intent(request: RouterRequest) -> RoutingResult:
+    """Choose the perspective model from the student's own description of what they drew."""
+    return route_from_intent(
+        student_intent=request.student_intent,
+        student_level=request.student_level_hint,
     )
 
 

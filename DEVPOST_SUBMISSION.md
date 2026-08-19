@@ -54,7 +54,7 @@ The agent runs the four Collaborative Partner verbs: it **asks** before judging 
 ## How we built it
 
 Two services with a clean boundary:
-- `atelier-agent` (Python 3.12, **Google GenAI SDK**, FastAPI on **Cloud Run**) owns the tools: `analyze_geometry` (deterministic OpenCV — deskew, Hough lines, RANSAC vanishing-point clustering, per-line angular error), `critique` (**Gemini 3.5 Flash on Vertex AI**, two-plane structured output), a **Gemma pre-router** classifying incoming exercises, and memory over **Cloud Firestore** as append-only events from which each student's profile is *derived*, never edited.
+- `atelier-agent` (Python 3.12, **Google GenAI SDK**, FastAPI on **Cloud Run**) owns the tools: `analyze_geometry` (deterministic OpenCV — Canny, probabilistic Hough, RANSAC vanishing-point estimation, per-line angular error), `critique` (**Gemini 3.5 Flash on Vertex AI**, two-plane structured output), a **Gemini pre-router** classifying incoming exercises, and memory over **Cloud Firestore** as append-only events from which each student's profile is *derived*, never edited.
 - `Atelier.Web` (Blazor Server, .NET 10) is the UI featuring an interactive multimodal overlay viewer and native SVG progress tracking.
 
 The architectural spine is an **anti-hallucination gate**: the critique may only cite numbers present in the geometry payload — an in-code validator rejects and retries anything else. What's measured is measured; what's judged is judged; the agent never confuses the two.
@@ -77,7 +77,7 @@ Async-first by design: a private **GCS** inbox per student (`gs://atelier-hack-i
 
 ## What's next for Atelier
 
-Three-point and curvilinear perspective ($k=3$), more exercise families behind the Gemma router (anatomy proportion ratios, ellipse circularity, value histograms), live camera capture with real-time HUD overlays, and classroom cohort analytics for remote art schools.
+Three-point and curvilinear perspective ($k=3$), more exercise families behind the intent router (anatomy proportion ratios, ellipse circularity, value histograms), live camera capture with real-time HUD overlays, and classroom cohort analytics for remote art schools.
 ```
 
 ---
@@ -91,7 +91,7 @@ Three-point and curvilinear perspective ($k=3$), more exercise families behind t
 | **Live Hosted Web UI** | `https://atelier-web-773993294789.europe-west1.run.app` | ✅ Live on Cloud Run |
 | **Backend API (Swagger)** | `https://atelier-agent-773993294789.europe-west1.run.app/docs` | ✅ Live on Cloud Run |
 | **Architecture** | `https://github.com/hvaler/atelier/blob/main/docs/ARCHITECTURE.md` | Mermaid system + sequence diagrams |
-| **Bonus 1 (+0.2 pts)** | Gemma Pre-Router (`/api/router/classify`) | ✅ Verified in `gemma_router.py` |
+| **Bonus 1 (+0.2 pts)** | *Not claimed.* **Gemma** is not a publisher model on Vertex AI — `gemma-3-27b-it`, `-12b-it` and `-4b-it` all return 404 in this project, and reaching one needs a billed Model Garden endpoint. The routing step is real, but it runs on Gemini 3.5 Flash. | — |
 | **Bonus 2 (+0.2 pts)** | [Dev.to Article](https://dev.to/hugo_valer_79d0d94e00804b/the-geometry-measures-the-ai-teaches-building-an-art-studio-tutor-with-adk-vertex-ai-opencv-551m) | ✅ Published |
 | **Bonus 3 (+0.2 pts)** | [X / Twitter Post](https://x.com/hugo_valer/status/2089965500713296311?s=20) | ✅ Published |
 | **Video Demo (≤4 min)** | Video Runbook (`docs/VIDEO_RECORDING_RUNBOOK.md`) | ⏳ Record & upload to YouTube |

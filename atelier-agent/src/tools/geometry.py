@@ -62,7 +62,12 @@ def line_intersection(line1: tuple[float, float, float, float], line2: tuple[flo
 
 
 def preprocess_and_detect_lines(image: np.ndarray) -> tuple[list[tuple[float, float, float, float]], np.ndarray]:
-    """Preprocess image (deskew, contrast normalization, adaptive threshold) and detect line segments."""
+    """Detect line segments: greyscale, Gaussian blur, Canny, probabilistic Hough.
+
+    No deskewing and no adaptive thresholding, despite what this docstring claimed for a
+    fortnight and what three documents repeated. Both would be reasonable additions; neither
+    is here, and a drawing photographed at an angle is measured as drawn.
+    """
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if len(image.shape) == 3 else image.copy()
 
     # Contrast enhancement & noise reduction

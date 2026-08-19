@@ -28,7 +28,7 @@
 > *"Here in the Studio Workspace, Atelier supports independent students from day one. Let's start with our 9-year-old beginner. Notice how Atelier begins by **ASKING** clarifying questions before analyzing: 'What kind of 3D box were you practicing today? Which corner felt hardest?'"*  
 >  
 > **2. The Multimodal Overlay — The Star Experience (1:00 - 1:30)**  
-> *"When we analyze the drawing, the OpenCV engine deskews the notebook, runs RANSAC clustering, detects the exact vanishing point on the horizon, and measures convergence error per line in degrees.*  
+> *"When we analyze the drawing, the OpenCV engine runs Canny and Hough, then RANSAC clustering, detects the exact vanishing point on the horizon, and measures convergence error per line in degrees.*  
 >  
 > *Look at our **Multimodal Overlay**: with one click, we toggle between the original student sketch, the color-coded annotated overlay (green for accurate lines, yellow for slight drift, red for diverging lines), and a side-by-side comparison.*  
 >  
@@ -46,7 +46,7 @@
 **[Visual: Architecture diagram slide and GitHub repository overview]**
 
 > *"Under the hood, Atelier is built with:*  
-> - *A **Gemma** pre-router on Vertex AI for cheap drawing classification.*  
+> - *A pre-router that reads the student's own description to choose the perspective model.*  
 > - ***Gemini Flash** for level-aware pedagogical critiques.*  
 > - *An **Anti-Hallucination Validator** that guarantees metrics integrity.*  
 > - ***Google Cloud Run** running our .NET 10 Blazor frontend and Python microservices.*  

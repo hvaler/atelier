@@ -24,7 +24,7 @@ Atelier is an agentic AI studio master for remote art students that decouples de
 ```
                                   ATELIER ARCHITECTURE
  ┌──────────────────────┐         ┌────────────────────────┐         ┌───────────────────────┐
- │   Atelier.Web        │         │   Gemma Router         │         │  OpenCV Geometry      │
+ │   Atelier.Web        │         │   Intent Router        │         │  OpenCV Geometry      │
  │   (Blazor / .NET 10) │ ──────> │   (Vertex AI 2B/9B)    │ ──────> │  - Deskew / Canny     │
  │   - Multimodal UX    │         │   - Exercise Classify  │         │  - RANSAC VPs (k=1,2) │
  │   - Annotated Overlay│         │   - Pre-Gemini Tuning  │         │  - Horizon Line (LH)  │

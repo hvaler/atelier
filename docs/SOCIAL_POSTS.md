@@ -27,7 +27,7 @@ We solved this with ADR-001: Decoupling deterministic geometry from empathetic p
 
 🔹 How Atelier works:
 1. OpenCV computer vision detects line segments, solves vanishing points (k=1 frontal, k=2 oblique), and calculates angular deviation in degrees.
-2. Gemma on Vertex AI performs lightweight pre-routing to classify drawing types.
+2. A pre-routing step reads the student's description to choose 1- or 2-point perspective.
 3. Gemini Flash on Vertex AI produces level-aware critiques structured in two planes: Plane A (exact measured findings) and Plane B (studio observations on line weight, spatial clarity, and cleanliness).
 4. An Anti-Hallucination Validator guarantees the LLM never invents numbers.
 5. Ingests drawings asynchronously via GCS + Eventarc on Cloud Run, while Cloud Scheduler sends weekly progress digests and practice plans.

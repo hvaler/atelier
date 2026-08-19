@@ -21,11 +21,12 @@ graph TB
         end
 
         subgraph "Compute: Google Cloud Run"
-            AgentService["🤖 atelier-agent\n(FastAPI / Python 3.12)\n- Gemma Pre-Router\n- OpenCV Deterministic Geometry\n- Gemini Flash Client\n- Anti-Hallucination Validator"]
+            AgentService["🤖 atelier-agent\n(FastAPI / Python 3.12)\n- Intent Pre-Router\n- OpenCV Deterministic Geometry\n- Gemini Flash Client\n- Anti-Hallucination Validator"]
         end
 
         subgraph "Google Vertex AI"
-            Gemma["🧠 Gemma 2B/9B\n(Lightweight Pre-Routing)"]
+            Router["🧠 Gemini 3.5 Flash
+(Intent Pre-Routing)"]
             Gemini["✨ Gemini Flash\n(Level-Aware Two-Plane Critique)"]
         end
 
@@ -42,7 +43,7 @@ graph TB
     Eventarc -->|CloudEvents POST /api/events/gcs-upload| AgentService
     Scheduler -->|Weekly POST /api/digest/weekly| AgentService
 
-    AgentService -->|Pre-Classify Drawing| Gemma
+    AgentService -->|Route from student intent| Router
     AgentService -->|Generate Studio Critique| Gemini
     AgentService -->|Persist Exercises & Read Profile| Firestore
 
@@ -55,12 +56,12 @@ graph TB
 
 ### 2.1. `atelier-agent` (Python 3.12 / FastAPI)
 - **Deterministic Geometry Engine (`src/tools/geometry.py`)**:
-  - Image deskewing and adaptive thresholding via OpenCV.
+  - Greyscale, Gaussian blur and Canny edge detection via OpenCV. No deskewing: a drawing photographed at an angle is measured as drawn.
   - Probabilistic Hough Transform (`cv2.HoughLinesP`).
   - Pairwise intersection clustering with RANSAC for vanishing point estimation ($k=1$ and $k=2$).
   - Horizon line ($LH$) estimation and angle deviation calculations in degrees ($^\circ$).
   - Generation of Base64 annotated overlays with traffic-light color encoding (Green: $<2.5^\circ$, Yellow: $2.5^\circ - 6.0^\circ$, Red: $>6.0^\circ$).
-- **Gemma Pre-Router (`src/tools/gemma_router.py`)**:
+- **Intent Pre-Router (`src/tools/pre_router.py`)**:
   - Pre-classifies exercise types and tunes Canny edge thresholds to minimize compute before heavy LLM execution.
 - **Gemini Flash Client (`src/tools/critique.py`)**:
   - Prompts calibrated with authentic studio master rubrics (RUNBOOK §2).

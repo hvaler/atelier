@@ -84,26 +84,50 @@ atelier-agent/tests/test_memory_collaborative.py::test_api_collaborative_endpoin
 
 ---
 
-## 4. Gemma Lightweight Pre-Router (+0.2 pts ATA Bonus)
+## 4. Intent Pre-Router (Gemini 3.5 Flash on Vertex AI)
 
 ### Claim
-> *Gemma on Vertex AI pre-classifies drawing types to tune Canny/Hough edge detector thresholds before heavy execution.*
+> *Before any measurement, the student's own description of what they were practising chooses
+> the perspective model. The decision is labelled with where it came from.*
+
+### What this section used to say, and why it does not
+
+It documented a **Gemma pre-router** that "tunes Canny/Hough edge detector thresholds", with
+three passing tests as proof. None of it was true:
+
+- `gemma_router.py` constructed a `genai.Client`, discarded it, and returned a hardcoded branch
+  on `student_level_hint` — a string the caller had already supplied. No model was ever called.
+- The `canny_thresholds` it returned were consumed by nothing: `geometry.py` hardcoded
+  `cv2.Canny(blurred, 50, 150)`.
+- The three tests asserted the stub's own constants back at itself and could not fail.
+- **Gemma is not reachable here at all.** Verified against this project on Vertex AI:
+  `gemma-3-27b-it`, `gemma-3-12b-it` and `gemma-3-4b-it` all return `404 NOT_FOUND`; reaching one
+  requires a deployed, billed Model Garden endpoint. The Gemma bonus is therefore **not claimed**.
+
+The module is deleted. What replaces it makes a decision the caller does not already have.
 
 ### Verification Command
 ```bash
-atelier-agent/.venv/Scripts/python -m pytest atelier-agent/tests/test_gemma_router.py -v
+atelier-agent/.venv/Scripts/python -m pytest atelier-agent/tests/test_pre_router.py -v
 ```
 
-### Verified Output
+Every case runs without credentials: the deterministic fallback path, an injected client
+failure, a refused `k=3`, and a mocked successful decision. What CI enforces is that an
+unreachable model produces a **labelled** fallback rather than a confident invention.
+
+### Verified Output — a live routing decision
+
 ```text
-collected 3 items
-
-atelier-agent/tests/test_gemma_router.py::test_classify_drawing_with_gemma_beginner PASSED [ 33%]
-atelier-agent/tests/test_gemma_router.py::test_classify_drawing_with_gemma_advanced PASSED [ 66%]
-atelier-agent/tests/test_gemma_router.py::test_api_router_classify_endpoint PASSED [100%]
-
-======================== 3 passed in 0.38s ========================
+"I was drawing a long corridor going away from me"   beginner -> k=1  1-point-box      [vertex]
+"the corner of a building, seen from the street"     beginner -> k=2  2-point-oblique  [vertex]
+"a box at an angle on my desk"                       advanced -> k=2  2-point-oblique  [vertex]
+(no description)                                     advanced -> k=2  2-point-oblique  [fallback]
 ```
+
+The second line is the reason the step exists: a **beginner** is measured as two-point because
+of what they wrote, overriding the level stored on their profile. The last line is the reason it
+is trustworthy: with nothing to read it falls back and says so, instead of inventing a
+confidence figure — the old stub reported `0.94` for a decision no model made.
 
 ---
 
@@ -159,7 +183,7 @@ Correctas! - Con error: 0, Superado: 7, Omitido: 0, Total: 7 - Atelier.Web.Tests
 | **`test_geometry.py`** | Pytest | OpenCV RANSAC VP & Error | 7 | ✅ 100% Passed |
 | **`test_critique.py`** | Pytest | Vertex AI Gemini & Validator | 6 | ✅ 100% Passed |
 | **`test_memory_collaborative.py`** | Pytest | 4 Verbs & Event Sourcing | 6 | ✅ 100% Passed |
-| **`test_gemma_router.py`** | Pytest | Gemma Pre-Router (+0.2 pts) | 3 | ✅ 100% Passed |
+| **`test_pre_router.py`** | Pytest | Intent pre-router, fallback labelling | 5 | ✅ Passed |
 | **`test_async_digest.py`** | Pytest | Eventarc & Weekly Scheduler | 5 | ✅ 100% Passed |
 | **`test_health.py`** | Pytest | Cloud Run Health & Root | 2 | ✅ 100% Passed |
 | **`Atelier.Web.Tests`** | xUnit | Blazor Health & Typed Client | 7 | ✅ 100% Passed |
@@ -170,7 +194,7 @@ Correctas! - Con error: 0, Superado: 7, Omitido: 0, Total: 7 - Atelier.Web.Tests
 ## 8. Agent Framework Compliance (Google GenAI SDK)
 
 ### Claim
-> *All model invocations for Gemini and Gemma use the official Google GenAI SDK (`google-genai`) with `genai.Client(vertexai=True, ...)`.*
+> *All model invocations use the official Google GenAI SDK (`google-genai`) with `genai.Client(vertexai=True, ...)`.*
 
 ### Verification Command 1: Package Installation & Metadata
 ```bash

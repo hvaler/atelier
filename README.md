@@ -18,7 +18,7 @@
 | Requirement | How Atelier satisfies it | Where |
 | :--- | :--- | :--- |
 | **Gemini 3.5+ via Gemini API or Vertex AI** | Gemini 3.5 Flash on Vertex AI (critique + dialogue) | [`atelier-agent/src/tools/critique.py`](atelier-agent/src/tools/critique.py) |
-| **≥1 Google Agent Framework** | Google GenAI SDK (`google-genai`) — all Gemini & Gemma calls | [`atelier-agent/requirements.txt`](atelier-agent/requirements.txt) · [`src/tools/`](atelier-agent/src/tools/) |
+| **≥1 Google Agent Framework** | Google GenAI SDK (`google-genai`) — every model call | [`atelier-agent/requirements.txt`](atelier-agent/requirements.txt) · [`src/tools/`](atelier-agent/src/tools/) |
 | **≥1 Google Cloud infrastructure service** | Cloud Run · Firestore · GCS · Eventarc · Cloud Scheduler | [`infra/`](infra/) · [`src/tools/`](atelier-agent/src/tools/) |
 
 ---
@@ -56,7 +56,7 @@
  │            ATELIER AGENT BACKEND (Google GenAI SDK + FastAPI / Cloud Run)               │
  │                                                                                         │
  │   ┌───────────────────────────┐                     ┌───────────────────────────────┐   │
- │   │    Gemma Pre-Router       │ ──(Classifies)────> │   OpenCV Deterministic Engine │   │
+ │   │    Intent Pre-Router      │ ──(Chooses k)─────> │   OpenCV Deterministic Engine │   │
  │   │    (Vertex AI 2B/9B)      │                     │   - Deskew & Hough Lines      │   │
  │   │    - Exercise Classification                    │   - RANSAC Vanishing Points   │   │
  │   │    - Canny Threshold Tuning                     │   - Horizon Line & Error (°)  │   │
@@ -92,7 +92,7 @@
   2. **GUIDE**: Targeted exercise prescriptions driven by recurring deviation patterns.
   3. **CAPTURE**: Explicit student feedback (`helpful: bool` + note) saved as immutable events.
   4. **ADAPT**: Dynamic profile derivation (shifting tone from technical to encouraging automatically).
-- 🧠 **Gemma Pre-Router on Vertex AI (+0.2 pts Bonus)**: Lightweight routing step to classify drawing types and optimize edge-detection parameters before heavy LLM processing.
+- 🧠 **Intent Pre-Router on Vertex AI**: before any measurement, the student's own description of what they were practising chooses the perspective model. A beginner who writes *"the corner of a building"* is measured as two-point, because they said so — not as one-point because of a field in their profile. Falls back to the profile level when there is nothing to read, and **says which happened** (`source: vertex | fallback`).
 - 📈 **Append-Only Memory & Weekly Digests**: Event-sourced progression tracking in Google Cloud Firestore with automated weekly practice plans synthesized via Cloud Scheduler.
 - 🔒 **Async-First & Privacy-Preserving (ADR-004, ADR-006)**: Private Google Cloud Storage inbox (`gs://atelier-hack-inbox/{studentId}/`), Eventarc triggers, signed URLs, and first-names-only privacy model for young students.
 
@@ -109,7 +109,7 @@ In the spirit of radical technical honesty, here is what is 100% implemented ver
 | **Two-Plane Critique Model** | ✅ **100% Complete & Validated** | Plane A (OpenCV measured) + Plane B (Studio qualitative rubric) strictly separated. |
 | **Anti-Hallucination Validator** | ✅ **100% Complete & Tested** | In-code gate rejecting fabricated numerical measurements with feedback retry loop. |
 | **Collaborative Loop (4 Verbs)** | ✅ **100% Complete** | Ask, Guide, Capture & Adapt with dynamic tone shift and Firestore append-only models. |
-| **Gemma Pre-Router** | ✅ **100% Complete (+0.2 pts)** | `/api/router/classify` routes drawing types and tunes Canny/Hough edge parameters. |
+| **Intent Pre-Router** | ✅ Complete | `/api/router/classify` chooses k=1 or k=2 from the student's description, labelled with its own provenance. **The Gemma bonus is not claimed**: Gemma is not a publisher model on Vertex AI and reaching it needs a billed Model Garden endpoint. |
 | **Async GCS Ingestion (Eventarc + Scheduler)** | ✅ **Verified on GCP (2026-08-18)** | Object finalize triggers Cloud Run pipeline and persists immutable events in Firestore. |
 | **Multimodal Blazor UI** | ✅ **100% Complete** | Interactive overlay viewer, side-by-side comparison, and SVG progress curve. |
 | **3-Point Curvilinear Perspective ($k=3$)** | ⏳ *Planned for Phase 2* | 3-point worm/bird's-eye perspective is planned for high-level architectural rendering. |
