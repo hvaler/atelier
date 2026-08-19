@@ -1,24 +1,17 @@
 # Social Media Posts for Atelier — All Things Agentic Hackathon (+0.2 pts Bonus)
 
-## 🐦 Post for X (Twitter)
+## 🐦 Post for X (Twitter) — Under 280 Characters (Free Tier Ready)
 
 ```text
-🎨 "The geometry measures, the AI teaches, the student grows."
+🎨 Atelier — AI Studio Master for art students.
 
-Proud to submit Atelier to the #AllThingsAgenticHackathon! 🚀
+"The geometry measures, the AI teaches, the student grows."
 
-An AI Studio Master for remote art students combining:
-✨ Deterministic OpenCV geometry (RANSAC vanishing points & angular error in degrees)
-🤖 Gemini Flash & Gemma on Google @GoogleCloud Vertex AI for empathetic, level-aware critique
-💬 The 4 Collaborative Verbs: Ask, Guide, Capture & Adapt
-📊 Append-only memory & progression curves in Firestore
+OpenCV deterministic geometry + Gemini 3.5 Flash on @GoogleCloud Vertex AI for zero-hallucination critique!
 
-Zero visual hallucinations: OpenCV calculates, Gemini teaches!
+🔗 https://github.com/hvaler/atelier
 
-🔗 GitHub: https://github.com/hvaler/atelier
-📽️ Demo & Article inside!
-
-#AllThingsAgenticHackathon #GoogleCloud #VertexAI #GenAI #DotNet #OpenCV #EdTech
+#AllThingsAgenticHackathon
 ```
 
 ---
