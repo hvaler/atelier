@@ -9,6 +9,8 @@ public interface IAtelierAgentClient
     Task<AskPromptDataDto?> GetAskPromptAsync(string studentId);
     Task<GeometryAnalysisResultDto?> AnalyzeGeometryAsync(string imageBase64, int kPoints, bool generateOverlay = true);
     Task<CritiqueResponseDto?> GenerateCritiqueAsync(CritiqueRequestDto request);
+    Task<DrawingGateResultDto?> ClassifyDrawingAsync(string imageBase64);
+    Task<RoutingResultDto?> RouteIntentAsync(string? studentIntent, string studentLevel);
     Task<ExerciseRecordDto?> SaveExerciseAsync(ExerciseRecordDto exercise);
     Task<bool> SubmitFeedbackAsync(string exerciseId, string studentId, bool helpful, string? note);
     Task<DerivedProfileDto?> GetDerivedProfileAsync(string studentId);
@@ -108,6 +110,63 @@ public class AtelierAgentClient : IAtelierAgentClient
         // critique with the green validated badge, composed entirely in this file. The screen
         // now says the agent is unreachable, which is the only true thing available.
         _logger.LogError("atelier-agent refused the critique request.");
+        return null;
+    }
+
+    /// <summary>
+    /// Ask whether this photograph is a perspective exercise at all, before measuring it.
+    ///
+    /// Runs on Gemini 3.5 Flash vision. Failing to reach it lets the drawing through — refusing
+    /// a student's work because a model is down would be worse than measuring one that should
+    /// not have been measured — but the caller can tell the two apart from `Source`.
+    /// </summary>
+    public async Task<DrawingGateResultDto?> ClassifyDrawingAsync(string imageBase64)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("/api/router/gate", new
+            {
+                image_base64 = imageBase64,
+                k_points = 1,
+                generate_overlay = false
+            });
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<DrawingGateResultDto>();
+            }
+
+            _logger.LogError("Drawing gate refused the request: HTTP {Status}", (int)response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to reach the drawing gate.");
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Choose the perspective model from what the student wrote, on Gemma 4.
+    /// </summary>
+    public async Task<RoutingResultDto?> RouteIntentAsync(string? studentIntent, string studentLevel)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("/api/router/classify", new
+            {
+                student_intent = studentIntent,
+                student_level_hint = studentLevel
+            });
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<RoutingResultDto>();
+            }
+
+            _logger.LogError("Intent router refused the request: HTTP {Status}", (int)response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to reach the intent router.");
+        }
         return null;
     }
 

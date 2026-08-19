@@ -95,6 +95,33 @@
             <OverlayViewer Geometry="CurrentGeometry" OriginalImageBase64="@CurrentBase64" />
 
             <!-- Two-Plane Pedagogical Critique -->
+            @* The gate refused this photograph. Said plainly, with the model's own reason, because
+               "we did not measure this" is a useful answer and a silent zero is not. *@
+            @if (NotAnExercise is not null)
+            {
+                <div class="alert alert-warning border-0 rounded-4">
+                    <strong>This does not look like a perspective exercise.</strong>
+                    <div class="small mt-1">@NotAnExercise</div>
+                    <div class="small mt-2 text-muted">
+                        Nothing was measured. Upload a drawing with construction lines running to a
+                        vanishing point and Atelier will look again.
+                    </div>
+                </div>
+            }
+            @* The student's description and their drawing disagree. Neither is corrected behind
+               their back: the drawing was measured as drawn, and the difference is named. *@
+            @if (IntentMismatch && Routing is not null && CurrentGeometry is not null)
+            {
+                <div class="alert alert-info border-0 rounded-4 py-2">
+                    <strong>Your description and your drawing do not match.</strong>
+                    <div class="small mt-1">
+                        You described a <strong>@Routing.ExerciseType</strong> — @Routing.Reasoning
+                        This drawing was measured as <strong>@CurrentGeometry.KRequested-point</strong>,
+                        which is what it looks like. Nothing was changed; worth a second look at
+                        either the drawing or the description.
+                    </div>
+                </div>
+            }
             @if (AgentUnavailable)
             {
                 <div class="alert alert-danger border-0 rounded-4">
@@ -137,6 +164,13 @@
     /// <summary>The agent did not answer. Said out loud, because the alternative was a page of
     /// hardcoded numbers that looked exactly like a working system.</summary>
     private bool AgentUnavailable { get; set; }
+    /// <summary>Why the gate refused this photograph, when it did.</summary>
+    private string? NotAnExercise { get; set; }
+    /// <summary>What the router decided from the student's own words, and where it came from.</summary>
+    private RoutingResultDto? Routing { get; set; }
+    /// <summary>True when what the student wrote implies a different perspective from the one
+    /// their drawing was measured as. Reported, never silently acted on.</summary>
+    private bool IntentMismatch { get; set; }
 
     private bool IsAnalyzing { get; set; }
     private bool AnalysisCompleted { get; set; }
@@ -212,11 +246,36 @@
         await stream.CopyToAsync(ms);
         CurrentBase64 = Convert.ToBase64String(ms.ToArray());
 
-        var kPoints = CurrentStudent?.Level == "beginner" ? 1 : 2;
         IsAnalyzing = true;
         AnalysisCompleted = false;
+        NotAnExercise = null;
+
+        // The gate first. A photograph that is not a perspective exercise — a page of text, a
+        // blank sheet, a picture of the cat — would otherwise go through RANSAC, produce a
+        // vanishing point from whatever edges exist, and earn a critique about line weight.
+        // Measuring the wrong thing carefully is worse than not measuring it.
+        var gate = await AgentClient.ClassifyDrawingAsync(CurrentBase64);
+        if (gate is { IsExercise: false })
+        {
+            NotAnExercise = gate.Reasoning;
+            // Everything from the previous drawing goes too. Leaving the last critique on screen
+            // under a "nothing was measured" notice invites reading it as being about this image.
+            CurrentGeometry = null;
+            CurrentCritique = null;
+            AnalysisCompleted = false;
+            ExerciseSaved = false;
+            IntentMismatch = false;
+            IsAnalyzing = false;
+            return;
+        }
+
+        // The gate's k when it actually looked; the profile level only as the fallback.
+        var kPoints = gate is { Source: "vertex", RecommendedK: 1 or 2 }
+            ? gate.RecommendedK
+            : (CurrentStudent?.Level == "beginner" ? 1 : 2);
 
         CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, kPoints, generateOverlay: true);
+        AgentUnavailable = CurrentGeometry is null;
         IsAnalyzing = false;
     }
 
@@ -226,6 +285,29 @@
 
         IsAnalyzing = true;
         ExerciseSaved = false;
+
+        // Ask the router what the student's own words imply, and compare it with what the drawing
+        // was actually measured as.
+        //
+        // The words do NOT win. An earlier version re-measured on the router's say-so, and a
+        // one-point box described as "the corner of a building" came back as two-point: 29.9
+        // degrees of average error, 89.2 on the worst line, two vanishing points found in a
+        // drawing that has one. That is this project's own principle broken — the measurement is
+        // the evidence and the description is a claim, so the claim does not overrule it.
+        //
+        // What the disagreement is good for is saying so. "You described a corner; this reads as
+        // one-point" is useful to a student in a way that neither signal is alone.
+        Routing = await AgentClient.RouteIntentAsync(context.Intent, CurrentStudent.Level);
+        IntentMismatch = Routing is { Source: "gemma", RecommendedK: 1 or 2 }
+                         && CurrentGeometry is not null
+                         && Routing.RecommendedK != CurrentGeometry.KRequested;
+
+        if (CurrentGeometry is null)
+        {
+            IsAnalyzing = false;
+            AnalysisCompleted = true;
+            return;
+        }
 
         var critiqueReq = new CritiqueRequestDto
         {

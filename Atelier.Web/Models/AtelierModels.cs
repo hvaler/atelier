@@ -430,3 +430,44 @@ public class WeeklyDigestDto
     [JsonPropertyName("next_week_practice_plan")]
     public List<PracticePlanDayDto> NextWeekPracticePlan { get; set; } = [];
 }
+
+/// <summary>
+/// What the gate decided about the photograph, before anything was measured.
+/// </summary>
+public class DrawingGateResultDto
+{
+    [JsonPropertyName("is_exercise")]
+    public bool IsExercise { get; set; } = true;
+
+    [JsonPropertyName("exercise_type")]
+    public string ExerciseType { get; set; } = "not-an-exercise";
+
+    [JsonPropertyName("recommended_k")]
+    public int RecommendedK { get; set; }
+
+    [JsonPropertyName("reasoning")]
+    public string Reasoning { get; set; } = string.Empty;
+
+    /// <summary>"vertex" when the model looked, "fallback" when it could not be reached.</summary>
+    [JsonPropertyName("source")]
+    public string Source { get; set; } = "fallback";
+}
+
+/// <summary>
+/// Which perspective model to measure against, chosen from the student's own description.
+/// </summary>
+public class RoutingResultDto
+{
+    [JsonPropertyName("exercise_type")]
+    public string ExerciseType { get; set; } = "1-point-box";
+
+    [JsonPropertyName("recommended_k")]
+    public int RecommendedK { get; set; } = 1;
+
+    [JsonPropertyName("reasoning")]
+    public string Reasoning { get; set; } = string.Empty;
+
+    /// <summary>"gemma" when the router model decided, "fallback" when the profile level did.</summary>
+    [JsonPropertyName("source")]
+    public string Source { get; set; } = "fallback";
+}
