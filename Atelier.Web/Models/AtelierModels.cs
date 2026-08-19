@@ -55,8 +55,18 @@ public class LineSegmentDto
     [JsonPropertyName("vp_index")]
     public int? VpIndex { get; set; }
 
+    /// <summary>
+    /// How far this line misses the vanishing point, in degrees — or null when the line is
+    /// structural and was never expected to converge.
+    ///
+    /// Nullable because the agent's field always was: verticals, and the horizontals of a
+    /// one-point front face, carry no convergence error because converging is not something
+    /// they were ever supposed to do. This DTO declared it non-nullable, which was harmless
+    /// only while the engine wrongly measured every line — the moment it stopped, the whole
+    /// response failed to deserialise and the page reported the agent as unreachable.
+    /// </summary>
     [JsonPropertyName("convergence_error_deg")]
-    public double ConvergenceErrorDeg { get; set; }
+    public double? ConvergenceErrorDeg { get; set; }
 }
 
 public class VanishingPointDto

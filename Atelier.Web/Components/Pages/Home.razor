@@ -231,6 +231,10 @@
         {
             Geometry = CurrentGeometry,
             Student = CurrentStudent,
+            // The drawing itself. Plane B asks the model about line weight and spatial clarity;
+            // without the image the validator rejects those observations, retries three times,
+            // and falls back to the template — which is what happened, silently, until this line.
+            ImageBase64 = CurrentBase64,
             StudentIntent = context.Intent,
             StudentDifficulty = context.Difficulty,
             // Off by default. Under a rule that mandates an unedited live execution, demoing a

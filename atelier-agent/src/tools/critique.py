@@ -273,7 +273,16 @@ def generate_pedagogical_critique(request: CritiqueRequest) -> CritiqueResponse:
             user_prompt += "\nPlease regenerate the critique using strictly and only the provided measured numbers."
 
     if critique_result is None or not critique_result.validated:
-        # Fallback to guaranteed valid deterministic template
+        # The model answered but could not satisfy the validator in three attempts. This branch
+        # used to be silent — the same failure mode as the bare `except` above, and the reason a
+        # request with no image produced a template with nobody able to say why.
+        logger.warning(
+            "Critique failed validation after %d retries (had_image=%s); serving the "
+            "deterministic studio template instead. Last errors: %s",
+            retries_done,
+            bool(request.image_base64),
+            "; ".join(validation_errors) if validation_errors else "none recorded",
+        )
         critique_result = generate_fallback_critique(request)
 
     # 4. Save to cache

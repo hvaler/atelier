@@ -125,9 +125,17 @@
                                             <span class="badge bg-secondary">@(line.VpIndex.HasValue ? $"VP-{line.VpIndex}" : "Parallel/Axis")</span>
                                         </td>
                                         <td>
-                                            <span class="badge @(line.ConvergenceErrorDeg < 2.5 ? "bg-success" : line.ConvergenceErrorDeg < 6.0 ? "bg-warning text-dark" : "bg-danger")">
-                                                @line.ConvergenceErrorDeg.ToString("F1")°
-                                            </span>
+                                            @* Structural lines carry no error: a vertical was never going to converge. Shown as such rather than as a zero, which would read as a perfect line. *@
+                                            @if (line.ConvergenceErrorDeg is double err)
+                                            {
+                                                <span class="badge @(err < 2.5 ? "bg-success" : err <= 6.0 ? "bg-warning text-dark" : "bg-danger")">
+                                                    @err.ToString("F1")°
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary" title="Structural line: parallel to the picture plane, so it does not converge.">structural</span>
+                                            }
                                         </td>
                                     </tr>
                                 }

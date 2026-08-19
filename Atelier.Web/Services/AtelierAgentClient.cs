@@ -174,37 +174,12 @@ public class AtelierAgentClient : IAtelierAgentClient
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to get derived profile for {StudentId}", studentId);
-            var isBeginner = !studentId.Contains("sofia");
-            return new DerivedProfileDto
-            {
-                Student = new StudentProfileDto
-                {
-                    StudentId = studentId,
-                    Name = isBeginner ? "Young Tester (Age 9)" : "Sofia",
-                    Level = isBeginner ? "beginner" : "advanced"
-                },
-                TotalExercises = 4,
-                OverallAvgErrorDeg = isBeginner ? 2.1 : 2.8,
-                DerivedTonePreference = isBeginner ? "encouraging" : "technical",
-                RecentHelpfulRatio = 1.0,
-                CurrentPracticeFocus = isBeginner ? "1-Point frontal cube alignment" : "2-Point F1 depth convergence",
-                ProgressCurve =
-                [
-                    new ProgressPointDto { Timestamp = "Session 1", AvgConvergenceErrorDeg = 4.8, KPoints = 1, ExerciseId = "1" },
-                    new ProgressPointDto { Timestamp = "Session 2", AvgConvergenceErrorDeg = 3.6, KPoints = 1, ExerciseId = "2" },
-                    new ProgressPointDto { Timestamp = "Session 3", AvgConvergenceErrorDeg = 2.4, KPoints = 1, ExerciseId = "3" },
-                    new ProgressPointDto { Timestamp = "Session 4", AvgConvergenceErrorDeg = 1.8, KPoints = 1, ExerciseId = "4" }
-                ],
-                RecommendedNextExercise = new NextExerciseRecommendationDto
-                {
-                    Title = isBeginner ? "3 Aligned Boxes in Space" : "2-Point Stepped Architectural Block",
-                    Description = "Construct solid volumes verifying receding horizontal lines converge to the horizon.",
-                    TargetMetric = "Convergence accuracy",
-                    Difficulty = isBeginner ? "beginner" : "advanced"
-                }
-            };
+            _logger.LogError(ex, "GetDerivedProfileAsync failed for {StudentId}", studentId);
         }
+
+        // No invented data. This returned a hand-written figure, so an empty history and a
+        // broken agent both looked like a student making progress.
+        return null;
     }
 
     public async Task<NextExerciseRecommendationDto?> GetNextGuidedExerciseAsync(string studentId)
@@ -238,28 +213,13 @@ public class AtelierAgentClient : IAtelierAgentClient
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to generate weekly digest for {StudentId}", studentId);
+            _logger.LogError(ex, "GetWeeklyDigestAsync failed for {StudentId}", studentId);
         }
 
-        var isBeginner = !studentId.Contains("sofia");
-        return new WeeklyDigestDto
-        {
-            DigestId = "digest-sample",
-            StudentId = studentId,
-            StudentName = isBeginner ? "Young Tester (Age 9)" : "Sofia",
-            WeekId = "2026-W34",
-            TotalDrawings = 4,
-            WeeklyAvgConvergenceErrorDeg = isBeginner ? 2.1 : 2.6,
-            ErrorReductionDeg = 1.4,
-            WeeklySummary = $"Great consistency this week! Your average angular error dropped by 1.4°.",
-            RecommendedFocus = isBeginner ? "Frontal face alignment and light pencil pressure." : "F1 vanishing point convergence and line weight contrast.",
-            NextWeekPracticePlan =
-            [
-                new PracticePlanDayDto { Day = "Monday", Title = "3 Cubes on Horizon", Description = "Draw three boxes pointing to the center VP.", TargetMetric = "1-Point VP consistency" },
-                new PracticePlanDayDto { Day = "Wednesday", Title = "Floating Cube Practice", Description = "Draw a floating box above eye level.", TargetMetric = "Horizon alignment" },
-                new PracticePlanDayDto { Day = "Friday", Title = "Stepped Room Box", Description = "Draw a room interior in 1-point perspective.", TargetMetric = "Spatial readability" }
-            ]
-        };
+        // No invented data. This returned a hand-written figure, so an empty history and a
+        // broken agent both looked like a student making progress.
+        return null;
+
     }
 
     private static List<StudentProfileDto> GetFallbackStudents() =>
