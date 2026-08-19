@@ -1,4 +1,4 @@
-# The Geometry Measures, the AI Teaches: Building an Art Studio Tutor with ADK, Vertex AI & OpenCV
+# The Geometry Measures, the AI Teaches: Building an Art Studio Tutor with the Google GenAI SDK, Vertex AI & OpenCV
 
 > *This project was created for the Devpost All Things Agentic Hackathon.*
 
@@ -77,4 +77,4 @@ Building Atelier demonstrated that the future of agentic AI in technical discipl
 When these two forces combine, students of all ages can see their invisible mistakes and grow with confidence.
 
 ---
-*Built with Google Agent Development Kit (ADK), Vertex AI (Gemini Flash & Gemma), Google Cloud Run, Cloud Storage, Eventarc, Firestore, OpenCV, and .NET 10.*
+*Built with the Google GenAI SDK (`google-genai`), Vertex AI (Gemini 3.5 Flash), Google Cloud Run, Cloud Storage, Eventarc, Firestore, OpenCV, and .NET 10.*

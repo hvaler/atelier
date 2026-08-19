@@ -27,6 +27,16 @@ class Settings(BaseSettings):
     #: drawings inside the EU and co-located with the Firestore database (eur3).
     gemini_location: str = os.getenv("GEMINI_LOCATION", "europe-west3")
 
+    #: Where student memory lives. Firestore in production, dicts everywhere else.
+    #:
+    #: Explicit rather than inferred from whether credentials happen to be present: a service
+    #: that silently downgrades to process memory is a service that loses a child's history on
+    #: the next cold start and reports nothing. CI and local development run on "memory" by
+    #: default and say so on /api/health.
+    memory_backend: str = os.getenv(
+        "MEMORY_BACKEND", "firestore" if os.getenv("ENVIRONMENT") == "production" else "memory"
+    )
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",

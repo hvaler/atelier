@@ -89,6 +89,34 @@ def preprocess_and_detect_lines(image: np.ndarray) -> tuple[list[tuple[float, fl
     return detected_segments, edges
 
 
+#: How close to vertical (or horizontal) a segment must be before it is treated as structural.
+STRUCTURAL_TOLERANCE_DEG = 8.0
+
+
+def is_structural_line(angle_rad: float, k_points: int, tolerance_deg: float = STRUCTURAL_TOLERANCE_DEG) -> bool:
+    """
+    Whether a segment is parallel to the picture plane, and therefore never converges.
+
+    This is the rule a drawing teacher would state, and the engine was missing it: in perspective
+    only the *receding* edges run to a vanishing point. Verticals never do. In one-point
+    perspective the horizontals of the front face never do either, and neither does the horizon.
+
+    Without this the average convergence error was computed over every segment Canny found — box
+    edges, the horizon line, even the strokes of the title text — so a deliberately perfect
+    drawing measured 29 degrees and a deliberately bad one measured 26. The headline number of
+    the whole product was noise, and the golden-case tests did not catch it because they feed
+    line lists directly and never exercise the detector.
+    """
+    deg = abs(math.degrees(angle_rad)) % 180.0
+    near_vertical = abs(deg - 90.0) <= tolerance_deg
+    if near_vertical:
+        return True
+    if k_points == 1:
+        near_horizontal = deg <= tolerance_deg or deg >= 180.0 - tolerance_deg
+        return near_horizontal
+    return False
+
+
 def estimate_vp_ransac(lines: list[tuple[float, float, float, float]], max_iterations: int = 150, inlier_threshold_deg: float = 3.5) -> tuple[float, float, list[int], float] | None:
     """Estimate a vanishing point using RANSAC over candidate pairwise intersections."""
     if len(lines) < 2:
@@ -156,13 +184,16 @@ def analyze_geometry_from_lines(
 
     for x1, y1, x2, y2 in lines_raw:
         angle_rad = math.atan2(y2 - y1, x2 - x1)
-        angle_deg = math.degrees(angle_rad)
-        acute_deg = abs(angle_deg) % 180
-        if acute_deg > 90:
-            acute_deg = 180 - acute_deg
 
-        # If angle is within 80°-100° (near vertical), keep as vertical reference
-        if acute_deg >= 80:
+        # Structural edges are kept aside, never fed to RANSAC.
+        #
+        # This filter used to exclude near-verticals only. In one-point perspective the front
+        # face of a box is drawn with horizontals, and so is the horizon — so the majority of
+        # segments handed to the estimator were parallel lines that agree with each other
+        # perfectly and meet at a vanishing point hundreds of metres off-frame. RANSAC did what
+        # it was asked and returned that one. The four edges that actually recede were outvoted,
+        # which is why a deliberately perfect drawing measured 29 degrees of error.
+        if is_structural_line(angle_rad, k_points):
             vertical_lines.append((x1, y1, x2, y2))
         else:
             converging_candidates.append((x1, y1, x2, y2))
@@ -258,7 +289,14 @@ def analyze_geometry_from_lines(
                 min_err = err
                 best_vp_idx = vp.index
 
-        if min_err is not None:
+        # Only receding edges are measured against a vanishing point. Structural ones are still
+        # drawn on the overlay, but they carry no convergence error because converging is not
+        # something they were ever supposed to do.
+        structural = is_structural_line(actual_angle, k_points)
+        if structural:
+            best_vp_idx = None
+            min_err = None
+        elif min_err is not None:
             all_errors.append(min_err)
 
         line_segments.append(

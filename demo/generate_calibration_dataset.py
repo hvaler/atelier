@@ -48,7 +48,11 @@ def generate_1point_drawing(
     # Back face
     cv2.rectangle(canvas, (330, 320), (470, 400), (80, 80, 80), 2)
 
-    cv2.putText(canvas, title, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (60, 60, 60), 2)
+    # No caption is burned into the canvas. It used to be, and Hough joined the letter
+    # strokes into 25 segments of ~61px — more than half of everything the estimator saw,
+    # which is why the two-point vanishing points landed hundreds of pixels off-frame. A
+    # student's drawing has no title written across the top of it; neither should the
+    # calibration set that stands in for one. The label lives in the filename.
     cv2.imwrite(str(output_path), canvas)
 
 
@@ -91,7 +95,6 @@ def generate_2point_drawing(
     cv2.line(canvas, (260, 335), (260, 440), (40, 40, 40), 2)
     cv2.line(canvas, (540, 335), (540, 440), (40, 40, 40), 2)
 
-    cv2.putText(canvas, title, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (60, 60, 60), 2)
     cv2.imwrite(str(output_path), canvas)
 
 

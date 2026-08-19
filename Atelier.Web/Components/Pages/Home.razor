@@ -2,6 +2,7 @@
 @namespace Atelier.Web.Components.Pages
 @using Atelier.Web.Components.Shared
 @inject IAtelierAgentClient AgentClient
+@inject IWebHostEnvironment Env
 
 <PageTitle>Atelier — Studio Master Perspective AI</PageTitle>
 
@@ -161,12 +162,23 @@
 
     private async Task LoadSampleDrawingAsync(string filename)
     {
-        // Simple synthetic sample lines representation for demo
+        // Read the actual calibration PNG and analyse it.
+        //
+        // This used to pass string.Empty. The agent rejects an empty image with 400, the client
+        // silently substituted hardcoded constants, and so every sample produced identical
+        // output: picking "deliberate 9 degree error" showed the same 1.8 degrees as "perfect".
+        // The five files under wwwroot/samples carry known injected errors, which is the whole
+        // point of them — the measured number has to move when the drawing does.
         var kPoints = filename.StartsWith("04") || filename.StartsWith("05") ? 2 : 1;
         IsAnalyzing = true;
         AnalysisCompleted = false;
 
-        CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(string.Empty, kPoints, generateOverlay: true);
+        var path = Path.Combine(Env.WebRootPath, "samples", filename);
+        CurrentBase64 = File.Exists(path)
+            ? Convert.ToBase64String(await File.ReadAllBytesAsync(path))
+            : string.Empty;
+
+        CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, kPoints, generateOverlay: true);
         IsAnalyzing = false;
     }
 

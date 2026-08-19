@@ -197,24 +197,67 @@ def test_api_analyze_endpoint():
     assert data["k_requested"] == 1
     assert data["overlay_image_base64"] is not None
 
-def test_analyze_from_dataset_png_files():
-    """End-to-end test reading generated calibration PNG files from disk."""
-    dataset_dir = Path("demo/dataset")
-    if not dataset_dir.exists():
-        return
+DATASET_DIR = Path(__file__).resolve().parents[2] / "demo" / "dataset"
 
-    # Test 1-point perfect image
-    img_1p = cv2.imread(str(dataset_dir / "01_1point_perfect.png"))
-    if img_1p is not None:
-        res_1p = analyze_geometry(img_1p, k_points=1)
-        assert res_1p.k_detected >= 1
-        assert res_1p.line_count >= 4
-        assert not res_1p.confidence_low
 
-    # Test 2-point perfect image
-    img_2p = cv2.imread(str(dataset_dir / "04_2point_perfect.png"))
-    if img_2p is not None:
-        res_2p = analyze_geometry(img_2p, k_points=2)
-        assert res_2p.line_count >= 4
-        assert not res_2p.confidence_low
-        assert res_2p.overlay_image_base64 is not None
+def test_dataset_pngs_recover_the_vanishing_point():
+    """
+    The detector, on real image files, must find the vanishing point it was drawn around.
+
+    This test used to open with `if not dataset_dir.exists(): return` against a CWD-relative
+    path that never resolves under CI's working directory, and every assertion inside was
+    additionally wrapped in `if img is not None`. It reported PASSED without executing a single
+    assertion — while the pipeline it claimed to cover was measuring 29 degrees of convergence
+    error on a drawing constructed to have none.
+    """
+    img = cv2.imread(str(DATASET_DIR / "01_1point_perfect.png"))
+    assert img is not None, f"calibration dataset missing; run demo/generate_calibration_dataset.py ({DATASET_DIR})"
+
+    result = analyze_geometry(img, k_points=1)
+
+    assert result.k_detected == 1
+    vp = result.vanishing_points[0].point
+    # The generator draws every receding edge towards (400, 250).
+    assert abs(vp.x - 400.0) < 15.0, f"F1 x drifted to {vp.x}"
+    assert abs(vp.y - 250.0) < 15.0, f"F1 y drifted to {vp.y}"
+    assert result.avg_convergence_error_deg < 2.0, (
+        f"a drawing built with zero error measured {result.avg_convergence_error_deg} deg"
+    )
+
+
+def test_dataset_pngs_measure_the_injected_error():
+    """A deliberately wrong edge must measure worse than a correct one, in the right order."""
+    measured = {}
+    for name in ("01_1point_perfect.png", "02_1point_error_4deg.png", "03_1point_error_9deg.png"):
+        img = cv2.imread(str(DATASET_DIR / name))
+        assert img is not None, f"missing {name}"
+        measured[name] = analyze_geometry(img, k_points=1).max_convergence_error_deg
+
+    perfect = measured["01_1point_perfect.png"]
+    slight = measured["02_1point_error_4deg.png"]
+    bad = measured["03_1point_error_9deg.png"]
+
+    # The generator perturbs one of the four receding edges, so the *worst* line carries the
+    # injected error. Ordering is the property that matters: the number has to move with the
+    # drawing. It did not before — the perfect drawing measured worse than the bad one.
+    assert perfect < slight < bad, f"ordering broken: {perfect} / {slight} / {bad}"
+    assert perfect < 4.0, f"zero-error drawing measured {perfect} deg on its worst line"
+    assert bad > 8.0, f"9-degree error drawing only reached {bad} deg"
+
+
+def test_dataset_two_point_reports_a_level_horizon():
+    """
+    In two-point perspective a consistent rotation does not scatter convergence — it lifts one
+    vanishing point off the horizon. The symptom is a tilted horizon, so that is what is asserted.
+    """
+    flat = analyze_geometry(cv2.imread(str(DATASET_DIR / "04_2point_perfect.png")), k_points=2)
+    tilted = analyze_geometry(cv2.imread(str(DATASET_DIR / "05_2point_error_6deg.png")), k_points=2)
+
+    assert flat.k_detected == 2
+    assert flat.horizon_line is not None and tilted.horizon_line is not None
+    assert abs(flat.horizon_line.angle_deg) < 1.5, (
+        f"a level horizon measured {flat.horizon_line.angle_deg} deg of tilt"
+    )
+    assert abs(tilted.horizon_line.angle_deg) > abs(flat.horizon_line.angle_deg), (
+        "the drawing with a rotated vanishing point should show the more tilted horizon"
+    )

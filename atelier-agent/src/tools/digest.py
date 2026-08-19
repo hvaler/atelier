@@ -16,7 +16,6 @@ def get_current_iso_week() -> str:
 
 
 # In-memory store for digests: student_id -> list of WeeklyDigest
-_digests_store: dict[str, list[WeeklyDigest]] = {}
 
 
 def generate_weekly_digest(student_id: str, week_id: str | None = None) -> WeeklyDigest:
@@ -183,12 +182,10 @@ def generate_weekly_digest(student_id: str, week_id: str | None = None) -> Weekl
 
 
 def _save_digest(digest: WeeklyDigest) -> None:
-    """Store digest record in memory."""
-    if digest.student_id not in _digests_store:
-        _digests_store[digest.student_id] = []
-    _digests_store[digest.student_id].append(digest)
+    """Store the digest wherever student memory lives."""
+    memory_repo.save_digest(digest)
 
 
 def get_student_digests(student_id: str) -> list[WeeklyDigest]:
     """Retrieve all chronological weekly digests for a student."""
-    return _digests_store.get(student_id, [])
+    return memory_repo.get_digests(student_id)

@@ -36,6 +36,9 @@ class HealthResponse(BaseModel):
     # that cannot show its own model configuration cannot tell you it is misconfigured.
     gemini_model: str
     gemini_location: str
+    #: Which store student history is actually in, so a downgrade to process memory is visible
+    #: from outside rather than only in a log line nobody reads.
+    memory_backend: str
 
 
 @app.get("/api/health", response_model=HealthResponse, status_code=status.HTTP_200_OK)
@@ -52,6 +55,7 @@ def health_check() -> HealthResponse:
         gcp_project=settings.gcp_project,
         gemini_model=settings.gemini_model,
         gemini_location=settings.gemini_location,
+        memory_backend=memory_repo.backend,
     )
 
 

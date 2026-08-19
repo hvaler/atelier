@@ -1,25 +1,34 @@
 """Anti-hallucination validator for pedagogical critique (ADR-001 & PAT-001).
 
-Guarantees that LLM never hallucinates or invents quantitative metrics not present
-in the OpenCV measurement payload.
+Guarantees that the LLM never invents a quantitative metric absent from the OpenCV payload, and
+that Plane B never describes a drawing the model was not shown.
 """
 
+import re
 
 from src.models.critique import CritiqueOutput
 from src.models.geometry import GeometryAnalysisResult
+
+#: Any figure in degrees appearing in Plane B prose. Plane B is the qualitative plane; every
+#: number in this system belongs to Plane A, where it can be checked against OpenCV.
+_DEGREES_IN_PROSE = re.compile(r"\d+(?:\.\d+)?\s*(?:°|deg\b|degs\b|degrees\b)", re.IGNORECASE)
 
 
 def validate_critique_measurements(
     critique: CritiqueOutput,
     geometry: GeometryAnalysisResult,
     tolerance: float = 0.5,
+    had_image: bool = True,
 ) -> tuple[bool, list[str]]:
-    """Validate that all numerical assertions in the critique's measured findings match the OpenCV payload.
+    """Validate that the critique only asserts things it is entitled to assert.
 
     Args:
         critique: The generated critique output from the LLM.
         geometry: The deterministic geometry results from OpenCV.
         tolerance: Allowed float tolerance for rounding differences.
+        had_image: Whether the drawing was actually sent to the model. When it was not, Plane B
+            must be empty: an observation about line weight is not an opinion, it is a claim
+            about a picture, and a model that was shown no picture cannot make it.
 
     Returns:
         (is_valid, list_of_error_messages)
@@ -60,13 +69,21 @@ def validate_critique_measurements(
                 f"which does not exist in OpenCV payload (allowed: {sorted(valid_numbers)})."
             )
 
-    # 2. Check qualitative observations plane does not claim fake quantitative precision
+    # 2. Plane B. This branch used to end in a literal `pass`, so the qualitative plane was
+    #    unguarded — which is where the invented prose actually lived.
+    if not had_image and critique.qualitative_observations:
+        errors.append(
+            f"Plane B carries {len(critique.qualitative_observations)} observation(s) about a "
+            "drawing that was never sent to the model. Without the image these describe nothing."
+        )
+
     for qual in critique.qualitative_observations:
-        # Qualitative observations must focus on artistic/construction aspects
-        allowed_aspects = {"line_weight", "spatial_clarity", "construction_cleanliness", "volumetrics", "composition"}
-        if qual.aspect.lower() not in allowed_aspects and not any(k in qual.aspect.lower() for k in ["line", "weight", "clean", "clarity", "volume", "depth"]):
-            # Non-blocking warning/check
-            pass
+        match = _DEGREES_IN_PROSE.search(qual.observation)
+        if match:
+            errors.append(
+                f"Plane B observation '{qual.aspect}' states a measurement ({match.group(0).strip()}). "
+                "Numbers belong to Plane A, where they are checked against OpenCV."
+            )
 
     is_valid = len(errors) == 0
     return (is_valid, errors)

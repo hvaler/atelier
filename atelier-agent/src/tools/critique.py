@@ -1,5 +1,6 @@
 """Pedagogical critique service using Gemini Flash via Vertex AI (ADR-001 & PAT-006)."""
 
+import base64
 import hashlib
 import json
 import logging
@@ -163,9 +164,24 @@ def call_vertex_ai_critique(
             location=settings.gemini_location,
         )
 
+        # The drawing itself, when we have it. Plane B asks the model about line weight and
+        # spatial clarity; without the image those observations were being written about a
+        # drawing the model had never seen — hallucinations, inside the one project whose
+        # headline claim is that it does not hallucinate. The field existed on the request all
+        # along and was simply never read.
+        contents: list = []
+        if request.image_base64:
+            contents.append(
+                types.Part.from_bytes(
+                    data=base64.b64decode(request.image_base64),
+                    mime_type="image/png",
+                )
+            )
+        contents.append(user_prompt)
+
         response = client.models.generate_content(
             model=settings.gemini_model,
-            contents=user_prompt,
+            contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
                 response_mime_type="application/json",
@@ -243,7 +259,9 @@ def generate_pedagogical_critique(request: CritiqueRequest) -> CritiqueResponse:
 
     for attempt in range(max_retries + 1):
         critique_result = call_vertex_ai_critique(request, system_prompt, user_prompt)
-        is_valid, validation_errors = validate_critique_measurements(critique_result, request.geometry)
+        is_valid, validation_errors = validate_critique_measurements(
+            critique_result, request.geometry, had_image=bool(request.image_base64)
+        )
 
         if is_valid:
             critique_result.validated = True

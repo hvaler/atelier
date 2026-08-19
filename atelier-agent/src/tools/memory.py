@@ -1,9 +1,11 @@
 """Append-only memory repository and dynamic profile derivation engine (ADR-003, ADR-005, PAT-004)."""
 
+import logging
 import uuid
 
 import numpy as np
 
+from src.config import settings
 from src.models.critique import (
     NextExerciseRecommendation,
     StudentProfile,
@@ -16,13 +18,23 @@ from src.models.memory import (
     get_current_utc_iso,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class MemoryRepository:
-    """In-memory & Firestore-compatible append-only storage for students, exercises, and feedback."""
+    """Append-only storage for students, exercises and feedback, held in process memory.
+
+    Kept as the CI, test and local-development implementation. `FirestoreMemoryRepository`
+    subclasses it and overrides only the storage primitives, so `derive_profile` below — the
+    logic that actually adapts to a student — exists exactly once.
+    """
+
+    backend = "memory"
 
     def __init__(self):
         self._students: dict[str, StudentProfile] = {}
         self._exercises: dict[str, list[ExerciseRecord]] = {}  # student_id -> list of records
+        self._digests: dict[str, list] = {}
 
         # Initialize default demo profiles for multi-student support from day 1
         self.register_student(
@@ -92,6 +104,16 @@ class MemoryRepository:
     def get_student_exercises(self, student_id: str) -> list[ExerciseRecord]:
         """Retrieve all chronological exercise records for a student."""
         return self._exercises.get(student_id, [])
+
+    def save_digest(self, digest) -> None:
+        """Append a weekly digest. Routed through the repository so digests follow the same
+        backend as everything else — they used to live in a second module-level dict, which is
+        how one half of the state ends up persisted and the other half does not."""
+        self._digests.setdefault(digest.student_id, []).append(digest)
+
+    def get_digests(self, student_id: str) -> list:
+        """Chronological weekly digests for a student."""
+        return self._digests.get(student_id, [])
 
     def derive_profile(self, student_id: str) -> DerivedProfile:
         """Derive student's effective learning profile dynamically from event stream (ADAPT step)."""
@@ -208,4 +230,29 @@ class MemoryRepository:
 
 
 # Global singleton repository instance
-memory_repo = MemoryRepository()
+def _build_memory_repo() -> MemoryRepository:
+    """Pick the backend, and never downgrade quietly."""
+    if settings.memory_backend != "firestore":
+        logger.info("Student memory backend: in-process dicts (MEMORY_BACKEND=%s).", settings.memory_backend)
+        return MemoryRepository()
+
+    try:
+        from src.tools.firestore_repo import FirestoreMemoryRepository
+
+        repo = FirestoreMemoryRepository()
+        logger.info("Student memory backend: Firestore (%s).", settings.firestore_db)
+        return repo
+    except Exception as exc:  # noqa: BLE001 - reported, not swallowed
+        # Falling back keeps the service answering, which matters more than failing pure. But it
+        # is stated: the previous design lost every student's history on each cold start and
+        # nothing anywhere said so.
+        logger.error(
+            "Firestore memory is configured but unavailable (%s: %s). Falling back to process "
+            "memory — student history will NOT survive a cold start.",
+            type(exc).__name__,
+            exc,
+        )
+        return MemoryRepository()
+
+
+memory_repo = _build_memory_repo()
