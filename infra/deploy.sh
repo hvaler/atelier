@@ -42,7 +42,8 @@ if [ -z "$AGENT_EXISTS" ]; then
     --max-instances=5 \
     --memory=1Gi \
     --cpu=1 \
-    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION},GEMINI_LOCATION=${GEMINI_REGION},MEMORY_BACKEND=firestore" \n    --set-secrets="GEMINI_API_KEY=gemini-api-key:latest"
+    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION},GEMINI_LOCATION=${GEMINI_REGION},MEMORY_BACKEND=firestore" \
+    --set-secrets="GEMINI_API_KEY=gemini-api-key:latest"
 else
   echo "   [Subsequent Deploy] Deploying candidate revision for smoke test..."
   gcloud run deploy atelier-agent \
@@ -58,9 +59,14 @@ else
     --max-instances=5 \
     --memory=1Gi \
     --cpu=1 \
-    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION},GEMINI_LOCATION=${GEMINI_REGION},MEMORY_BACKEND=firestore" \n    --set-secrets="GEMINI_API_KEY=gemini-api-key:latest"
+    --set-env-vars="ENVIRONMENT=production,GCP_PROJECT=${PROJECT_ID},GCP_LOCATION=${REGION},GEMINI_LOCATION=${GEMINI_REGION},MEMORY_BACKEND=firestore" \
+    --set-secrets="GEMINI_API_KEY=gemini-api-key:latest"
 
-  CANDIDATE_AGENT_URL="https://candidate---atelier-agent-$(gcloud run services describe atelier-agent --region="$REGION" --format='value(status.address.url)' | sed 's|https://||')"
+  # The candidate URL is the service host with the tag prefixed, which Cloud Run reports
+  # itself. This used to prepend "candidate---atelier-agent-" to a value that already
+  # contained the service name, producing candidate---atelier-agent-atelier-agent-... and a
+  # 404 that aborted every promotion. The gate was right to abort; it was reading the wrong door.
+  CANDIDATE_AGENT_URL="https://candidate---$(gcloud run services describe atelier-agent --region="$REGION" --project="$PROJECT_ID" --format='value(status.address.url)' | sed 's|https://||')"
   echo "🧪 Running smoke test on candidate: ${CANDIDATE_AGENT_URL}/api/health..."
   SMOKE_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${CANDIDATE_AGENT_URL}/api/health" || echo "000")
   if [ "$SMOKE_CODE" != "200" ]; then
@@ -115,7 +121,11 @@ else
     --cpu=1 \
     --set-env-vars="ASPNETCORE_ENVIRONMENT=Production,Agent__BaseUrl=${AGENT_URL}"
 
-  CANDIDATE_WEB_URL="https://candidate---atelier-web-$(gcloud run services describe atelier-web --region="$REGION" --format='value(status.address.url)' | sed 's|https://||')"
+  # The candidate URL is the service host with the tag prefixed, which Cloud Run reports
+  # itself. This used to prepend "candidate---atelier-web-" to a value that already
+  # contained the service name, producing candidate---atelier-web-atelier-web-... and a
+  # 404 that aborted every promotion. The gate was right to abort; it was reading the wrong door.
+  CANDIDATE_WEB_URL="https://candidate---$(gcloud run services describe atelier-web --region="$REGION" --project="$PROJECT_ID" --format='value(status.address.url)' | sed 's|https://||')"
   echo "🧪 Running smoke test on candidate: ${CANDIDATE_WEB_URL}/api/health..."
   SMOKE_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${CANDIDATE_WEB_URL}/api/health" || echo "000")
   if [ "$SMOKE_CODE" != "200" ]; then
