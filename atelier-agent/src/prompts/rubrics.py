@@ -70,12 +70,23 @@ def build_critique_user_prompt(
     vps_summary: str,
     student_intent: str | None = None,
     student_difficulty: str | None = None,
+    language: str = "en",
 ) -> str:
     """Construct the user prompt providing OpenCV measurements and student context."""
     intent_clause = f"- Student intended to practice: '{student_intent}'\n" if student_intent else ""
     diff_clause = f"- Student reported difficulty with: '{student_difficulty}'\n" if student_difficulty else ""
 
-    return f"""STUDENT CONTEXT:
+    # Named languages rather than a bare code: "es" has been read as "Estonian" by more than one
+    # model, and the instruction has to survive being skimmed.
+    language_name = {"es": "Spanish (Spain)", "en": "English"}.get(language, "English")
+    language_clause = (
+        f"OUTPUT LANGUAGE: Write every piece of prose — headline, pedagogical_context, "
+        f"observation, strengths, focus_area, encouragement, and the whole next_exercise — in "
+        f"{language_name}. Field names, the 'status' and 'difficulty' enums, and metric_name stay "
+        f"in English: they are identifiers the application matches on, not text anyone reads.\n\n"
+    )
+
+    return f"""{language_clause}STUDENT CONTEXT:
 - Name: {student_name}
 - Level: {level}
 {intent_clause}{diff_clause}
@@ -87,6 +98,11 @@ DETERMINISTIC MEASUREMENT PAYLOAD (from OpenCV, ADR-001):
 - Measurement Confidence: {confidence:.2f} (Scale 0.0 to 1.0)
 - Vanishing Points:
 {vps_summary}
+
+METRIC NAMES: every measured_findings entry must use one of these exact metric_name values,
+and no others: average_convergence_error, max_convergence_error, line_count, confidence,
+f1_error, f2_error. They are identifiers the interface looks up to label and translate the
+finding; an invented name is shown to the student verbatim, in English, whatever they are reading.
 
 Please produce a structured critique JSON matching the required schema with:
 1. headline

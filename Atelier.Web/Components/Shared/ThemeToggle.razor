@@ -1,0 +1,54 @@
+@inject IJSRuntime JS
+
+@* Three states, not two. "System" is the default and it is not a cop-out: a person who has
+   already told their operating system how they want screens to look has answered this question
+   once, and asking again is noise. The other two exist because a drawing is a physical thing
+   photographed under some light, and which ground reads better depends on that light. *@
+<div class="btn-group btn-group-sm" role="group" aria-label="@Loc["Colour theme"]">
+    @foreach (var (value, glyph, label) in Options)
+    {
+        <button type="button"
+                class="btn @(Current == value ? "btn-primary" : "btn-outline-secondary")"
+                title="@Loc[label]"
+                aria-pressed="@(Current == value)"
+                @onclick="() => SetAsync(value)">
+            @glyph
+        </button>
+    }
+</div>
+
+@code {
+    private static readonly (string Value, string Glyph, string Label)[] Options =
+    [
+        ("light",  "☀",  "Light"),
+        ("system", "◐",  "Follow the system"),
+        ("dark",   "☾",  "Dark"),
+        // Labels are the resource keys as well as the English text, so the tooltip is translated
+        // at render time without a second table to keep in step.
+    ];
+
+    private string Current { get; set; } = "system";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        // Read back what the pre-paint script in App.razor already applied, rather than assuming
+        // a default here and fighting it. The script owns the first paint; this owns the button.
+        try
+        {
+            Current = await JS.InvokeAsync<string>("atelierGetTheme");
+            StateHasChanged();
+        }
+        catch (JSException)
+        {
+            // Prerendering, or JS unavailable. The buttons still work once the circuit is up.
+        }
+    }
+
+    private async Task SetAsync(string choice)
+    {
+        Current = choice;
+        await JS.InvokeVoidAsync("atelierSetTheme", choice);
+    }
+}

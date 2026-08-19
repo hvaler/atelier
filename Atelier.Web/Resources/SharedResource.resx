@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType><xsd:choice maxOccurs="unbounded">
+        <xsd:element name="data">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            <xsd:attribute ref="xml:space" />
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="resheader">
+          <xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType>
+        </xsd:element>
+      </xsd:choice></xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="About Atelier" xml:space="preserve">
+    <value>About Atelier</value>
+  </data>
+  <data name="How it grades" xml:space="preserve">
+    <value>How it grades</value>
+  </data>
+  <data name="An unhandled error has occurred." xml:space="preserve">
+    <value>An unhandled error has occurred.</value>
+  </data>
+  <data name="Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+  <data name="Navigation menu" xml:space="preserve">
+    <value>Navigation menu</value>
+  </data>
+  <data name="Studio Workspace" xml:space="preserve">
+    <value>Studio Workspace</value>
+  </data>
+  <data name="Student Progression" xml:space="preserve">
+    <value>Student Progression</value>
+  </data>
+  <data name="Calibration Gallery" xml:space="preserve">
+    <value>Calibration Gallery</value>
+  </data>
+  <data name="Colour theme" xml:space="preserve">
+    <value>Colour theme</value>
+  </data>
+  <data name="Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Follow the system" xml:space="preserve">
+    <value>Follow the system</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="beginner" xml:space="preserve">
+    <value>beginner</value>
+  </data>
+  <data name="advanced" xml:space="preserve">
+    <value>advanced</value>
+  </data>
+  <data name="Atelier — Studio Master Perspective AI" xml:space="preserve">
+    <value>Atelier — Studio Master Perspective AI</value>
+  </data>
+  <data name="Studio" xml:space="preserve">
+    <value>Studio</value>
+  </data>
+  <data name="The geometry measures, the AI teaches, the student grows." xml:space="preserve">
+    <value>The geometry measures, the AI teaches, the student grows.</value>
+  </data>
+  <data name="Active Student:" xml:space="preserve">
+    <value>Active Student:</value>
+  </data>
+  <data name="Young Tester (Age 9)" xml:space="preserve">
+    <value>Young Tester (Age 9)</value>
+  </data>
+  <data name="Sofia (Animation Adv.)" xml:space="preserve">
+    <value>Sofia (Animation Adv.)</value>
+  </data>
+  <data name="Sofia (Advanced)" xml:space="preserve">
+    <value>Sofia (Advanced)</value>
+  </data>
+  <data name="📂 Select Perspective Drawing" xml:space="preserve">
+    <value>📂 Select Perspective Drawing</value>
+  </data>
+  <data name="Pre-Calibrated Golden Sample:" xml:space="preserve">
+    <value>Pre-Calibrated Golden Sample:</value>
+  </data>
+  <data name="1-Point Perspective (Perfect 0° error)" xml:space="preserve">
+    <value>1-Point Perspective (Perfect 0° error)</value>
+  </data>
+  <data name="1-Point Perspective (Slight 4° error)" xml:space="preserve">
+    <value>1-Point Perspective (Slight 4° error)</value>
+  </data>
+  <data name="1-Point Perspective (Deliberate 9° error)" xml:space="preserve">
+    <value>1-Point Perspective (Deliberate 9° error)</value>
+  </data>
+  <data name="2-Point Perspective (Perfect F1/F2)" xml:space="preserve">
+    <value>2-Point Perspective (Perfect F1/F2)</value>
+  </data>
+  <data name="2-Point Perspective (F1 Drift 6° error)" xml:space="preserve">
+    <value>2-Point Perspective (F1 Drift 6° error)</value>
+  </data>
+  <data name="Or Upload Student Drawing Photo:" xml:space="preserve">
+    <value>Or Upload Student Drawing Photo:</value>
+  </data>
+  <data name="Target Mode: {0}" xml:space="preserve">
+    <value>Target Mode: {0}</value>
+  </data>
+  <data name="1-Point (k=1)" xml:space="preserve">
+    <value>1-Point (k=1)</value>
+  </data>
+  <data name="2-Point (k=2)" xml:space="preserve">
+    <value>2-Point (k=2)</value>
+  </data>
+  <data name="Refresh Questions" xml:space="preserve">
+    <value>Refresh Questions</value>
+  </data>
+  <data name="This does not look like a perspective exercise." xml:space="preserve">
+    <value>This does not look like a perspective exercise.</value>
+  </data>
+  <data name="Nothing was measured. Upload a drawing with construction lines running to a vanishing point and Atelier will look again." xml:space="preserve">
+    <value>Nothing was measured. Upload a drawing with construction lines running to a vanishing point and Atelier will look again.</value>
+  </data>
+  <data name="Your description and your drawing do not match." xml:space="preserve">
+    <value>Your description and your drawing do not match.</value>
+  </data>
+  <data name="You described a {0} — {1} This drawing was measured as {2}-point, which is what it looks like. Nothing was changed; worth a second look at either the drawing or the description." xml:space="preserve">
+    <value>You described a {0} — {1} This drawing was measured as {2}-point, which is what it looks like. Nothing was changed; worth a second look at either the drawing or the description.</value>
+  </data>
+  <data name="The analysis service did not answer." xml:space="preserve">
+    <value>The analysis service did not answer.</value>
+  </data>
+  <data name="Nothing is shown rather than something invented. This page used to fill in hardcoded numbers here, which looked exactly like a working system." xml:space="preserve">
+    <value>Nothing is shown rather than something invented. This page used to fill in hardcoded numbers here, which looked exactly like a working system.</value>
+  </data>
+  <data name="Studio Master is examining drawing geometry &amp; formulating critique..." xml:space="preserve">
+    <value>Studio Master is examining drawing geometry &amp; formulating critique...</value>
+  </data>
+  <data name="Invoking Gemini Flash on Vertex AI with level-aware rubric calibration." xml:space="preserve">
+    <value>Invoking Gemini Flash on Vertex AI with level-aware rubric calibration.</value>
+  </data>
+  <data name="Calibration Gallery — Atelier" xml:space="preserve">
+    <value>Calibration Gallery — Atelier</value>
+  </data>
+  <data name="Calibration dataset" xml:space="preserve">
+    <value>Calibration dataset</value>
+  </data>
+  <data name="and golden cases" xml:space="preserve">
+    <value>and golden cases</value>
+  </data>
+  <data name="Benchmark test dataset featuring deliberate known angular errors to verify deterministic precision (ADR-001)." xml:space="preserve">
+    <value>Benchmark test dataset featuring deliberate known angular errors to verify deterministic precision (ADR-001).</value>
+  </data>
+  <data name="1-Point • 0.0° Error (Golden)" xml:space="preserve">
+    <value>1-Point • 0.0° Error (Golden)</value>
+  </data>
+  <data name="1-Point • 4.0° Slight Error" xml:space="preserve">
+    <value>1-Point • 4.0° Slight Error</value>
+  </data>
+  <data name="1-Point • 9.0° Noticeable Error" xml:space="preserve">
+    <value>1-Point • 9.0° Noticeable Error</value>
+  </data>
+  <data name="2-Point • 0.0° Error (Golden)" xml:space="preserve">
+    <value>2-Point • 0.0° Error (Golden)</value>
+  </data>
+  <data name="2-Point • 6.0° F1 Divergence" xml:space="preserve">
+    <value>2-Point • 6.0° F1 Divergence</value>
+  </data>
+  <data name="Frontal perspective box with lines converging strictly to center vanishing point on the horizon." xml:space="preserve">
+    <value>Frontal perspective box with lines converging strictly to center vanishing point on the horizon.</value>
+  </data>
+  <data name="Box with top right receding edge deliberately tilted 4.0° away from the vanishing point." xml:space="preserve">
+    <value>Box with top right receding edge deliberately tilted 4.0° away from the vanishing point.</value>
+  </data>
+  <data name="Box with significant angular divergence, testing low-tolerance correction and retry loops." xml:space="preserve">
+    <value>Box with significant angular divergence, testing low-tolerance correction and retry loops.</value>
+  </data>
+  <data name="Oblique perspective building with two distinct vanishing points (F1 left, F2 right) on a horizontal horizon line." xml:space="preserve">
+    <value>Oblique perspective building with two distinct vanishing points (F1 left, F2 right) on a horizontal horizon line.</value>
+  </data>
+  <data name="Left-converging lines deviate 6.0° upwards from F1 while right-converging lines remain accurate to F2." xml:space="preserve">
+    <value>Left-converging lines deviate 6.0° upwards from F1 while right-converging lines remain accurate to F2.</value>
+  </data>
+  <data name="Target: Beginner" xml:space="preserve">
+    <value>Target: Beginner</value>
+  </data>
+  <data name="Target: Advanced" xml:space="preserve">
+    <value>Target: Advanced</value>
+  </data>
+  <data name="Test in Studio →" xml:space="preserve">
+    <value>Test in Studio →</value>
+  </data>
+  <data name="Student Progression — Atelier" xml:space="preserve">
+    <value>Student Progression — Atelier</value>
+  </data>
+  <data name="Progression" xml:space="preserve">
+    <value>Progression</value>
+  </data>
+  <data name="and analytics" xml:space="preserve">
+    <value>and analytics</value>
+  </data>
+  <data name="Tracking convergence error reduction, recurring geometric issues, and weekly practice plans." xml:space="preserve">
+    <value>Tracking convergence error reduction, recurring geometric issues, and weekly practice plans.</value>
+  </data>
+  <data name="Loading student progression..." xml:space="preserve">
+    <value>Loading student progression...</value>
+  </data>
+  <data name="Overall Avg Error" xml:space="preserve">
+    <value>Overall Avg Error</value>
+  </data>
+  <data name="Total Drawings" xml:space="preserve">
+    <value>Total Drawings</value>
+  </data>
+  <data name="Adapted Tone" xml:space="preserve">
+    <value>Adapted Tone</value>
+  </data>
+  <data name="Helpful Ratio" xml:space="preserve">
+    <value>Helpful Ratio</value>
+  </data>
+  <data name="📈 Convergence Error Progression" xml:space="preserve">
+    <value>📈 Convergence Error Progression</value>
+  </data>
+  <data name="Angular deviation over sequential drawing sessions (lower is better)" xml:space="preserve">
+    <value>Angular deviation over sequential drawing sessions (lower is better)</value>
+  </data>
+  <data name="Deterministic Metric" xml:space="preserve">
+    <value>Deterministic Metric</value>
+  </data>
+  <data name="More session data needed to render full progression curve." xml:space="preserve">
+    <value>More session data needed to render full progression curve.</value>
+  </data>
+  <data name="📅 Prescribed Weekly Practice Plan" xml:space="preserve">
+    <value>📅 Prescribed Weekly Practice Plan</value>
+  </data>
+  <data name="Synthesized by Cloud Scheduler weekly digest (Week {0})" xml:space="preserve">
+    <value>Synthesized by Cloud Scheduler weekly digest (Week {0})</value>
+  </data>
+  <data name="Target: {0}" xml:space="preserve">
+    <value>Target: {0}</value>
+  </data>
+  <data name="1-Point Perspective" xml:space="preserve">
+    <value>1-Point Perspective</value>
+  </data>
+  <data name="2-Point Perspective" xml:space="preserve">
+    <value>2-Point Perspective</value>
+  </data>
+  <data name="Confidence:" xml:space="preserve">
+    <value>Confidence:</value>
+  </data>
+  <data name="🎨 Annotated Overlay" xml:space="preserve">
+    <value>🎨 Annotated Overlay</value>
+  </data>
+  <data name="📷 Original Drawing" xml:space="preserve">
+    <value>📷 Original Drawing</value>
+  </data>
+  <data name="↔️ Side-by-Side" xml:space="preserve">
+    <value>↔️ Side-by-Side</value>
+  </data>
+  <data name="🔍 Line Inspection" xml:space="preserve">
+    <value>🔍 Line Inspection</value>
+  </data>
+  <data name="Analyzing geometry with deterministic OpenCV engine..." xml:space="preserve">
+    <value>Analyzing geometry with deterministic OpenCV engine...</value>
+  </data>
+  <data name="Deterministic Geometry Overlay" xml:space="preserve">
+    <value>Deterministic Geometry Overlay</value>
+  </data>
+  <data name="Drawing" xml:space="preserve">
+    <value>Drawing</value>
+  </data>
+  <data name="Original Drawing" xml:space="preserve">
+    <value>Original Drawing</value>
+  </data>
+  <data name="Error &lt; 2.5° (Accurate)" xml:space="preserve">
+    <value>Error &lt; 2.5° (Accurate)</value>
+  </data>
+  <data name="Error 2.5° - 6.0° (Slight Drift)" xml:space="preserve">
+    <value>Error 2.5° - 6.0° (Slight Drift)</value>
+  </data>
+  <data name="Error &gt; 6.0° (Diverging)" xml:space="preserve">
+    <value>Error &gt; 6.0° (Diverging)</value>
+  </data>
+  <data name="Original Student Drawing" xml:space="preserve">
+    <value>Original Student Drawing</value>
+  </data>
+  <data name="Deterministic Geometric Overlay" xml:space="preserve">
+    <value>Deterministic Geometric Overlay</value>
+  </data>
+  <data name="Deterministic OpenCV Metrics (ADR-001)" xml:space="preserve">
+    <value>Deterministic OpenCV Metrics (ADR-001)</value>
+  </data>
+  <data name="Line #" xml:space="preserve">
+    <value>Line #</value>
+  </data>
+  <data name="Start (x, y)" xml:space="preserve">
+    <value>Start (x, y)</value>
+  </data>
+  <data name="End (x, y)" xml:space="preserve">
+    <value>End (x, y)</value>
+  </data>
+  <data name="Target VP" xml:space="preserve">
+    <value>Target VP</value>
+  </data>
+  <data name="Convergence Error" xml:space="preserve">
+    <value>Convergence Error</value>
+  </data>
+  <data name="Parallel/Axis" xml:space="preserve">
+    <value>Parallel/Axis</value>
+  </data>
+  <data name="structural" xml:space="preserve">
+    <value>structural</value>
+  </data>
+  <data name="Structural line: parallel to the picture plane, so it does not converge." xml:space="preserve">
+    <value>Structural line: parallel to the picture plane, so it does not converge.</value>
+  </data>
+  <data name="No individual line segments extracted." xml:space="preserve">
+    <value>No individual line segments extracted.</value>
+  </data>
+  <data name="Average Angular Error" xml:space="preserve">
+    <value>Average Angular Error</value>
+  </data>
+  <data name="Max Line Deviation" xml:space="preserve">
+    <value>Max Line Deviation</value>
+  </data>
+  <data name="Vanishing Points" xml:space="preserve">
+    <value>Vanishing Points</value>
+  </data>
+  <data name="{0} detected" xml:space="preserve">
+    <value>{0} detected</value>
+  </data>
+  <data name="Horizon Line: {0}° tilt" xml:space="preserve">
+    <value>Horizon Line: {0}° tilt</value>
+  </data>
+  <data name="Studio Master Collaboration (ASK)" xml:space="preserve">
+    <value>Studio Master Collaboration (ASK)</value>
+  </data>
+  <data name="Tell Atelier about your practice focus before analyzing" xml:space="preserve">
+    <value>Tell Atelier about your practice focus before analyzing</value>
+  </data>
+  <data name="e.g. 1-Point box or 2-Point building..." xml:space="preserve">
+    <value>e.g. 1-Point box or 2-Point building...</value>
+  </data>
+  <data name="e.g. Converging the top lines or line weight..." xml:space="preserve">
+    <value>e.g. Converging the top lines or line weight...</value>
+  </data>
+  <data name="Analyze Drawing with My Context 🚀" xml:space="preserve">
+    <value>Analyze Drawing with My Context 🚀</value>
+  </data>
+  <data name="Was this critique helpful? (CAPTURE &amp; ADAPT)" xml:space="preserve">
+    <value>Was this critique helpful? (CAPTURE &amp; ADAPT)</value>
+  </data>
+  <data name="Your feedback automatically adapts the agent's tone and exercises" xml:space="preserve">
+    <value>Your feedback automatically adapts the agent's tone and exercises</value>
+  </data>
+  <data name="Profile Adapted ✓ — tone: {0}" xml:space="preserve">
+    <value>Profile Adapted ✓ — tone: {0}</value>
+  </data>
+  <data name="👍 Helpful" xml:space="preserve">
+    <value>👍 Helpful</value>
+  </data>
+  <data name="👎 Needs Adjustment" xml:space="preserve">
+    <value>👎 Needs Adjustment</value>
+  </data>
+  <data name="Optional note: (e.g. 'Tone was a bit too technical' or 'Loved the focus area')" xml:space="preserve">
+    <value>Optional note: (e.g. 'Tone was a bit too technical' or 'Loved the focus area')</value>
+  </data>
+  <data name="Submit Feedback &amp; Update Profile" xml:space="preserve">
+    <value>Submit Feedback &amp; Update Profile</value>
+  </data>
+  <data name="✓ Thank you! Atelier has recorded this event in your append-only profile history and calibrated future critique depth." xml:space="preserve">
+    <value>✓ Thank you! Atelier has recorded this event in your append-only profile history and calibrated future critique depth.</value>
+  </data>
+  <data name="The agent did not record that. Nothing was changed." xml:space="preserve">
+    <value>The agent did not record that. Nothing was changed.</value>
+  </data>
+  <data name="Critique will appear once drawing is analyzed." xml:space="preserve">
+    <value>Critique will appear once drawing is analyzed.</value>
+  </data>
+  <data name="{0} LEVEL CRITIQUE" xml:space="preserve">
+    <value>{0} LEVEL CRITIQUE</value>
+  </data>
+  <data name="Critique tailored for {0} • Grounded strictly on OpenCV (ADR-001)" xml:space="preserve">
+    <value>Critique tailored for {0} • Grounded strictly on OpenCV (ADR-001)</value>
+  </data>
+  <data name="Anti-Hallucination: Validated ✓" xml:space="preserve">
+    <value>Anti-Hallucination: Validated ✓</value>
+  </data>
+  <data name="Deterministic fallback — no model answered" xml:space="preserve">
+    <value>Deterministic fallback — no model answered</value>
+  </data>
+  <data name="Plane A: Measured Findings" xml:space="preserve">
+    <value>Plane A: Measured Findings</value>
+  </data>
+  <data name="No quantitative deviations recorded." xml:space="preserve">
+    <value>No quantitative deviations recorded.</value>
+  </data>
+  <data name="Plane B: Studio Observations" xml:space="preserve">
+    <value>Plane B: Studio Observations</value>
+  </data>
+  <data name="Line weight, spatial clarity &amp; cleanliness (RUNBOOK §2)" xml:space="preserve">
+    <value>Line weight, spatial clarity &amp; cleanliness (RUNBOOK §2)</value>
+  </data>
+  <data name="No qualitative observations available." xml:space="preserve">
+    <value>No qualitative observations available.</value>
+  </data>
+  <data name="🎯 Master's Summary &amp; Next Focus" xml:space="preserve">
+    <value>🎯 Master's Summary &amp; Next Focus</value>
+  </data>
+  <data name="Strengths Highlighted:" xml:space="preserve">
+    <value>Strengths Highlighted:</value>
+  </data>
+  <data name="Single Focus Area:" xml:space="preserve">
+    <value>Single Focus Area:</value>
+  </data>
+  <data name="🚀 Prescribed Next Exercise (GUIDE)" xml:space="preserve">
+    <value>🚀 Prescribed Next Exercise (GUIDE)</value>
+  </data>
+  <data name="Target Metric:" xml:space="preserve">
+    <value>Target Metric:</value>
+  </data>
+  <data name="degrees" xml:space="preserve">
+    <value>degrees</value>
+  </data>
+  <data name="lines" xml:space="preserve">
+    <value>lines</value>
+  </data>
+  <data name="points" xml:space="preserve">
+    <value>points</value>
+  </data>
+  <data name="average convergence error" xml:space="preserve">
+    <value>average convergence error</value>
+  </data>
+  <data name="maximum convergence error" xml:space="preserve">
+    <value>maximum convergence error</value>
+  </data>
+  <data name="max convergence error" xml:space="preserve">
+    <value>max convergence error</value>
+  </data>
+  <data name="supporting lines" xml:space="preserve">
+    <value>supporting lines</value>
+  </data>
+  <data name="line count" xml:space="preserve">
+    <value>line count</value>
+  </data>
+  <data name="line segments analyzed" xml:space="preserve">
+    <value>line segments analyzed</value>
+  </data>
+  <data name="measurement confidence" xml:space="preserve">
+    <value>measurement confidence</value>
+  </data>
+  <data name="perspective mode" xml:space="preserve">
+    <value>perspective mode</value>
+  </data>
+  <data name="f1 error" xml:space="preserve">
+    <value>f1 error</value>
+  </data>
+  <data name="f2 error" xml:space="preserve">
+    <value>f2 error</value>
+  </data>
+  <data name="confidence" xml:space="preserve">
+    <value>confidence</value>
+  </data>
+  <data name="line weight" xml:space="preserve">
+    <value>line weight</value>
+  </data>
+  <data name="spatial clarity" xml:space="preserve">
+    <value>spatial clarity</value>
+  </data>
+  <data name="construction cleanliness" xml:space="preserve">
+    <value>construction cleanliness</value>
+  </data>
+  <data name="volumetrics" xml:space="preserve">
+    <value>volumetrics</value>
+  </data>
+  <data name="strength" xml:space="preserve">
+    <value>strength</value>
+  </data>
+  <data name="needs attention" xml:space="preserve">
+    <value>needs attention</value>
+  </data>
+  <data name="needs_attention" xml:space="preserve">
+    <value>needs_attention</value>
+  </data>
+  <data name="proficient" xml:space="preserve">
+    <value>proficient</value>
+  </data>
+  <data name="intermediate" xml:space="preserve">
+    <value>intermediate</value>
+  </data>
+  <data name="appropriate" xml:space="preserve">
+    <value>appropriate</value>
+  </data>
+  <data name="encouraging" xml:space="preserve">
+    <value>encouraging</value>
+  </data>
+  <data name="direct" xml:space="preserve">
+    <value>direct</value>
+  </data>
+  <data name="technical" xml:space="preserve">
+    <value>technical</value>
+  </data>
+</root>

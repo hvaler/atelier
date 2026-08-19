@@ -4,33 +4,33 @@
 @inject IAtelierAgentClient AgentClient
 @inject IWebHostEnvironment Env
 
-<PageTitle>Atelier — Studio Master Perspective AI</PageTitle>
+<PageTitle>@Loc["Atelier — Studio Master Perspective AI"]</PageTitle>
 
 <div class="container-xl py-4">
     <!-- Top Studio Master Bar -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle border-opacity-25">
         <div>
-            <h2 class="fw-bold text-white mb-0">
-                <span class="text-primary">Atelier</span> Studio
+            <h2 class="fw-bold text-body mb-0">
+                <span class="text-primary">Atelier</span> @Loc["Studio"]
             </h2>
-            <p class="text-secondary small mb-0">
-                "The geometry measures, the AI teaches, the student grows."
+            <p class="text-body-secondary small mb-0">
+                @Loc["The geometry measures, the AI teaches, the student grows."]
             </p>
         </div>
 
         <!-- Student Switcher -->
-        <div class="d-flex align-items-center gap-3 bg-dark p-2 rounded-4 border border-secondary border-opacity-25 shadow-sm">
-            <span class="text-secondary small ps-2">Active Student:</span>
+        <div class="d-flex align-items-center gap-3 bg-body-tertiary p-2 rounded-4 border border-secondary-subtle border-opacity-25 shadow-sm">
+            <span class="text-body-secondary small ps-2">@Loc["Active Student:"]</span>
             <div class="btn-group btn-group-sm" role="group">
                 <button type="button" class="btn @(CurrentStudentId == "young-tester-01" ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SelectStudent("young-tester-01")'>
-                    Young Tester (Age 9)
+                    @Loc["Young Tester (Age 9)"]
                 </button>
                 <button type="button" class="btn @(CurrentStudentId == "sofia-01" ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SelectStudent("sofia-01")'>
-                    Sofia (Animation Adv.)
+                    @Loc["Sofia (Animation Adv.)"]
                 </button>
             </div>
             <span class="badge @(CurrentStudent?.Level == "beginner" ? "bg-info text-dark" : "bg-warning text-dark") rounded-pill px-3 py-2">
-                @(CurrentStudent?.Level.ToUpperInvariant())
+                @(Loc[CurrentStudent?.Level ?? "beginner"].Value.ToUpperInvariant())
             </span>
         </div>
     </div>
@@ -40,31 +40,31 @@
         <!-- Left Column: Drawing Setup & Collaboration -->
         <div class="col-lg-5">
             <!-- Source Picker Card -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white mb-4">
-                <h5 class="fw-bold text-light mb-3">📂 Select Perspective Drawing</h5>
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary text-body mb-4">
+                <h5 class="fw-bold text-body mb-3">@Loc["📂 Select Perspective Drawing"]</h5>
 
                 <div class="mb-3">
-                    <label class="form-label text-secondary small">Pre-Calibrated Golden Sample:</label>
-                    <select class="form-select bg-black text-white border-secondary" @onchange="OnSampleSelected">
-                        <option value="01_1point_perfect.png">1-Point Perspective (Perfect 0° error)</option>
-                        <option value="02_1point_error_4deg.png">1-Point Perspective (Slight 4° error)</option>
-                        <option value="03_1point_error_9deg.png">1-Point Perspective (Deliberate 9° error)</option>
-                        <option value="04_2point_perfect.png">2-Point Perspective (Perfect F1/F2)</option>
-                        <option value="05_2point_error_6deg.png">2-Point Perspective (F1 Drift 6° error)</option>
+                    <label class="form-label text-body-secondary small">@Loc["Pre-Calibrated Golden Sample:"]</label>
+                    <select class="form-select bg-body-secondary text-body border-secondary-subtle" @onchange="OnSampleSelected">
+                        <option value="01_1point_perfect.png">@Loc["1-Point Perspective (Perfect 0° error)"]</option>
+                        <option value="02_1point_error_4deg.png">@Loc["1-Point Perspective (Slight 4° error)"]</option>
+                        <option value="03_1point_error_9deg.png">@Loc["1-Point Perspective (Deliberate 9° error)"]</option>
+                        <option value="04_2point_perfect.png">@Loc["2-Point Perspective (Perfect F1/F2)"]</option>
+                        <option value="05_2point_error_6deg.png">@Loc["2-Point Perspective (F1 Drift 6° error)"]</option>
                     </select>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label text-secondary small">Or Upload Student Drawing Photo:</label>
-                    <InputFile OnChange="HandleFileSelected" class="form-control bg-black text-white border-secondary" accept="image/*" />
+                    <label class="form-label text-body-secondary small">@Loc["Or Upload Student Drawing Photo:"]</label>
+                    <InputFile OnChange="HandleFileSelected" class="form-control bg-body-secondary text-body border-secondary-subtle" accept="image/*" />
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="badge bg-secondary">
-                        Target Mode: @(CurrentStudent?.Level == "beginner" ? "1-Point (k=1)" : "2-Point (k=2)")
+                        @TargetModeLabel
                     </span>
                     <button class="btn btn-outline-info btn-sm rounded-pill" @onclick="ReloadAskPrompt">
-                        Refresh Questions
+                        @Loc["Refresh Questions"]
                     </button>
                 </div>
             </div>
@@ -106,11 +106,10 @@
             @if (NotAnExercise is not null)
             {
                 <div class="alert alert-warning border-0 rounded-4">
-                    <strong>This does not look like a perspective exercise.</strong>
+                    <strong>@Loc["This does not look like a perspective exercise."]</strong>
                     <div class="small mt-1">@NotAnExercise</div>
                     <div class="small mt-2 text-muted">
-                        Nothing was measured. Upload a drawing with construction lines running to a
-                        vanishing point and Atelier will look again.
+                        @Loc["Nothing was measured. Upload a drawing with construction lines running to a vanishing point and Atelier will look again."]
                     </div>
                 </div>
             }
@@ -119,31 +118,27 @@
             @if (IntentMismatch && Routing is not null && CurrentGeometry is not null)
             {
                 <div class="alert alert-info border-0 rounded-4 py-2">
-                    <strong>Your description and your drawing do not match.</strong>
+                    <strong>@Loc["Your description and your drawing do not match."]</strong>
                     <div class="small mt-1">
-                        You described a <strong>@Routing.ExerciseType</strong> — @Routing.Reasoning
-                        This drawing was measured as <strong>@CurrentGeometry.KRequested-point</strong>,
-                        which is what it looks like. Nothing was changed; worth a second look at
-                        either the drawing or the description.
+                        @(Loc["You described a {0} — {1} This drawing was measured as {2}-point, which is what it looks like. Nothing was changed; worth a second look at either the drawing or the description.", Routing.ExerciseType, Routing.Reasoning, CurrentGeometry.KRequested])
                     </div>
                 </div>
             }
             @if (AgentUnavailable)
             {
                 <div class="alert alert-danger border-0 rounded-4">
-                    <strong>The analysis service did not answer.</strong>
+                    <strong>@Loc["The analysis service did not answer."]</strong>
                     <div class="small mt-1">
-                        Nothing is shown rather than something invented. This page used to fill in
-                        hardcoded numbers here, which looked exactly like a working system.
+                        @Loc["Nothing is shown rather than something invented. This page used to fill in hardcoded numbers here, which looked exactly like a working system."]
                     </div>
                 </div>
             }
             @if (IsAnalyzing)
             {
-                <div class="card border-0 shadow-sm rounded-4 p-5 bg-dark text-center text-white">
+                <div class="card border-0 shadow-sm rounded-4 p-5 bg-body-tertiary text-center text-body">
                     <div class="spinner-border text-primary mb-3 mx-auto" role="status"></div>
-                    <h5>Studio Master is examining drawing geometry & formulating critique...</h5>
-                    <p class="text-secondary small">Invoking Gemini Flash on Vertex AI with level-aware rubric calibration.</p>
+                    <h5>@Loc["Studio Master is examining drawing geometry & formulating critique..."]</h5>
+                    <p class="text-body-secondary small">@Loc["Invoking Gemini Flash on Vertex AI with level-aware rubric calibration."]</p>
                 </div>
             }
             else if (CurrentCritique != null)
@@ -177,6 +172,13 @@
     /// <summary>True when what the student wrote implies a different perspective from the one
     /// their drawing was measured as. Reported, never silently acted on.</summary>
     private bool IntentMismatch { get; set; }
+
+    /// <summary>The perspective the rubric will expect for this student, in their language.
+    /// Built here rather than inline because a nested localiser lookup inside a Razor
+    /// conditional is unreadable in markup.</summary>
+    private string TargetModeLabel => string.Format(
+        Loc["Target Mode: {0}"],
+        CurrentStudent?.Level == "beginner" ? Loc["1-Point (k=1)"] : Loc["2-Point (k=2)"]);
 
     private bool IsAnalyzing { get; set; }
     private bool AnalysisCompleted { get; set; }

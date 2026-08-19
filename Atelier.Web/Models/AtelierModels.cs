@@ -286,6 +286,14 @@ public class CritiqueRequestDto
     [JsonPropertyName("student_difficulty")]
     public string? StudentDifficulty { get; set; }
 
+    /// <summary>
+    /// Which language the critique prose comes back in. Set from the interface culture, not
+    /// asked for separately: someone who switched the page to Spanish has already said which
+    /// language they want to be taught in.
+    /// </summary>
+    [JsonPropertyName("language")]
+    public string Language { get; set; } = "en";
+
     [JsonPropertyName("use_cache")]
     public bool UseCache { get; set; } = true;
 }

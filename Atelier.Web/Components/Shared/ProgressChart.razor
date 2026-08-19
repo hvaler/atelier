@@ -5,7 +5,7 @@
     {
         <div class="p-4 text-center text-muted">
             <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2">Loading student progression...</p>
+            <p class="mt-2">@Loc["Loading student progression..."]</p>
         </div>
     }
     else
@@ -13,40 +13,40 @@
         <!-- Header Metrics -->
         <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-dark text-white text-center">
-                    <small class="text-secondary d-block">Overall Avg Error</small>
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-body-tertiary text-body text-center">
+                    <small class="text-body-secondary d-block">@Loc["Overall Avg Error"]</small>
                     <strong class="fs-3 text-primary">@Profile.OverallAvgErrorDeg.ToString("F1")°</strong>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-dark text-white text-center">
-                    <small class="text-secondary d-block">Total Drawings</small>
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-body-tertiary text-body text-center">
+                    <small class="text-body-secondary d-block">@Loc["Total Drawings"]</small>
                     <strong class="fs-3 text-info">@Profile.TotalExercises</strong>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-dark text-white text-center">
-                    <small class="text-secondary d-block">Adapted Tone</small>
-                    <strong class="fs-3 text-warning text-capitalize">@Profile.DerivedTonePreference</strong>
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-body-tertiary text-body text-center">
+                    <small class="text-body-secondary d-block">@Loc["Adapted Tone"]</small>
+                    <strong class="fs-3 text-warning metric-label">@Loc[Profile.DerivedTonePreference]</strong>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-dark text-white text-center">
-                    <small class="text-secondary d-block">Helpful Ratio</small>
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-body-tertiary text-body text-center">
+                    <small class="text-body-secondary d-block">@Loc["Helpful Ratio"]</small>
                     <strong class="fs-3 text-success">@Profile.RecentHelpfulRatio.ToString("P0")</strong>
                 </div>
             </div>
         </div>
 
         <!-- Convergence Error Progression Curve (Native SVG) -->
-        <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white mb-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary text-body mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h5 class="fw-bold text-light mb-0">📈 Convergence Error Progression</h5>
-                    <small class="text-secondary">Angular deviation over sequential drawing sessions (lower is better)</small>
+                    <h5 class="fw-bold text-body mb-0">@Loc["📈 Convergence Error Progression"]</h5>
+                    <small class="text-body-secondary">@Loc["Angular deviation over sequential drawing sessions (lower is better)"]</small>
                 </div>
                 <span class="badge bg-primary px-3 py-2 rounded-pill font-monospace">
-                    Deterministic Metric
+                    @Loc["Deterministic Metric"]
                 </span>
             </div>
 
@@ -100,7 +100,7 @@
             else
             {
                 <div class="text-center text-muted py-5">
-                    <p>More session data needed to render full progression curve.</p>
+                    <p>@Loc["More session data needed to render full progression curve."]</p>
                 </div>
             }
         </div>
@@ -108,11 +108,11 @@
         <!-- Weekly Practice Plan from Cloud Scheduler Digest (ADR-004) -->
         @if (Digest?.NextWeekPracticePlan != null && Digest.NextWeekPracticePlan.Count > 0)
         {
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white mb-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary text-body mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h5 class="fw-bold text-warning mb-0">📅 Prescribed Weekly Practice Plan</h5>
-                        <small class="text-secondary">Synthesized by Cloud Scheduler weekly digest (Week @Digest.WeekId)</small>
+                        <h5 class="fw-bold text-warning mb-0">@Loc["📅 Prescribed Weekly Practice Plan"]</h5>
+                        <small class="text-body-secondary">@(Loc["Synthesized by Cloud Scheduler weekly digest (Week {0})", Digest.WeekId])</small>
                     </div>
                     <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">
                         @Digest.WeekId
@@ -123,11 +123,11 @@
                     @foreach (var dayPlan in Digest.NextWeekPracticePlan)
                     {
                         <div class="col-md-4">
-                            <div class="p-3 rounded-3 bg-secondary bg-opacity-10 border border-secondary border-opacity-25 h-100">
+                            <div class="p-3 rounded-3 bg-secondary bg-opacity-10 border border-secondary-subtle border-opacity-25 h-100">
                                 <span class="badge bg-primary rounded-pill mb-2">@dayPlan.Day</span>
-                                <h6 class="text-light fw-bold mb-1">@dayPlan.Title</h6>
-                                <p class="text-white-50 small mb-2">@dayPlan.Description</p>
-                                <small class="text-info d-block">Target: @dayPlan.TargetMetric</small>
+                                <h6 class="text-body fw-bold mb-1">@dayPlan.Title</h6>
+                                <p class="text-body-secondary small mb-2">@dayPlan.Description</p>
+                                <small class="text-info d-block">@(Loc["Target: {0}", dayPlan.TargetMetric])</small>
                             </div>
                         </div>
                     }

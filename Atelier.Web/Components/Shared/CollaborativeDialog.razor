@@ -1,27 +1,27 @@
 @namespace Atelier.Web.Components.Shared
 @inject IAtelierAgentClient AgentClient
 
-<div class="collaborative-dialog card border-0 shadow-sm rounded-4 p-4 bg-dark text-white mb-4">
+<div class="collaborative-dialog card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary text-body mb-4">
     @if (Mode == "ask")
     {
         <!-- Verb 1: ASK Clarifying Questions -->
         <div class="d-flex align-items-center gap-2 mb-3">
             <span class="fs-4">💬</span>
             <div>
-                <h5 class="fw-bold text-primary mb-0">Studio Master Collaboration (ASK)</h5>
-                <small class="text-secondary">Tell Atelier about your practice focus before analyzing</small>
+                <h5 class="fw-bold text-primary mb-0">@Loc["Studio Master Collaboration (ASK)"]</h5>
+                <small class="text-body-secondary">@Loc["Tell Atelier about your practice focus before analyzing"]</small>
             </div>
         </div>
 
         <div class="mb-3">
-            <label class="form-label text-light fw-bold small">@AskData?.IntentQuestion</label>
-            <input type="text" class="form-control bg-black text-white border-secondary mb-2" placeholder="e.g. 1-Point box or 2-Point building..." @bind="IntentInput" />
+            <label class="form-label text-body fw-bold small">@AskData?.IntentQuestion</label>
+            <textarea rows="2" class="form-control bg-body-secondary text-body border-secondary-subtle mb-2" placeholder="@IntentPlaceholder" @bind="IntentInput"></textarea>
             <div class="d-flex flex-wrap gap-2">
                 @if (AskData?.QuickIntentSuggestions != null)
                 {
                     @foreach (var sug in AskData.QuickIntentSuggestions)
                     {
-                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill py-0 px-2 text-white-50" @onclick="() => IntentInput = sug">
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill py-0 px-2 text-body-secondary" @onclick="() => IntentInput = sug">
                             + @sug
                         </button>
                     }
@@ -30,14 +30,14 @@
         </div>
 
         <div class="mb-4">
-            <label class="form-label text-light fw-bold small">@AskData?.DifficultyQuestion</label>
-            <input type="text" class="form-control bg-black text-white border-secondary mb-2" placeholder="e.g. Converging the top lines or line weight..." @bind="DifficultyInput" />
+            <label class="form-label text-body fw-bold small">@AskData?.DifficultyQuestion</label>
+            <textarea rows="2" class="form-control bg-body-secondary text-body border-secondary-subtle mb-2" placeholder="@DifficultyPlaceholder" @bind="DifficultyInput"></textarea>
             <div class="d-flex flex-wrap gap-2">
                 @if (AskData?.QuickDifficultySuggestions != null)
                 {
                     @foreach (var sug in AskData.QuickDifficultySuggestions)
                     {
-                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill py-0 px-2 text-white-50" @onclick="() => DifficultyInput = sug">
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill py-0 px-2 text-body-secondary" @onclick="() => DifficultyInput = sug">
                             + @sug
                         </button>
                     }
@@ -46,7 +46,7 @@
         </div>
 
         <button type="button" class="btn btn-primary w-100 py-2 rounded-pill fw-bold" @onclick="SubmitAskContext">
-            Analyze Drawing with My Context 🚀
+            @Loc["Analyze Drawing with My Context 🚀"]
         </button>
     }
     else if (Mode == "feedback")
@@ -54,13 +54,13 @@
         <!-- Verb 3: CAPTURE & Verb 4: ADAPT -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h6 class="fw-bold text-light mb-0">Was this critique helpful? (CAPTURE & ADAPT)</h6>
-                <small class="text-secondary">Your feedback automatically adapts the agent's tone and exercises</small>
+                <h6 class="fw-bold text-body mb-0">@Loc["Was this critique helpful? (CAPTURE & ADAPT)"]</h6>
+                <small class="text-body-secondary">@Loc["Your feedback automatically adapts the agent's tone and exercises"]</small>
             </div>
             @if (FeedbackSubmitted && AdaptedProfile is not null)
             {
                 <span class="badge bg-success px-3 py-2 rounded-pill">
-                    Profile Adapted ✓ — tone: @AdaptedProfile.DerivedTonePreference
+                    @(Loc["Profile Adapted ✓ — tone: {0}", Loc[AdaptedProfile.DerivedTonePreference]])
                 </span>
             }
             else if (FeedbackError is not null)
@@ -73,27 +73,27 @@
         {
             <div class="d-flex gap-2 mb-3">
                 <button type="button" class="btn @(HelpfulChoice == true ? "btn-success" : "btn-outline-success") rounded-pill px-4" @onclick="() => HelpfulChoice = true">
-                    👍 Helpful
+                    @Loc["👍 Helpful"]
                 </button>
                 <button type="button" class="btn @(HelpfulChoice == false ? "btn-warning" : "btn-outline-warning") rounded-pill px-4" @onclick="() => HelpfulChoice = false">
-                    👎 Needs Adjustment
+                    @Loc["👎 Needs Adjustment"]
                 </button>
             </div>
 
             @if (HelpfulChoice.HasValue)
             {
                 <div class="mb-3">
-                    <input type="text" class="form-control bg-black text-white border-secondary form-control-sm" placeholder="Optional note: (e.g. 'Tone was a bit too technical' or 'Loved the focus area')" @bind="FeedbackNote" />
+                    <textarea rows="2" class="form-control bg-body-secondary text-body border-secondary-subtle form-control-sm" placeholder="@NotePlaceholder" @bind="FeedbackNote"></textarea>
                 </div>
                 <button type="button" class="btn btn-sm btn-primary rounded-pill px-4" @onclick="SubmitFeedback">
-                    Submit Feedback & Update Profile
+                    @Loc["Submit Feedback & Update Profile"]
                 </button>
             }
         }
         else
         {
-            <div class="alert alert-dark bg-secondary bg-opacity-10 border border-secondary border-opacity-25 text-white mb-0 small">
-                ✓ Thank you! Atelier has recorded this event in your append-only profile history and calibrated future critique depth.
+            <div class="alert alert-dark bg-secondary bg-opacity-10 border border-secondary-subtle border-opacity-25 text-body mb-0 small">
+                @Loc["✓ Thank you! Atelier has recorded this event in your append-only profile history and calibrated future critique depth."]
             </div>
         }
     }
@@ -114,6 +114,13 @@
 
     [Parameter]
     public EventCallback<(string Intent, string Difficulty)> OnAskCompleted { get; set; }
+
+    // Placeholders live here rather than inline: two of them carry apostrophes, which a
+    // single-quoted Razor attribute cannot hold.
+    private string IntentPlaceholder => Loc["e.g. 1-Point box or 2-Point building..."];
+    private string DifficultyPlaceholder => Loc["e.g. Converging the top lines or line weight..."];
+    private string NotePlaceholder =>
+        Loc["Optional note: (e.g. 'Tone was a bit too technical' or 'Loved the focus area')"];
 
     private string IntentInput { get; set; } = string.Empty;
     private string DifficultyInput { get; set; } = string.Empty;
@@ -147,7 +154,7 @@
         }
         else
         {
-            FeedbackError = "The agent did not record that. Nothing was changed.";
+            FeedbackError = Loc["The agent did not record that. Nothing was changed."];
         }
     }
 

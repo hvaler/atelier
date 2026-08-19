@@ -4,20 +4,20 @@
     @if (Critique == null)
     {
         <div class="card border-0 shadow-sm rounded-4 p-4 text-center text-muted">
-            <p>Critique will appear once drawing is analyzed.</p>
+            <p>@Loc["Critique will appear once drawing is analyzed."]</p>
         </div>
     }
     else
     {
         <!-- Headline Card -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary text-white p-4">
+        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary text-body p-4">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
                     <span class="badge bg-white text-primary rounded-pill px-3 py-1 mb-2">
-                        @(Critique.Level.ToUpperInvariant()) LEVEL CRITIQUE
+                        @(Loc["{0} LEVEL CRITIQUE", Loc[Critique.Level].Value.ToUpperInvariant()])
                     </span>
                     <h3 class="fw-bold mb-1">@Critique.Headline</h3>
-                    <p class="mb-0 text-white-50 small">Critique tailored for @Critique.StudentName • Grounded strictly on OpenCV (ADR-001)</p>
+                    <p class="mb-0 text-body-secondary small">@(Loc["Critique tailored for {0} • Grounded strictly on OpenCV (ADR-001)", Critique.StudentName])</p>
                 </div>
                 <div>
                     @* The green badge is earned, not decorative. It used to render over the
@@ -27,16 +27,16 @@
                     @if (Critique.Source == "vertex" && Critique.Validated)
                     {
                         <span class="badge bg-success bg-opacity-75 px-3 py-2 rounded-pill font-monospace small">
-                            Anti-Hallucination: Validated ✓
+                            @Loc["Anti-Hallucination: Validated ✓"]
                         </span>
-                        <div class="text-white-50 small mt-1 font-monospace">@Critique.ModelVersion</div>
+                        <div class="text-body-secondary small mt-1 font-monospace">@Critique.ModelVersion</div>
                     }
                     else
                     {
                         <span class="badge bg-warning text-dark px-3 py-2 rounded-pill font-monospace small">
-                            Deterministic fallback — no model answered
+                            @Loc["Deterministic fallback — no model answered"]
                         </span>
-                        <div class="text-white-50 small mt-1 font-monospace">@Critique.ModelVersion</div>
+                        <div class="text-body-secondary small mt-1 font-monospace">@Critique.ModelVersion</div>
                     }
                 </div>
             </div>
@@ -45,12 +45,12 @@
         <div class="row g-4 mb-4">
             <!-- Plane A: Quantitative Measured Findings -->
             <div class="col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-dark text-white">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-body-tertiary text-body">
                     <div class="d-flex align-items-center gap-2 mb-3">
                         <span class="fs-4">📐</span>
                         <div>
-                            <h5 class="fw-bold mb-0 text-primary">Plane A: Measured Findings</h5>
-                            <small class="text-secondary">Deterministic OpenCV metrics (ADR-001)</small>
+                            <h5 class="fw-bold mb-0 text-primary">@Loc["Plane A: Measured Findings"]</h5>
+                            <small class="text-body-secondary">@Loc["Deterministic OpenCV Metrics (ADR-001)"]</small>
                         </div>
                     </div>
 
@@ -59,20 +59,20 @@
                         {
                             @foreach (var item in Critique.MeasuredFindings)
                             {
-                                <div class="p-3 rounded-3 bg-secondary bg-opacity-10 border border-secondary border-opacity-25">
+                                <div class="p-3 rounded-3 bg-secondary bg-opacity-10 border border-secondary-subtle border-opacity-25">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <strong class="text-light text-capitalize">@item.MetricName.Replace('_', ' ')</strong>
+                                        <strong class="text-body metric-label">@Loc[item.MetricName.Replace('_', ' ')]</strong>
                                         <span class="badge bg-primary px-2 py-1 font-monospace">
-                                            @item.MeasuredValue.ToString("F1") @item.Unit
+                                            @item.MeasuredValue.ToString(item.Unit == "degrees" ? "F1" : "F0") @Loc[item.Unit]
                                         </span>
                                     </div>
-                                    <p class="text-white-50 small mb-0">@item.PedagogicalContext</p>
+                                    <p class="text-body-secondary small mb-0">@item.PedagogicalContext</p>
                                 </div>
                             }
                         }
                         else
                         {
-                            <p class="text-muted small">No quantitative deviations recorded.</p>
+                            <p class="text-muted small">@Loc["No quantitative deviations recorded."]</p>
                         }
                     </div>
                 </div>
@@ -80,12 +80,12 @@
 
             <!-- Plane B: Studio Master Qualitative Observations -->
             <div class="col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-dark text-white">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-body-tertiary text-body">
                     <div class="d-flex align-items-center gap-2 mb-3">
                         <span class="fs-4">🖌️</span>
                         <div>
-                            <h5 class="fw-bold mb-0 text-warning">Plane B: Studio Observations</h5>
-                            <small class="text-secondary">Line weight, spatial clarity & cleanliness (RUNBOOK §2)</small>
+                            <h5 class="fw-bold mb-0 text-warning">@Loc["Plane B: Studio Observations"]</h5>
+                            <small class="text-body-secondary">@Loc["Line weight, spatial clarity & cleanliness (RUNBOOK §2)"]</small>
                         </div>
                     </div>
 
@@ -94,20 +94,20 @@
                         {
                             @foreach (var item in Critique.QualitativeObservations)
                             {
-                                <div class="p-3 rounded-3 bg-secondary bg-opacity-10 border border-secondary border-opacity-25">
+                                <div class="p-3 rounded-3 bg-secondary bg-opacity-10 border border-secondary-subtle border-opacity-25">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <strong class="text-light text-capitalize">@item.Aspect.Replace('_', ' ')</strong>
+                                        <strong class="text-body metric-label">@Loc[item.Aspect.Replace('_', ' ')]</strong>
                                         <span class="badge @(item.Status == "strength" ? "bg-success" : item.Status == "proficient" ? "bg-info" : "bg-warning text-dark") px-2 py-1">
-                                            @item.Status.ToUpperInvariant()
+                                            @Loc[item.Status].Value.ToUpperInvariant()
                                         </span>
                                     </div>
-                                    <p class="text-white-50 small mb-0">@item.Observation</p>
+                                    <p class="text-body-secondary small mb-0">@item.Observation</p>
                                 </div>
                             }
                         }
                         else
                         {
-                            <p class="text-muted small">No qualitative observations available.</p>
+                            <p class="text-muted small">@Loc["No qualitative observations available."]</p>
                         }
                     </div>
                 </div>
@@ -115,13 +115,13 @@
         </div>
 
         <!-- Pedagogical Summary & Focus Area -->
-        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-dark text-white">
-            <h5 class="fw-bold text-light mb-3">🎯 Master's Summary & Next Focus</h5>
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-body-tertiary text-body">
+            <h5 class="fw-bold text-body mb-3">@Loc["🎯 Master's Summary & Next Focus"]</h5>
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25">
-                        <strong class="text-success d-block mb-2">Strengths Highlighted:</strong>
-                        <ul class="mb-0 text-white-50 ps-3 small">
+                        <strong class="text-success d-block mb-2">@Loc["Strengths Highlighted:"]</strong>
+                        <ul class="mb-0 text-body-secondary ps-3 small">
                             @foreach (var str in Critique.PedagogicalSummary.Strengths)
                             {
                                 <li>@str</li>
@@ -131,8 +131,8 @@
                 </div>
                 <div class="col-md-6">
                     <div class="p-3 rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-25">
-                        <strong class="text-warning d-block mb-1">Single Focus Area:</strong>
-                        <p class="text-white-50 small mb-0">@Critique.PedagogicalSummary.FocusArea</p>
+                        <strong class="text-warning d-block mb-1">@Loc["Single Focus Area:"]</strong>
+                        <p class="text-body-secondary small mb-0">@Critique.PedagogicalSummary.FocusArea</p>
                     </div>
                 </div>
             </div>
@@ -143,17 +143,17 @@
         </div>
 
         <!-- Next Prescribed Exercise (Verb 2: GUIDE) -->
-        <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white border-start border-primary border-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary text-body border-start border-primary border-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="fw-bold text-primary mb-0">🚀 Prescribed Next Exercise (GUIDE)</h5>
+                <h5 class="fw-bold text-primary mb-0">@Loc["🚀 Prescribed Next Exercise (GUIDE)"]</h5>
                 <span class="badge bg-primary px-3 py-1 rounded-pill">
-                    @Critique.NextExercise.Difficulty.ToUpperInvariant()
+                    @Loc[Critique.NextExercise.Difficulty].Value.ToUpperInvariant()
                 </span>
             </div>
-            <h6 class="text-light fw-bold">@Critique.NextExercise.Title</h6>
-            <p class="text-white-50 small mb-2">@Critique.NextExercise.Description</p>
-            <div class="small text-secondary">
-                Target Metric: <span class="text-info">@Critique.NextExercise.TargetMetric</span>
+            <h6 class="text-body fw-bold">@Critique.NextExercise.Title</h6>
+            <p class="text-body-secondary small mb-2">@Critique.NextExercise.Description</p>
+            <div class="small text-body-secondary">
+                @Loc["Target Metric:"] <span class="text-info">@Critique.NextExercise.TargetMetric</span>
             </div>
         </div>
     }

@@ -1,28 +1,60 @@
 /* ==============================================================================
-   Atelier Studio — Master Dark Palette & Typography
-   Tokens: Background #0b0f13, Studio Cards #121820, Primary #3b82f6,
-           Ochre Gold #f59e0b, Horizon Cyan #06b6d4, Emerald #10b981
+   Atelier Studio — palette and typography, in two themes.
+
+   Every colour is a token, and the tokens are redefined per theme rather than
+   overridden per component. Bootstrap 5.3 stamps data-bs-theme on <html>; these
+   follow it, so a component written once looks right in both.
+
+   The dark ground is the default because a drawing photographed on white paper
+   reads better against it. Light exists because some people work in daylight.
+
+   Ochre Gold #f59e0b, Horizon Cyan #06b6d4, Emerald #10b981 are the severity
+   colours shared with the OpenCV overlay legend; they do not change with theme,
+   because "this line is 8 degrees off" means the same thing in either.
    ============================================================================== */
 
-:root {
+:root,
+:root[data-bs-theme="dark"] {
     --atelier-bg: #0b0f13;
     --atelier-surface: #121820;
     --atelier-surface-hover: #1b222d;
+    --atelier-sidebar: #070a0e;
+    --atelier-input: #06090c;
+    --atelier-text: #f8fafc;
+    --atelier-muted: #94a3b8;
     --atelier-border: rgba(148, 163, 184, 0.15);
+    --atelier-hover-wash: rgba(255, 255, 255, 0.05);
     --atelier-primary: #3b82f6;
     --atelier-cyan: #06b6d4;
     --atelier-amber: #f59e0b;
     --atelier-emerald: #10b981;
 }
 
+:root[data-bs-theme="light"] {
+    --atelier-bg: #f5f6f8;
+    --atelier-surface: #ffffff;
+    --atelier-surface-hover: #eef1f5;
+    --atelier-sidebar: #ffffff;
+    --atelier-input: #ffffff;
+    --atelier-text: #101418;
+    --atelier-muted: #5b6672;
+    --atelier-border: rgba(16, 20, 24, 0.14);
+    --atelier-hover-wash: rgba(16, 20, 24, 0.05);
+    --atelier-primary: #2563eb;
+    --atelier-cyan: #0891b2;
+    --atelier-amber: #b45309;
+    --atelier-emerald: #047857;
+}
+
 html, body {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--atelier-bg);
-    color: #f8fafc;
+    color: var(--atelier-text);
     min-height: 100vh;
 }
 
-.bg-dark {
+
+.bg-body-tertiary {
     background-color: var(--atelier-surface) !important;
     border: 1px solid var(--atelier-border) !important;
 }
@@ -55,8 +87,8 @@ html, body {
 }
 
 .form-control, .form-select {
-    background-color: #06090c !important;
-    color: #f8fafc !important;
+    background-color: var(--atelier-input) !important;
+    color: var(--atelier-text) !important;
     border-color: var(--atelier-border) !important;
 }
 
@@ -67,12 +99,12 @@ html, body {
 
 /* Sidebar navigation */
 .sidebar {
-    background-color: #070a0e;
+    background-color: var(--atelier-sidebar);
     border-right: 1px solid var(--atelier-border);
 }
 
 .nav-link {
-    color: #94a3b8;
+    color: var(--atelier-muted);
     font-weight: 500;
     border-radius: 0.5rem;
     margin: 0.25rem 0.5rem;
@@ -80,11 +112,22 @@ html, body {
 }
 
 .nav-link:hover {
-    color: #f8fafc;
-    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--atelier-text);
+    background-color: var(--atelier-hover-wash);
 }
 
 .nav-link.active {
     color: #ffffff;
     background-color: var(--atelier-primary) !important;
+}
+/* Metric and aspect names arrive as identifiers (average_convergence_error) and are looked up for
+   display, so what lands here is an ordinary phrase in the reader's language. Sentence case is the
+   only correct casing for that: Bootstrap's text-capitalize would render "Error Medio De
+   Convergencia", capitalising a preposition that no Spanish reader would capitalise. */
+.metric-label {
+    text-transform: none;
+}
+
+.metric-label::first-letter {
+    text-transform: uppercase;
 }

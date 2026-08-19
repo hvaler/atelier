@@ -11,7 +11,12 @@ from src.models.geometry import GeometryAnalysisResult
 
 #: Any figure in degrees appearing in Plane B prose. Plane B is the qualitative plane; every
 #: number in this system belongs to Plane A, where it can be checked against OpenCV.
-_DEGREES_IN_PROSE = re.compile(r"\d+(?:\.\d+)?\s*(?:°|deg\b|degs\b|degrees\b)", re.IGNORECASE)
+# Spanish is listed alongside English because the critique is written in the student's language:
+# a gate that only recognises "degrees" would wave through "4,2 grados" and quietly stop being a
+# gate the moment the interface was translated.
+_DEGREES_IN_PROSE = re.compile(
+    r"\d+(?:[.,]\d+)?\s*(?:°|deg\b|degs\b|degrees\b|grado\b|grados\b)", re.IGNORECASE
+)
 
 
 def validate_critique_measurements(

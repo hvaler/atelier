@@ -94,6 +94,14 @@ class CritiqueRequest(BaseModel):
     student: StudentProfile = Field(..., description="Student profile and learning level")
     student_intent: str | None = Field(None, description="What the student intended to practice (ASK step)")
     student_difficulty: str | None = Field(None, description="What part felt hardest during the drawing")
+    language: Literal["en", "es"] = Field(
+        "en",
+        description=(
+            "Language the critique prose must be written in. The measurements are the same "
+            "either way; only the teaching changes language. A student reading feedback in a "
+            "language they are still learning is being taught two things at once."
+        ),
+    )
     use_cache: bool = Field(True, description="Whether to check local demo cache before invoking LLM")
 
 

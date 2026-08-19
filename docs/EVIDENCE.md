@@ -206,8 +206,9 @@ Correctas! - Con error: 0, Superado: 7, Omitido: 0, Total: 7 - Atelier.Web.Tests
 | **`test_memory_collaborative.py`** | Pytest | 4 Verbs & event-sourced adaptation | 6 | ✅ Passed |
 | **`test_async_digest.py`** | Pytest | GCS ingestion, refusal path & weekly digest | 6 | ✅ Passed |
 | **`test_health.py`** | Pytest | Cloud Run health & root | 2 | ✅ Passed |
+| **`test_localisation.py`** | Pytest | Prose-degree gate in both languages, cache key, ASK scripts | 11 | ✅ Passed |
 | **`Atelier.Web.Tests`** | xUnit | Typed client contract, provenance mapping, health | 8 | ✅ Passed |
-| **TOTAL** | | | **44 tests** | **✅ 44/44 PASSED** (36 Python + 8 .NET) |
+| **TOTAL** | | | **55 tests** | **✅ 55/55 PASSED** (47 Python + 8 .NET) |
 
 ---
 

@@ -9,8 +9,71 @@ from src.models.memory import (
 )
 from src.tools.memory import memory_repo
 
+# The ASK step is the first thing a student reads, and it is written here rather than by a model:
+# these are fixed questions, and a fixed question in the wrong language is a worse answer than a
+# generated one. Keyed by (language, level) so the beginner and advanced registers stay distinct
+# in both — the nine-year-old is asked about boxes, the animation student about construction axes.
+_ASK_SCRIPTS: dict[tuple[str, str], dict[str, object]] = {
+    ("en", "beginner"): {
+        "intent": "Hi {name}! What kind of 3D shape or box were you practicing today?",
+        "difficulty": "Which line or corner felt the most tricky to get right?",
+        "intents": [
+            "My first 3D box on a table",
+            "A box floating in the sky",
+            "A house shape with a pointy roof",
+        ],
+        "difficulties": [
+            "Drawing straight lines",
+            "Making the back face look right",
+            "Aiming towards the horizon dot",
+        ],
+    },
+    ("en", "advanced"): {
+        "intent": "Hello {name}. What perspective exercise or spatial setup were you working on?",
+        "difficulty": "Which construction axis or plane felt hardest to calibrate?",
+        "intents": [
+            "2-Point perspective volumetric cube cluster",
+            "Stepped architectural elevation",
+            "Foreshortened ground plane with True Heights on LT",
+        ],
+        "difficulties": [
+            "Converging secondary edges strictly to F1",
+            "Maintaining true 90° verticals without slant",
+            "Controlling line weight between construction and solution",
+        ],
+    },
+    ("es", "beginner"): {
+        "intent": "¡Hola, {name}! ¿Qué caja o forma en 3D estabas practicando hoy?",
+        "difficulty": "¿Qué línea o esquina te ha costado más?",
+        "intents": [
+            "Mi primera caja en 3D sobre una mesa",
+            "Una caja flotando en el cielo",
+            "Una casa con el tejado en punta",
+        ],
+        "difficulties": [
+            "Hacer las líneas rectas",
+            "Que la cara de atrás quede bien",
+            "Apuntar al punto del horizonte",
+        ],
+    },
+    ("es", "advanced"): {
+        "intent": "Hola, {name}. ¿Qué ejercicio de perspectiva o montaje espacial estabas haciendo?",
+        "difficulty": "¿Qué eje de construcción o plano te ha costado más calibrar?",
+        "intents": [
+            "Grupo de cubos volumétricos en perspectiva de 2 puntos",
+            "Alzado arquitectónico escalonado",
+            "Plano de tierra escorzado con alturas verdaderas sobre la LT",
+        ],
+        "difficulties": [
+            "Hacer converger las aristas secundarias exactamente en F1",
+            "Mantener las verticales a 90° sin inclinación",
+            "Controlar el grosor entre línea de construcción y línea definitiva",
+        ],
+    },
+}
 
-def ask_clarification(student_id: str) -> AskPromptData:
+
+def ask_clarification(student_id: str, language: str = "en") -> AskPromptData:
     """Verb 1: ASK clarifying questions before analyzing the drawing.
 
     "Ask clarifying questions, guide the user step-by-step..."
@@ -19,42 +82,16 @@ def ask_clarification(student_id: str) -> AskPromptData:
     if not student:
         student = StudentProfile(student_id=student_id, name="Student", level="advanced")
 
-    is_beginner = student.level == "beginner"
-
-    if is_beginner:
-        intent_q = f"Hi {student.name}! What kind of 3D shape or box were you practicing today?"
-        diff_q = "Which line or corner felt the most tricky to get right?"
-        quick_intents = [
-            "My first 3D box on a table",
-            "A box floating in the sky",
-            "A house shape with a pointy roof",
-        ]
-        quick_diffs = [
-            "Drawing straight lines",
-            "Making the back face look right",
-            "Aiming towards the horizon dot",
-        ]
-    else:
-        intent_q = f"Hello {student.name}. What perspective exercise or spatial setup were you working on?"
-        diff_q = "Which construction axis or plane felt hardest to calibrate?"
-        quick_intents = [
-            "2-Point perspective volumetric cube cluster",
-            "Stepped architectural elevation",
-            "Foreshortened ground plane with True Heights on LT",
-        ]
-        quick_diffs = [
-            "Converging secondary edges strictly to F1",
-            "Maintaining true 90° verticals without slant",
-            "Controlling line weight between construction and solution",
-        ]
+    level = "beginner" if student.level == "beginner" else "advanced"
+    script = _ASK_SCRIPTS.get((language, level)) or _ASK_SCRIPTS[("en", level)]
 
     return AskPromptData(
         student_id=student.student_id,
         student_name=student.name,
-        intent_question=intent_q,
-        difficulty_question=diff_q,
-        quick_intent_suggestions=quick_intents,
-        quick_difficulty_suggestions=quick_diffs,
+        intent_question=script["intent"].format(name=student.name),
+        difficulty_question=script["difficulty"],
+        quick_intent_suggestions=list(script["intents"]),
+        quick_difficulty_suggestions=list(script["difficulties"]),
     )
 
 

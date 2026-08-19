@@ -135,9 +135,9 @@ def register_student(student: StudentProfile) -> StudentProfile:
 
 
 @app.get("/api/students/{student_id}/ask", response_model=AskPromptData, status_code=status.HTTP_200_OK)
-def get_ask_questions(student_id: str) -> AskPromptData:
+def get_ask_questions(student_id: str, language: str = "en") -> AskPromptData:
     """Verb 1: ASK clarifying questions to the student before analyzing their work."""
-    return ask_clarification(student_id)
+    return ask_clarification(student_id, language=language)
 
 
 @app.get("/api/students/{student_id}/guide", response_model=NextExerciseRecommendation, status_code=status.HTTP_200_OK)

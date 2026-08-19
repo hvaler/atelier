@@ -1,5 +1,6 @@
+@using System.Globalization
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" data-bs-theme="dark">
 
 <head>
     <meta charset="utf-8" />
@@ -11,6 +12,28 @@
     <link rel="stylesheet" href="@Assets["Atelier.Web.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
+    <script>
+        // Applied before first paint so the page never flashes the wrong theme. Bootstrap 5.3
+        // reads data-bs-theme on <html>; "system" defers to the operating system, which is the
+        // default because a tool for looking at drawings should not override what the person
+        // already chose for their screen.
+        (function () {
+            var stored = localStorage.getItem('atelier-theme') || 'system';
+            var resolved = stored === 'system'
+                ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+                : stored;
+            document.documentElement.setAttribute('data-bs-theme', resolved);
+            window.atelierSetTheme = function (choice) {
+                localStorage.setItem('atelier-theme', choice);
+                var r = choice === 'system'
+                    ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+                    : choice;
+                document.documentElement.setAttribute('data-bs-theme', r);
+                return r;
+            };
+            window.atelierGetTheme = function () { return localStorage.getItem('atelier-theme') || 'system'; };
+        })();
+    </script>
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 

@@ -29,7 +29,9 @@ logger = logging.getLogger(__name__)
 
 def get_cache_key(request: CritiqueRequest) -> str:
     """Generate a deterministic hash key for caching critique responses."""
-    content = f"{request.student.student_id}_{request.student.level}_{request.geometry.avg_convergence_error_deg}_{request.geometry.k_requested}_{request.geometry.line_count}"
+    # Language belongs in the key. Without it the first English answer is served back to a
+    # Spanish request for the same drawing, which looks exactly like a translation that failed.
+    content = f"{request.student.student_id}_{request.student.level}_{request.geometry.avg_convergence_error_deg}_{request.geometry.k_requested}_{request.geometry.line_count}_{request.language}"
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 
@@ -250,6 +252,7 @@ def generate_pedagogical_critique(request: CritiqueRequest) -> CritiqueResponse:
         vps_summary=vps_desc,
         student_intent=request.student_intent,
         student_difficulty=request.student_difficulty,
+        language=request.language,
     )
 
     # 3. Call Vertex AI with anti-hallucination validation loop

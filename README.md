@@ -74,6 +74,20 @@ Five synthetic drawings with errors injected at known angles. They are the bench
 tests assert against: the detector must recover the vanishing point to within one pixel of where
 it was drawn, and must rank 0° below 4° below 9°.
 
+### In the student's language
+
+![The studio in Spanish and in light theme, with a critique written in Spanish by Gemini](docs/img/05-espanol-claro.png)
+
+The same drawing, the same measurements, in Spanish and in the light theme. Everything below the
+headline was written by Gemini in Spanish because the interface language travels with the request
+— the critique is not translated afterwards, and the numbers are the same ones OpenCV produced.
+Note `0,8°` rather than `0.8°`: the culture drives number formatting too, so the measurement reads
+the way the student writes it.
+
+Metric names, unit words and the strength/needs-attention statuses are identifiers the validator
+matches on, so they stay in English on the wire and are looked up for display. An identifier with
+no translation falls through to itself, which is readable English rather than a blank.
+
 ### The progression
 
 ![Student progression: overall average error, drawings recorded, adapted tone and helpful ratio](docs/img/03-progress.png)
@@ -143,6 +157,8 @@ exercise on this page was produced by analysing an actual drawing through the de
   3. **CAPTURE**: Explicit student feedback (`helpful: bool` + note) saved as immutable events.
   4. **ADAPT**: Dynamic profile derivation (shifting tone from technical to encouraging automatically).
 - 🧠 **Two-stage pre-router, two models**: **Gemma 4** (`gemma-4-26b-a4b-it`, Gemini API) reads the student's own description and picks 1-point or 2-point — a beginner who writes *"the corner of a building"* is measured as two-point because they said so, not as one-point because of a field in their profile. **Gemini 3.5 Flash** (Vertex AI) then *looks at the photograph* and answers the question that saves the most work: **is this a perspective exercise at all?** A page of text or a blank sheet is refused before the geometry engine runs and before a critique spends tokens describing nothing. Both label their own provenance (`source: gemma | vertex | fallback`).
+- 🌍 **Taught in the student's own language**: The interface and the critique are both available in English and Spanish, chosen with one control and remembered in a cookie. This is not a translation layer bolted on top — the language is sent to the agent, so Gemini writes the critique itself in Spanish, and the anti-hallucination gate that forbids a number in Plane B recognises `4,2 grados` as well as `4.2 degrees`. A gate that only reads English would have stopped being a gate the moment the interface was translated.
+- 🌗 **Light and dark, decided before first paint**: Three states — light, dark, and follow-the-system, which is the default because a person who has already told their operating system how they want screens to look has answered the question once. The choice is applied by an inline script before the page renders, so there is no flash of the wrong theme.
 - 📈 **Append-Only Memory & Weekly Digests**: Event-sourced progression tracking in Google Cloud Firestore with automated weekly practice plans synthesized via Cloud Scheduler.
 - 🔒 **Async-First & Privacy-Preserving (ADR-004, ADR-006)**: Private Google Cloud Storage inbox (`gs://atelier-hack-inbox/{studentId}/`), Eventarc triggers, signed URLs, and first-names-only privacy model for young students.
 
@@ -250,7 +266,7 @@ dotnet run
 All claims are backed by executable tests logged in [`docs/EVIDENCE.md`](docs/EVIDENCE.md).
 
 ```bash
-# Run Python backend tests (36 tests)
+# Run Python backend tests (47 tests)
 cd atelier-agent
 .venv\Scripts\python -m pytest tests -v
 

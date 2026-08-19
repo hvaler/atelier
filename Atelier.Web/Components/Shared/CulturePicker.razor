@@ -1,0 +1,43 @@
+@namespace Atelier.Web.Components.Shared
+@inject NavigationManager Nav
+
+@* A Blazor Server circuit fixes its culture when it opens, so switching language cannot be done
+   in-circuit: the choice has to become a cookie and the page has to be fetched again. Hence the
+   forced load through /culture/set rather than a plain NavLink — an ordinary anchor would be
+   intercepted by the router and resolve to nothing, because /culture/set is an endpoint, not a
+   routable component.
+
+   Each language is written in its own language. "Spanish" means nothing to someone who is looking
+   for the button precisely because they do not read the current one. *@
+<div class="btn-group btn-group-sm" role="group" aria-label="@Loc["Language"]">
+    @foreach (var (culture, label) in Cultures)
+    {
+        <button type="button"
+                class="btn @(IsCurrent(culture) ? "btn-primary" : "btn-outline-secondary")"
+                lang="@culture"
+                aria-pressed="@IsCurrent(culture)"
+                @onclick="() => SwitchTo(culture)">
+            @label
+        </button>
+    }
+</div>
+
+@code {
+    private static readonly (string Code, string Label)[] Cultures =
+    [
+        ("en", "English"),
+        ("es", "Español"),
+    ];
+
+    private static bool IsCurrent(string code) =>
+        System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == code;
+
+    private void SwitchTo(string code)
+    {
+        // Come back to the page the student was already on, not to the root.
+        var here = Nav.ToBaseRelativePath(Nav.Uri);
+        var target = $"culture/set?culture={Uri.EscapeDataString(code)}" +
+                     $"&redirectUri={Uri.EscapeDataString("/" + here)}";
+        Nav.NavigateTo(target, forceLoad: true);
+    }
+}

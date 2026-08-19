@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Json;
 using Atelier.Web.Models;
 
@@ -47,7 +48,10 @@ public class AtelierAgentClient : IAtelierAgentClient
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<AskPromptDataDto>($"/api/students/{studentId}/ask");
+            // The two questions the student reads first, in the language they are reading in.
+            var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es" ? "es" : "en";
+            return await _httpClient.GetFromJsonAsync<AskPromptDataDto>(
+                $"/api/students/{studentId}/ask?language={lang}");
         }
         catch (Exception ex)
         {
@@ -91,6 +95,9 @@ public class AtelierAgentClient : IAtelierAgentClient
 
     public async Task<CritiqueResponseDto?> GenerateCritiqueAsync(CritiqueRequestDto request)
     {
+        // The caller builds the request; the language is settled here so no page can forget it.
+        request.Language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es" ? "es" : "en";
+
         try
         {
             var response = await _httpClient.PostAsJsonAsync("/api/critique", request);

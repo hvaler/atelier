@@ -3,27 +3,27 @@
 @using Atelier.Web.Components.Shared
 @inject IAtelierAgentClient AgentClient
 
-<PageTitle>Student Progression — Atelier</PageTitle>
+<PageTitle>@Loc["Student Progression — Atelier"]</PageTitle>
 
 <div class="container-xl py-4">
     <!-- Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle border-opacity-25">
         <div>
-            <h2 class="fw-bold text-white mb-0">
-                Student <span class="text-primary">Progression</span> & Analytics
+            <h2 class="fw-bold text-body mb-0">
+                <span class="text-primary">@Loc["Progression"]</span> @Loc["and analytics"]
             </h2>
-            <p class="text-secondary small mb-0">
-                Tracking convergence error reduction, recurring geometric issues, and weekly practice plans.
+            <p class="text-body-secondary small mb-0">
+                @Loc["Tracking convergence error reduction, recurring geometric issues, and weekly practice plans."]
             </p>
         </div>
 
         <!-- Student Selector -->
-        <div class="btn-group btn-group-sm bg-dark p-1 rounded-pill" role="group">
+        <div class="btn-group btn-group-sm bg-body-tertiary p-1 rounded-pill" role="group">
             <button type="button" class="btn @(ActiveStudentId == "young-tester-01" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SwitchStudent("young-tester-01")'>
-                Young Tester (Age 9)
+                @Loc["Young Tester (Age 9)"]
             </button>
             <button type="button" class="btn @(ActiveStudentId == "sofia-01" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => SwitchStudent("sofia-01")'>
-                Sofia (Advanced)
+                @Loc["Sofia (Advanced)"]
             </button>
         </div>
     </div>

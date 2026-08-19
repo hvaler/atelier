@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@using Atelier.Web.Components.Shared
 
 <div class="page">
     <div class="sidebar">
@@ -6,8 +7,18 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        <div class="top-row px-4 d-flex align-items-center gap-3">
+            @* This was the Blazor template's link to Microsoft's ASP.NET docs, still pointing
+               there on a submitted demo. "About" on a judged project should go to the project. *@
+            <a href="https://github.com/hvaler/atelier" target="_blank" rel="noopener">@Loc["About Atelier"]</a>
+            <a href="https://github.com/hvaler/atelier/blob/main/docs/PEDAGOGY.md" target="_blank" rel="noopener">@Loc["How it grades"]</a>
+
+            @* Both controls sit together at the far right: they are the two things about this page
+               a person changes once and then forgets. *@
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <CulturePicker />
+                <ThemeToggle />
+            </div>
         </div>
 
         <article class="content px-4">
@@ -17,7 +28,7 @@
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
+    @Loc["An unhandled error has occurred."]
+    <a href="." class="reload">@Loc["Reload"]</a>
     <span class="dismiss">🗙</span>
 </div>

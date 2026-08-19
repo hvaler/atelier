@@ -3,16 +3,16 @@
 @using Atelier.Web.Components.Shared
 @inject IAtelierAgentClient AgentClient
 
-<PageTitle>Calibration Gallery — Atelier</PageTitle>
+<PageTitle>@Loc["Calibration Gallery — Atelier"]</PageTitle>
 
 <div class="container-xl py-4">
     <!-- Header -->
-    <div class="mb-4 pb-3 border-bottom border-secondary border-opacity-25">
-        <h2 class="fw-bold text-white mb-0">
-            Calibration <span class="text-primary">Dataset</span> & Golden Cases
+    <div class="mb-4 pb-3 border-bottom border-secondary-subtle border-opacity-25">
+        <h2 class="fw-bold text-body mb-0">
+            <span class="text-primary">@Loc["Calibration dataset"]</span> @Loc["and golden cases"]
         </h2>
-        <p class="text-secondary small mb-0">
-            Benchmark test dataset featuring deliberate known angular errors to verify deterministic precision (ADR-001).
+        <p class="text-body-secondary small mb-0">
+            @Loc["Benchmark test dataset featuring deliberate known angular errors to verify deterministic precision (ADR-001)."]
         </p>
     </div>
 
@@ -20,70 +20,70 @@
     <div class="row g-4">
         <!-- Card 1: 1-Point Perfect -->
         <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 bg-dark text-white p-3 h-100">
-                <span class="badge bg-success mb-2 w-auto align-self-start">1-Point • 0.0° Error (Golden)</span>
-                <h5 class="fw-bold text-light">01_1point_perfect.png</h5>
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-success mb-2 w-auto align-self-start">@Loc["1-Point • 0.0° Error (Golden)"]</span>
+                <h5 class="fw-bold text-body">01_1point_perfect.png</h5>
                 <img src="/samples/01_1point_perfect.png" alt="01_1point_perfect.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
-                <p class="text-white-50 small">Frontal perspective box with lines converging strictly to center vanishing point on the horizon.</p>
-                <div class="mt-auto pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
-                    <small class="text-info">Target: Beginner</small>
-                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">Test in Studio →</a>
+                <p class="text-body-secondary small">@Loc["Frontal perspective box with lines converging strictly to center vanishing point on the horizon."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Beginner"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
                 </div>
             </div>
         </div>
 
         <!-- Card 2: 1-Point 4deg -->
         <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 bg-dark text-white p-3 h-100">
-                <span class="badge bg-warning text-dark mb-2 w-auto align-self-start">1-Point • 4.0° Slight Error</span>
-                <h5 class="fw-bold text-light">02_1point_error_4deg.png</h5>
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-warning text-dark mb-2 w-auto align-self-start">@Loc["1-Point • 4.0° Slight Error"]</span>
+                <h5 class="fw-bold text-body">02_1point_error_4deg.png</h5>
                 <img src="/samples/02_1point_error_4deg.png" alt="02_1point_error_4deg.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
-                <p class="text-white-50 small">Box with top right receding edge deliberately tilted 4.0° away from the vanishing point.</p>
-                <div class="mt-auto pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
-                    <small class="text-info">Target: Beginner</small>
-                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">Test in Studio →</a>
+                <p class="text-body-secondary small">@Loc["Box with top right receding edge deliberately tilted 4.0° away from the vanishing point."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Beginner"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
                 </div>
             </div>
         </div>
 
         <!-- Card 3: 1-Point 9deg -->
         <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 bg-dark text-white p-3 h-100">
-                <span class="badge bg-danger mb-2 w-auto align-self-start">1-Point • 9.0° Noticeable Error</span>
-                <h5 class="fw-bold text-light">03_1point_error_9deg.png</h5>
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-danger mb-2 w-auto align-self-start">@Loc["1-Point • 9.0° Noticeable Error"]</span>
+                <h5 class="fw-bold text-body">03_1point_error_9deg.png</h5>
                 <img src="/samples/03_1point_error_9deg.png" alt="03_1point_error_9deg.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
-                <p class="text-white-50 small">Box with significant angular divergence, testing low-tolerance correction and retry loops.</p>
-                <div class="mt-auto pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
-                    <small class="text-info">Target: Beginner</small>
-                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">Test in Studio →</a>
+                <p class="text-body-secondary small">@Loc["Box with significant angular divergence, testing low-tolerance correction and retry loops."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Beginner"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
                 </div>
             </div>
         </div>
 
         <!-- Card 4: 2-Point Perfect -->
         <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 bg-dark text-white p-3 h-100">
-                <span class="badge bg-success mb-2 w-auto align-self-start">2-Point • 0.0° Error (Golden)</span>
-                <h5 class="fw-bold text-light">04_2point_perfect.png</h5>
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-success mb-2 w-auto align-self-start">@Loc["2-Point • 0.0° Error (Golden)"]</span>
+                <h5 class="fw-bold text-body">04_2point_perfect.png</h5>
                 <img src="/samples/04_2point_perfect.png" alt="04_2point_perfect.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
-                <p class="text-white-50 small">Oblique perspective building with two distinct vanishing points (F1 left, F2 right) on a horizontal horizon line.</p>
-                <div class="mt-auto pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
-                    <small class="text-info">Target: Advanced</small>
-                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">Test in Studio →</a>
+                <p class="text-body-secondary small">@Loc["Oblique perspective building with two distinct vanishing points (F1 left, F2 right) on a horizontal horizon line."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Advanced"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
                 </div>
             </div>
         </div>
 
         <!-- Card 5: 2-Point 6deg -->
         <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 bg-dark text-white p-3 h-100">
-                <span class="badge bg-warning text-dark mb-2 w-auto align-self-start">2-Point • 6.0° F1 Divergence</span>
-                <h5 class="fw-bold text-light">05_2point_error_6deg.png</h5>
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-warning text-dark mb-2 w-auto align-self-start">@Loc["2-Point • 6.0° F1 Divergence"]</span>
+                <h5 class="fw-bold text-body">05_2point_error_6deg.png</h5>
                 <img src="/samples/05_2point_error_6deg.png" alt="05_2point_error_6deg.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
-                <p class="text-white-50 small">Left-converging lines deviate 6.0° upwards from F1 while right-converging lines remain accurate to F2.</p>
-                <div class="mt-auto pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
-                    <small class="text-info">Target: Advanced</small>
-                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">Test in Studio →</a>
+                <p class="text-body-secondary small">@Loc["Left-converging lines deviate 6.0° upwards from F1 while right-converging lines remain accurate to F2."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Advanced"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
                 </div>
             </div>
         </div>

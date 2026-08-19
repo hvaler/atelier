@@ -11,3 +11,10 @@
 @using Atelier.Web.Components.Layout
 @using Atelier.Web.Models
 @using Atelier.Web.Services
+@using Microsoft.Extensions.Localization
+
+@* Injected here rather than per-component: every product page has user-visible prose, and a
+   per-file @inject line is one more thing to forget when a new page is added. `Loc` is short
+   on purpose — it appears roughly eighty times in markup and a longer name would fight the
+   surrounding HTML for legibility. *@
+@inject IStringLocalizer<SharedResource> Loc
