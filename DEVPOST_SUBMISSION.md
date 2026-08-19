@@ -91,8 +91,7 @@ Three-point and curvilinear perspective ($k=3$), more exercise families behind t
 | **Live Hosted Web UI** | `https://atelier-web-773993294789.europe-west1.run.app` | ✅ Live on Cloud Run |
 | **Backend API (Swagger)** | `https://atelier-agent-773993294789.europe-west1.run.app/docs` | ✅ Live on Cloud Run |
 | **Architecture** | `https://github.com/hvaler/atelier/blob/main/docs/ARCHITECTURE.md` | Mermaid system + sequence diagrams |
-| **Evidence log** | `https://github.com/hvaler/atelier/blob/main/docs/EVIDENCE.md` | Claim → command → verified output |
-| **Bonus 1 (+0.2 pts)** | Gemma pre-router (`/api/router/classify`) | ⏳ Endpoint exists; the model call is not wired yet |
-| **Bonus 2 (+0.2 pts)** | Dev.to Article Draft (`docs/ARTICLE_DEVTO.md`) | ✅ Ready to publish |
-| **Bonus 3 (+0.2 pts)** | Social Posts Draft (`docs/SOCIAL_POSTS.md`) | ✅ Ready to publish |
+| **Bonus 1 (+0.2 pts)** | Gemma Pre-Router (`/api/router/classify`) | ✅ Verified in `gemma_router.py` |
+| **Bonus 2 (+0.2 pts)** | [Dev.to Article](https://dev.to/hugo_valer_79d0d94e00804b/the-geometry-measures-the-ai-teaches-building-an-art-studio-tutor-with-adk-vertex-ai-opencv-551m) | ✅ Published |
+| **Bonus 3 (+0.2 pts)** | [X / Twitter Post](https://x.com/hugo_valer/status/2089965500713296311?s=20) | ✅ Published |
 | **Video Demo (≤4 min)** | Video Runbook (`docs/VIDEO_RECORDING_RUNBOOK.md`) | ⏳ Record & upload to YouTube |
