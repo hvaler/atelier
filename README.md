@@ -53,6 +53,19 @@ When the model is unreachable the same panel shows an amber *"Deterministic fall
 answered"* instead, with the real `model_version` beneath it. The badge is earned per critique,
 not painted on.
 
+### When it refuses
+
+![Atelier refusing to measure a page of handwritten text, with the model's own reason](docs/img/04-gate.png)
+
+A shopping list, uploaded by mistake. Before any measurement, Gemini 3.5 Flash looks at the page
+and answers one question: *is this a perspective exercise at all?* Here it is not, and it says
+why — *"only repeated lines of text and no perspective drawings or construction lines"*.
+
+**Nothing is measured, and nothing is critiqued.** Without this gate the page would go through
+RANSAC, find a vanishing point among whatever edges exist, and spend real tokens telling a child
+their line weight is confident. Measuring the wrong thing carefully is worse than declining to
+measure it.
+
 ### The calibration set
 
 ![Five calibration drawings with known injected errors, 0° to 9°](docs/img/02-gallery.png)

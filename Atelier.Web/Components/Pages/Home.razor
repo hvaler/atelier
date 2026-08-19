@@ -91,8 +91,14 @@
 
         <!-- Right Column: Multimodal Geometric Overlay & Two-Plane Critique -->
         <div class="col-lg-7">
-            <!-- Multimodal Overlay (The Star Feature) -->
-            <OverlayViewer Geometry="CurrentGeometry" OriginalImageBase64="@CurrentBase64" />
+            <!-- Multimodal Overlay (The Star Feature). Only when there is a measurement to show:
+                 with the panel always rendered, a refused upload still displayed the header, the
+                 confidence from the *previous* drawing and the severity legend over a page of
+                 text — a screen that says "nothing was measured" while looking like it did. -->
+            @if (CurrentGeometry is not null)
+            {
+                <OverlayViewer Geometry="CurrentGeometry" OriginalImageBase64="@CurrentBase64" />
+            }
 
             <!-- Two-Plane Pedagogical Critique -->
             @* The gate refused this photograph. Said plainly, with the model's own reason, because
