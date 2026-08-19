@@ -30,6 +30,10 @@
 @* ---------------------------------------------------------------- step 1: the drawing *@
 @if (CurrentStep == 0)
 {
+    @* Above the grid, because it is a reply to what the reader just did. Without it a refused
+       upload produced no visible response at all. *@
+    <div class="mb-4">@RenderStatus</div>
+
     <div class="row g-4">
         <div class="col-lg-8">
             <section class="card p-4 mb-4">
@@ -436,10 +440,15 @@
     }
 
     /// <summary>
-    /// The measurement panel, shared by steps 2 and 3. Exactly one viewer renders, because
-    /// exactly one analysis exists.
+    /// What just happened: a refusal, an unreachable agent, or work in progress.
+    ///
+    /// Rendered on **every** step, not only the ones that show a measurement. It used to live
+    /// inside <see cref="RenderMeasurement"/> alone, and the consequence was that a photograph the
+    /// gate refused produced nothing at all on screen: the refusal sets no analysis, so the page
+    /// stayed on step one, which had no place to say so. Choosing a sample looked equally dead for
+    /// the two seconds the engine took. Silence is the one answer this page must never give.
     /// </summary>
-    private RenderFragment RenderMeasurement => @<text>
+    private RenderFragment RenderStatus => @<text>
         @if (NotAnExercise is not null)
         {
             <div class="alert alert-warning border-0 rounded-4">
@@ -461,11 +470,19 @@
         }
         @if (IsAnalyzing && !HasAnalysis)
         {
-            <section class="card p-5 text-center">
-                <div class="spinner-border text-primary mb-3 mx-auto" role="status"></div>
+            <section class="card p-4 d-flex flex-row align-items-center gap-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                 <p class="text-body-secondary mb-0">@Loc["Analyzing geometry with deterministic OpenCV engine..."]</p>
             </section>
         }
+    </text>;
+
+    /// <summary>
+    /// The measurement panel, shared by steps 2 and 3. Exactly one viewer renders, because
+    /// exactly one analysis exists.
+    /// </summary>
+    private RenderFragment RenderMeasurement => @<text>
+        @RenderStatus
         @if (CurrentGeometry is not null)
         {
             <OverlayViewer Geometry="CurrentGeometry" OriginalImageBase64="@CurrentBase64" />

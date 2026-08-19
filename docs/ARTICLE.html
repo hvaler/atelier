@@ -94,103 +94,143 @@
   </style>
 </head>
 <body>
+<h1>The Geometry Measures, the AI Teaches: Building an Art Studio Tutor with the Google GenAI SDK, Vertex AI &amp; OpenCV</h1>
+<blockquote><em>This project was created for the Devpost All Things Agentic Hackathon.</em></blockquote>
+<hr>
+<h2>1. The origin: a discipline that defines correctness and never measures it</h2>
+<p><strong>Descriptive geometry</strong> — <em>sistemas de representación</em>, the tradition Gaspard Monge formalised in</p>
+<p>the 1790s — is a first-year subject in architecture, engineering and animation degrees. It has a</p>
+<p>property most drawing subjects do not: <strong>correctness is objective.</strong></p>
+<p>An isometric axis is at 30° or it is not. A point&#x27;s plan lies on the reference line dropped from its</p>
+<p>elevation or it does not. A rabatment recovers the true length or it does not. Nothing here depends</p>
+<p>on an examiner&#x27;s taste, and the check is itself a construction rather than an opinion. The</p>
+<p>assessment rules reflect that: the Universidad de Granada requires a **minimum of 5/10 in each block</p>
+<p>independently**, and the Universidad de Salamanca states plainly that *&quot;es necesario superar cada</p>
+<p>bloque de forma independiente&quot;*. You cannot compensate a failed system with a strong one, because</p>
+<p>these are not matters of degree.</p>
+<p>So I went and read the syllabi — eighteen published sources across Spanish public engineering and</p>
+<p>architecture schools, international animation programmes, and open courseware. The finding is in</p>
+<p><a href="PEDAGOGY.md"><code>docs/PEDAGOGY.md</code></a>, and it is this:</p>
+<blockquote><strong>Not one of them states a numerical tolerance.</strong></blockquote>
+<p>Nowhere does a figure in degrees or millimetres appear as a pass mark. The closest any source comes</p>
+<p>is a Canadian animation degree that grades *&quot;composition, perspective and colour, with speed,</p>
+<p><strong>accuracy</strong> and dexterity&quot;* — accuracy as a graded outcome of a four-year honours degree, with the</p>
+<p>curriculum never saying how accurate.</p>
+<p>The discipline defines correctness exactly, and then hands the checking to a person with a set</p>
+<p>square at the end of a stack of plates. Meanwhile a general-purpose multimodal model asked to</p>
+<p>critique a drawing will happily invent the number — <em>&quot;your angle is off by about 15 degrees&quot;</em> — with</p>
+<p>no spatial ground truth behind it at all.</p>
+<p>Atelier sits in that gap, and the scope is narrow on purpose:</p>
+<blockquote>**It automates the objective verification the discipline already defines. It does not invent a new<br>criterion.**</blockquote>
+<p>The invariant the whole system is built on:</p>
+<blockquote><strong>&quot;The geometry measures, the AI teaches, the student grows.&quot; (ADR-001)</strong></blockquote>
+<hr>
+<h2>2. Architecture: three systems, three kinds of reference</h2>
+<pre><code>                              ATELIER ARCHITECTURE
 
-  <div class="badge">Google Devpost Hackathon Submission</div>
-  <h1>The Geometry Measures, the AI Teaches: Building an Art Studio Tutor with the Google GenAI SDK, Vertex AI &amp; OpenCV</h1>
-
-  <blockquote>
-    <strong>Mandatory Notice:</strong> This project was created for the purposes of entering the <strong>Devpost All Things Agentic Hackathon</strong>.
-  </blockquote>
-
-  <h2>1. The Origin: A 9-Year-Old Daughter's Perspective Notebook</h2>
-  <p>
-    When my 9-year-old daughter began practicing drawing cubes and perspective boxes in her sketchbook, I noticed a universal paradox in remote art education:
-  </p>
-  <ul>
-    <li>
-      <strong>Students cannot see their own angular deviations:</strong> A 4&deg; or 7&deg; misalignment to the horizon line makes a 3D box look subtly distorted, but beginners do not know <em>why</em>.
-    </li>
-    <li>
-      <strong>Generic multimodal LLMs hallucinate visual measurements:</strong> If you ask standard AI chatbots to critique a drawing, they invent arbitrary numbers without any geometric ground truth.
-    </li>
-  </ul>
-
-  <p>To bridge this gap, I built <strong>Atelier</strong> around one architectural invariant:</p>
-  <blockquote>
-    <strong>&ldquo;The geometry measures, the AI teaches, the student grows.&rdquo; (ADR-001)</strong>
-  </blockquote>
-  <p>
-    Atelier is an agentic AI studio master for remote art students that decouples deterministic geometric calculation (via OpenCV) from high-empathy pedagogical critique (via Gemini 3.5 Flash on Google Cloud Vertex AI).
-  </p>
-
-  <h2>2. Architecture: Deterministic Rigor Meets Pedagogical Empathy</h2>
-  <pre><code>                                  ATELIER ARCHITECTURE
- ┌──────────────────────┐         ┌────────────────────────┐         ┌───────────────────────┐
- │   Atelier.Web        │         │   Intent Router        │         │  OpenCV Geometry      │
- │   (Blazor / .NET 10) │ ──────&gt; │   (Vertex AI 2B/9B)    │ ──────&gt; │  - Deskew / Canny     │
- │   - Multimodal UX    │         │   - Exercise Classify  │         │  - RANSAC VPs (k=1,2) │
- │   - Annotated Overlay│         │   - Pre-Gemini Tuning  │         │  - Horizon Line (LH)  │
- └──────────────────────┘         └────────────────────────┘         │  - Error in Degrees   │
-            │                                                        └───────────────────────┘
-            │                                                                    │
-            ▼                                                                    ▼
- ┌──────────────────────┐         ┌────────────────────────┐         ┌───────────────────────┐
- │  Collaborative Loop  │ &lt;────── │  Anti-Hallucination    │ &lt;────── │  Gemini 3.5 Flash     │
- │  - ASK Clarification │         │  Validator (ADR-001)   │         │  (Google Vertex AI)   │
- │  - GUIDE Next Drill  │         │  - Verifies degrees    │         │  - Level-Aware Rubric │
- │  - CAPTURE Feedback  │         │  - Rejects fakes       │         │  - Two-Plane Critique │
- │  - ADAPT Profile     │         └────────────────────────┘         └───────────────────────┘
- </code></pre>
-
-  <h3>The Two-Plane Critique Model</h3>
-  <p>Atelier divides every critique into two distinct, validated planes:</p>
-  <ol>
-    <li>
-      <strong>Plane A (Measured Findings):</strong> 100% strictly derived from OpenCV metrics. It reports exact vanishing points (<code>VP</code> or <code>F1, F2</code>), horizon line tilt, and per-line angular deviation in degrees.
-    </li>
-    <li>
-      <strong>Plane B (Studio Observations):</strong> Qualitative criteria where Gemini evaluates the drawing like a human master instructor (line weight contrast between construction traces and definitive contours, spatial legibility, and cleanliness).
-    </li>
-  </ol>
-  <p>
-    An <strong>Anti-Hallucination Validator</strong> intercepts the critique. If the model mentions any numerical measurement not found in the OpenCV payload, the response is rejected and regenerated with corrective feedback.
-  </p>
-
-  <h2>3. The 4 Verbs of &ldquo;The Collaborative Partner&rdquo;</h2>
-  <p>Atelier is not a one-shot chatbot; it acts as a proactive studio partner orchestrating 4 collaborative verbs:</p>
-  <ul>
-    <li><strong>ASK:</strong> Before analyzing, Atelier asks the student: <em>&ldquo;What were you practicing today? Which part felt hardest?&rdquo;</em> The answers calibrate the feedback depth.</li>
-    <li><strong>GUIDE:</strong> Instead of generic advice, Atelier prescribes specific follow-up drills targeted at the student's primary recurring deviation (e.g., <em>Targeted F1 Convergence Drill</em>).</li>
-    <li><strong>CAPTURE:</strong> After every review, the student provides explicit feedback (<code>helpful: bool</code> + note), persisted as an immutable event in Google Cloud Firestore (ADR-005).</li>
-    <li><strong>ADAPT:</strong> Learning profiles are never edited manually. Atelier dynamically derives the student's tone preference and tracks the convergence error reduction curve over time.</li>
-  </ul>
-
-  <h2>4. Asynchronous Pipeline &amp; Cloud Run Deployment</h2>
-  <ul>
-    <li><strong>Async-first Ingestion:</strong> Sketchbook photos dropped into a private Google Cloud Storage bucket (<code>gs://atelier-hack-inbox/{studentId}/</code>) trigger Eventarc (<code>google.cloud.storage.object.v1.finalized</code>) to run geometry and critique in the background.</li>
-    <li><strong>Weekly Digest:</strong> Cloud Scheduler triggers weekly aggregations, calculating the error reduction percentage and prescribing a 3-day practice plan (Monday, Wednesday, Friday).</li>
-    <li><strong>Production Hardening:</strong> Deployed on Google Cloud Run with .NET 10 (using <code>KnownIPNetworks.Clear()</code> for reverse proxy header termination) and Python FastAPI microservices.</li>
-  </ul>
-
-  <h2>5. What We Learned</h2>
-  <p>
-    Building Atelier demonstrated that the future of agentic AI in technical disciplines requires <strong>hybrid intelligence</strong>:
-  </p>
-  <ul>
-    <li>Use computer vision for math, physics, and ground truth.</li>
-    <li>Use generative LLMs for language, empathy, pedagogy, and inspiration.</li>
-  </ul>
-  <p>
-    When these two forces combine, students of all ages can see their invisible mistakes and grow with confidence.
-  </p>
-
-  <div class="footer-note">
-    <p>
-      <strong>Built with:</strong> Google GenAI SDK (<code>google-genai</code>), Vertex AI (Gemini 3.5 Flash), Google Cloud Run, Cloud Storage, Eventarc, Cloud Scheduler, Cloud Firestore, OpenCV, and .NET 10 Blazor Server.<br>
-      <strong>Live Demo:</strong> <a href="https://atelier-web-773993294789.europe-west1.run.app" target="_blank" rel="noopener noreferrer">https://atelier-web-773993294789.europe-west1.run.app</a><br>
-      <strong>Open Source Repository:</strong> <a href="https://github.com/hvaler/atelier" target="_blank" rel="noopener noreferrer">https://github.com/hvaler/atelier</a>
-    </p>
-  </div>
-
+ ┌────────────────────────┐      ┌──────────────────────────────────────────────┐
+ │  Atelier.Web           │      │  Vision gate — Gemini 3.5 Flash (Vertex AI)  │
+ │  Blazor Server/.NET 10 │ ───&gt; │  Is this an exercise at all?                 │
+ │  - 3-step flow         │      │  Conic / axonometric / orthographic?         │
+ │  - per-system viewers  │      └──────────────────────────────────────────────┘
+ │  - append-only history │                            │
+ └────────────────────────┘        ┌───────────────────┼───────────────────┐
+             ▲                     ▼                   ▼                   ▼
+             │            ┌────────────────┐  ┌────────────────┐  ┌────────────────┐
+             │            │ geometry.py    │  │ axonometry.py  │  │ dihedral.py    │
+             │            │ CONIC          │  │ AXONOMETRIC    │  │ ORTHOGRAPHIC   │
+             │            │ RANSAC VPs     │  │ fixed axes     │  │ ground line +  │
+             │            │ k = 1, 2       │  │ 30 / 90 / 150  │  │ correspondence │
+             │            └────────────────┘  └────────────────┘  └────────────────┘
+             │                     └───────────────────┼───────────────────┘
+             │                                         ▼
+ ┌────────────────────────┐      ┌──────────────────────────┐   ┌────────────────────┐
+ │  Collaborative loop    │ &lt;─── │  Anti-hallucination      │ &lt;─│  Gemini 3.5 Flash  │
+ │  ASK / GUIDE           │      │  validator               │   │  Two-plane critique│
+ │  CAPTURE / ADAPT       │      │  measured_values()       │   │  Level-aware rubric│
+ └────────────────────────┘      └──────────────────────────┘   └────────────────────┘</code></pre>
+<p>Atelier measures <strong>three of the four systems of representation</strong>. The fourth, <em>planos acotados</em>,</p>
+<p>needs the numeric annotations read off the page — OCR rather than line geometry — and is documented</p>
+<p>as not implemented.</p>
+<p>What makes them worth having together is that they are not one tool three times. **They differ in</p>
+<p>where the reference comes from**, and that determines how far each measurement can be trusted:</p>
+<table>
+<tr><th>System</th><th>Where the reference comes from</th><th>Trust</th></tr>
+<tr><td><strong>Conic</strong></td><td><strong>Inferred.</strong> RANSAC estimates a vanishing point from the student&#x27;s own lines</td><td>Weakest — a consistently wrong drawing yields a vanishing point that agrees with it, and the reported error shrinks</td></tr>
+<tr><td><strong>Orthographic</strong></td><td><strong>Read off the page.</strong> The ground line is a line the student drew</td><td>Middle — nothing is guessed, but a crooked ground line skews everything, so its tilt is reported as a figure in its own right</td></tr>
+<tr><td><strong>Axonometric</strong></td><td><strong>Given.</strong> The axes are constants of the projection system</td><td>Strongest — nothing is estimated at all</td></tr>
+</table>
+<p>That ranking is stated in the documentation rather than hidden, and it is measurable: in the golden</p>
+<p>case an error injected at exactly 6° comes back at <strong>6.00°</strong>, asserted to within 0.05°. The</p>
+<p>perspective suite cannot hold a bound that tight, and says so.</p>
+<h3>The two-plane critique</h3>
+<p>Every critique is split into two planes that may not mix:</p>
+<ol><li><strong>Plane A — measured findings.</strong> Every figure comes from OpenCV, verbatim.</li>
+<li><strong>Plane B — studio observations.</strong> Line weight, spatial legibility, cleanliness. **Forbidden a</li></ol>
+<p>number at all.**</p>
+<p>An <strong>anti-hallucination validator</strong> intercepts the model&#x27;s answer. It asks the analysis what it</p>
+<p>measured — <code>measured_values()</code> — rather than reading named fields, which is what lets a new</p>
+<p>projection system be added without silently arriving unguarded. Any figure the model did not get</p>
+<p>from that set is rejected and regenerated with corrective feedback.</p>
+<p>The prose gate is bilingual for a reason that is easy to miss: a detector that only recognises</p>
+<p><code>degrees</code> stops being a gate the moment the interface is translated. It recognises <code>grados</code> too.</p>
+<h3>Two models, two jobs</h3>
+<ul><li><strong>Gemini 3.5 Flash</strong> (Vertex AI, <code>europe-west3</code>) looks at the photograph twice: once as a gate —</li></ul>
+<p><em>is this an exercise, and which system?</em> — and once to write the critique.</p>
+<ul><li><strong>Gemma 4</strong> (<code>gemma-4-26b-a4b-it</code>, via the Gemini API — it is not published on Vertex AI) reads</li></ul>
+<p>the student&#x27;s own description and infers which perspective they meant.</p>
+<p>When the two disagree, <strong>the words do not win.</strong> An early version re-measured on the router&#x27;s</p>
+<p>say-so, and a one-point box described as &quot;the corner of a building&quot; came back as two-point with 29.9°</p>
+<p>of average error. The measurement is evidence; the description is a claim. Atelier now reports the</p>
+<p>disagreement and changes nothing.</p>
+<hr>
+<h2>3. The four verbs of &quot;The Collaborative Partner&quot;</h2>
+<ol><li><strong>ASK</strong> — before analysing: <em>&quot;What were you practising today? Which part felt hardest?&quot;</em> The</li></ol>
+<p>answers set the register of the critique. They never change the measurement.</p>
+<ol><li><strong>GUIDE</strong> — the next exercise comes from a ladder documented in published curricula, not invented</li></ol>
+<p>to fill a JSON field. Rungs the engine cannot yet assess are recorded as gaps and deliberately</p>
+<p>not prescribed.</p>
+<ol><li><strong>CAPTURE</strong> — explicit feedback (<code>helpful: bool</code> + note) persisted as an immutable event in</li></ol>
+<p>Firestore (ADR-005).</p>
+<ol><li><strong>ADAPT</strong> — the profile is derived from the event stream, never edited. Note that the profile is a</li></ol>
+<p><strong>difficulty level</strong>, not a person: it sets the rubric&#x27;s register and nothing else.</p>
+<hr>
+<h2>4. Asynchronous pipeline and Cloud Run deployment</h2>
+<ul><li><strong>Async-first ingestion</strong> — a photograph dropped into a private Cloud Storage inbox</li></ul>
+<p>(<code>atelier-hack-inbox/{studentId}/</code>) fires an Eventarc CloudEvent at the Cloud Run agent, which</p>
+<p>downloads the object, measures it and stores the result with nobody touching the app.</p>
+<ul><li><strong>Weekly digest</strong> — Cloud Scheduler aggregates the week and prescribes a three-day practice plan.</li>
+<li><strong>The measurement API</strong> — <code>POST /api/analyze</code>, <code>/api/analyze/axonometric</code>, <code>/api/analyze/dihedral</code>,</li></ul>
+<p>plus <code>/api/router/gate</code> and <code>/api/router/classify</code> for the two routing decisions, and</p>
+<p><code>GET /api/students/{id}/exercises</code> for the student&#x27;s own history.</p>
+<ul><li><strong>Production hardening</strong> — Cloud Run with .NET 10 (<code>KnownIPNetworks.Clear()</code> for proxy header</li></ul>
+<p>termination) and Python FastAPI.</p>
+<hr>
+<h2>5. What we learned</h2>
+<p>Three lessons, and the useful ones are all about honesty rather than about models.</p>
+<p><strong>The mean of an empty set is not zero.</strong> Twice — in the orthographic engine and again in the</p>
+<p>progress profile — an average computed over nothing was reported as <code>0.00</code>, which reads as <em>perfect</em>.</p>
+<p>A plate whose two views did not correspond at all reported a correspondence error of zero. **A worse</p>
+<p>drawing produced a better number.** Both aggregates are nullable now, and render as a dash. If your</p>
+<p>system can produce a figure that looks like success when nothing was measured, that is not a</p>
+<p>formatting detail — it is the failure mode.</p>
+<p><strong>A single average hides the mistake that matters.</strong> In axonometry, a per-line error and a</p>
+<p><em>systematic</em> error are different faults with different corrections: an unsteady hand versus a set</p>
+<p>square placed at the wrong angle. Averaged together they are indistinguishable. Reporting them apart</p>
+<p>is what lets the critique say *&quot;your hand is excellent, you just need to set the axis before you</p>
+<p>start&quot;* — which a published rubric cannot say, because saying it requires measuring each family&#x27;s</p>
+<p>mean direction separately.</p>
+<p><strong>Silent fallbacks make a broken system look healthy.</strong> The critique path once caught every exception</p>
+<p>and returned a hand-written template stamped <code>validated=true</code> with the real model&#x27;s name on it.</p>
+<p>Deleting Vertex AI from the project would have changed nothing observable. Now provenance is stamped</p>
+<p>by the server, never by the model, and the green badge is gated on it — when no model answered, the</p>
+<p>panel turns amber and says so.</p>
+<p>The general shape: for technical disciplines — drawing, engineering, surgery — **use computer vision</p>
+<p>for ground truth and a language model for teaching**, and make the boundary between them something</p>
+<p>the code enforces rather than something the prompt requests.</p>
+<hr>
+<p>*Built with the Google GenAI SDK (<code>google-genai</code>), Vertex AI (Gemini 3.5 Flash), Gemma 4, Google</p>
+<p>Cloud Run, Cloud Storage, Eventarc, Firestore, Cloud Scheduler, OpenCV and .NET 10. Apache 2.0,</p>
+<p>98 automated tests (90 Python + 8 .NET).*</p>
 </body>
 </html>

@@ -10,7 +10,7 @@
 graph TB
     subgraph "Client Layer"
         User["🎨 Student / Instructor"]
-        WebUI["💻 Atelier.Web\n(Blazor Server / .NET 10)\n- Multimodal Overlay Viewer\n- Two-Plane Critique View\n- Student Switcher & Analytics"]
+        WebUI["💻 Atelier.Web\n(Blazor Server / .NET 10)\n- 3-step flow: drawing → context → critique\n- One viewer per projection system\n- Two-Plane Critique View\n- Exercise history & progression"]
     end
 
     subgraph "Google Cloud Platform (GCP)"
@@ -62,11 +62,14 @@ graph TB
   - Pairwise intersection clustering with RANSAC for vanishing point estimation ($k=1$ and $k=2$).
   - Horizon line ($LH$) estimation and angle deviation calculations in degrees ($^\circ$).
   - Generation of Base64 annotated overlays with traffic-light color encoding (Green: $<2.5^\circ$, Yellow: $2.5^\circ - 6.0^\circ$, Red: $>6.0^\circ$).
-- **Intent Pre-Router (`src/tools/pre_router.py`)**:
-  - Pre-classifies exercise types and tunes Canny edge thresholds to minimize compute before heavy LLM execution.
+- **Two-stage pre-router (`src/tools/pre_router.py`)**:
+  - `classify_drawing()` — Gemini 3.5 Flash looks at the photograph and answers two questions before anything is measured: *is this an exercise at all*, and *conic, axonometric or orthographic*. That verdict selects which engine runs, because the three measure against unrelated references.
+  - `route_from_intent()` — Gemma 4 reads the student's own description and infers which perspective they meant. When it disagrees with the measurement the disagreement is **reported and nothing is changed**: the measurement is evidence, the description is a claim.
+  - It does **not** tune Canny thresholds. Those are fixed at 50/150 in `geometry.py`; an earlier version of this document said otherwise and was wrong.
 - **Gemini Flash Client (`src/tools/critique.py`)**:
-  - Prompts calibrated with authentic studio master rubrics (RUNBOOK §2).
-  - Level-aware tone differentiation (`beginner` for 9-year-olds vs `advanced` for animation university students).
+  - Prompts calibrated with real instructor rubrics for formal descriptive-geometry coursework.
+  - Level-aware register: `beginner` and `advanced`. The profile is a **difficulty level**, not a person — it decides the vocabulary and tone, and nothing downstream interpolates a name.
+  - The critique is written in the student's own language; the language travels with the request rather than being translated afterwards.
 - **Anti-Hallucination Validator (`src/tools/validator.py`)**:
   - Enforces ADR-001 by guaranteeing that Plane A (Measured Findings) only contains numbers directly derived from OpenCV. Rejects and retries if fabricated metrics are detected.
 - **Append-Only Memory Engine (`src/tools/memory.py` & `collaborative.py`)**:
