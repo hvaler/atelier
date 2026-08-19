@@ -513,4 +513,103 @@
   <data name="technical" xml:space="preserve">
     <value>technical</value>
   </data>
+  <data name="Isometric projection" xml:space="preserve">
+    <value>Isometric projection</value>
+  </data>
+  <data name="Dimetric projection" xml:space="preserve">
+    <value>Dimetric projection</value>
+  </data>
+  <data name="Cavalier projection" xml:space="preserve">
+    <value>Cavalier projection</value>
+  </data>
+  <data name="No vanishing point: parallel projection" xml:space="preserve">
+    <value>No vanishing point: parallel projection</value>
+  </data>
+  <data name="Axis measurements" xml:space="preserve">
+    <value>Axis measurements</value>
+  </data>
+  <data name="Axis" xml:space="preserve">
+    <value>Axis</value>
+  </data>
+  <data name="Should be" xml:space="preserve">
+    <value>Should be</value>
+  </data>
+  <data name="Measured" xml:space="preserve">
+    <value>Measured</value>
+  </data>
+  <data name="Systematic deviation" xml:space="preserve">
+    <value>Systematic deviation</value>
+  </data>
+  <data name="Edges" xml:space="preserve">
+    <value>Edges</value>
+  </data>
+  <data name="not drawn" xml:space="preserve">
+    <value>not drawn</value>
+  </data>
+  <data name="Axis deviation overlay" xml:space="preserve">
+    <value>Axis deviation overlay</value>
+  </data>
+  <data name="Parallelism spread" xml:space="preserve">
+    <value>Parallelism spread</value>
+  </data>
+  <data name="Edges off any axis" xml:space="preserve">
+    <value>Edges off any axis</value>
+  </data>
+  <data name="The whole {0} family is off by about {1}° in the same direction. That is the axis being set wrong before drawing, not an unsteady hand — it is fixed once, at the start, rather than edge by edge." xml:space="preserve">
+    <value>The whole {0} family is off by about {1}° in the same direction. That is the axis being set wrong before drawing, not an unsteady hand — it is fixed once, at the start, rather than edge by edge.</value>
+  </data>
+  <data name="Isometric (axes exact)" xml:space="preserve">
+    <value>Isometric (axes exact)</value>
+  </data>
+  <data name="Isometric (X axis set 6° wrong)" xml:space="preserve">
+    <value>Isometric (X axis set 6° wrong)</value>
+  </data>
+  <data name="Cavalier (45° receding axis)" xml:space="preserve">
+    <value>Cavalier (45° receding axis)</value>
+  </data>
+  <data name="average axis error" xml:space="preserve">
+    <value>average axis error</value>
+  </data>
+  <data name="max axis error" xml:space="preserve">
+    <value>max axis error</value>
+  </data>
+  <data name="parallelism error" xml:space="preserve">
+    <value>parallelism error</value>
+  </data>
+  <data name="axis x systematic error" xml:space="preserve">
+    <value>axis x systematic error</value>
+  </data>
+  <data name="axis y systematic error" xml:space="preserve">
+    <value>axis y systematic error</value>
+  </data>
+  <data name="axis z systematic error" xml:space="preserve">
+    <value>axis z systematic error</value>
+  </data>
+  <data name="off axis line count" xml:space="preserve">
+    <value>off axis line count</value>
+  </data>
+  <data name="Measured against: {0}" xml:space="preserve">
+    <value>Measured against: {0}</value>
+  </data>
+  <data name="Isometric • 0.0° Error (Golden)" xml:space="preserve">
+    <value>Isometric • 0.0° Error (Golden)</value>
+  </data>
+  <data name="Isometric • 6.0° Systematic Error" xml:space="preserve">
+    <value>Isometric • 6.0° Systematic Error</value>
+  </data>
+  <data name="Cavalier • 0.0° Error (Golden)" xml:space="preserve">
+    <value>Cavalier • 0.0° Error (Golden)</value>
+  </data>
+  <data name="Isometric cube with all three axis families exactly on 30°, 90° and 150°. Parallel projection: no vanishing point exists in this drawing." xml:space="preserve">
+    <value>Isometric cube with all three axis families exactly on 30°, 90° and 150°. Parallel projection: no vanishing point exists in this drawing.</value>
+  </data>
+  <data name="Every edge of the X family drawn at 36° instead of 30° — the set square placed wrong, not an unsteady hand. The corners fail to close by exactly that much." xml:space="preserve">
+    <value>Every edge of the X family drawn at 36° instead of 30° — the set square placed wrong, not an unsteady hand. The corners fail to close by exactly that much.</value>
+  </data>
+  <data name="Cavalier projection: a true square front face, with the receding axis at 45°. A different reference again, and the engine is told which one to use before it measures." xml:space="preserve">
+    <value>Cavalier projection: a true square front face, with the receding axis at 45°. A different reference again, and the engine is told which one to use before it measures.</value>
+  </data>
+  <data name="Benchmark drawings in both projection systems, each carrying an angular error of a known size, used to verify that the measurement moves with the drawing (ADR-001)." xml:space="preserve">
+    <value>Benchmark drawings in both projection systems, each carrying an angular error of a known size, used to verify that the measurement moves with the drawing (ADR-001).</value>
+  </data>
 </root>

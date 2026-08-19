@@ -4,8 +4,10 @@ Atelier grades perspective drawings. This document places what it measures again
 art curricula actually ask of a student, so that the critique's vocabulary and its "next exercise"
 recommendation are traceable to teaching practice rather than invented in a prompt.
 
-It does **not** replace the studio rubric the agent already uses. It gives that rubric something
-to be checked against, and something to cite.
+It does **not** replace the studio rubric the agent already uses — which derives from real
+instructor rubrics for formal perspective‑drawing coursework, and is deliberately not attributed to
+any named institution or individual. This document gives that rubric something to be checked
+against, and something to cite.
 
 ---
 
@@ -18,7 +20,13 @@ this repository** — see the reason against each.
 |---|---|---|
 | **Drawing Perspectives, Volume 2 (Art‑005B)** — Kristen Kennedy, College of the Sequoias / Lemoore College, 2024. 121 pp. [PDF](https://lemoorecollege.edu/oer/documents/2024-drawing-perspectives-art-005b-oer-textbook.pdf) | **CC BY‑SA 4.0** for the text | **No.** The licence excludes itself from the images: *"Images and figures within this text are openly licensed, in the Public Domain, or used based on fair use principles. Some images are student work; all rights are reserved."* Redistributing the PDF would redistribute that student work. Cited and quoted only. |
 | **ART 110 Basic Perspective** — BYU‑Idaho, Winter 2015 course site. [Syllabus](https://courses.byui.edu/art110_new/Art110_S15/HTML/syllabus.html) · [Rubric](https://courses.byui.edu/art110_new/Art110_S15/HTML/rubric.html) | **None stated** on any page of the course site | **No.** Absent a licence, the default is all rights reserved. Short criterion wordings are quoted below as quotation for commentary. |
-| **Grado en Animación (Fundamentos del Dibujo & Perspectiva Espacial)** — U‑tad (Centro Universitario de Tecnología y Arte Digital, Madrid). [Plan de Estudios](https://www.u-tad.com/estudios/grado-en-animacion/) | **Programa académico universitario** | **No.** La guía docente y competencias de layout/perspectiva para animación son citadas como base pedagógica del benchmark de 2 puntos de fuga y jerarquía gráfica. |
+| **Honours Bachelor of Animation** — Sheridan College, Ontario. [Programme page and course sequence](https://www.sheridancollege.ca/programs/bachelor-of-animation) | **None stated** | **No.** Course sequence and the programme's own learning outcomes quoted for commentary. |
+| **BFA Character Animation** — California Institute of the Arts. [Programme](https://catalog.calarts.edu/programs/UvzOg8mt3npdQQJrTCkI) · [FVCA‑140 *Perspective I*](https://catalog.calarts.edu/courses/FVCA140) · [FVCA‑240 *Animation Layout*](https://catalog.calarts.edu/courses/FVCA240) | **None stated** | **No.** Two one‑sentence catalogue descriptions quoted in full; there is nothing else to store. |
+| **Bachelor in Character Animation and Animated Filmmaking** — GOBELINS Paris. [Programme](https://www.gobelins-school.com/animated-filmmaking/programmes/ca30-bachelor-arts-character-animation-animated-filmmaking) | **None stated** | **No.** Subject list and entry aptitudes quoted for commentary. |
+| **Bachelor in Animation — Study Program, Animation and CG Arts** — The Animation Workshop, VIA University College, Denmark, 2016. [PDF](https://animationworkshop.via.dk/-/media/taw/pdf/ANIM/bachelor-in-animation-study-program-2016.pdf) | **None stated** | **No.** An 18‑page institutional programme specification with no licence. Retrieved and read; competency wording and the ECTS structure are quoted, the file is not versioned. |
+| **Grado en Bellas Artes — *Perspectiva y Técnicas de Representación* y *Fundamentos del dibujo*** — Universitat Politècnica de València (public). [Departamento de Dibujo](https://dibujo.webs.upv.es/asignatura/tecnicas-de-representacion-y-perspectiva/) · [Fundamentos del dibujo](https://dibujo.webs.upv.es/asignatura/fundamentos-del-dibujo/) | **None stated** | **No.** Subject descriptions quoted in the original Spanish for commentary. |
+| **Guía docente de *Sistema de Análisis de la Forma y la Representación* (2651116)** — Facultad de Bellas Artes, Universidad de Granada (public). [Guía docente](https://bellasartes.ugr.es/docencia/grados/graduadoa-conservacion-y-restauracion-bienes-cultural/sistema-analisis-la-forma-y-la-representacion/11/guia-docente) | **None stated** | **No.** Competences and *temario* quoted in the original Spanish for commentary. |
+| **CG Animation programme (Montreal campus)** — ESMA. [Programme](https://www.esma-3d.ca/en/formations/cg-animation-program/) | **None stated** | **No.** Only the portfolio requirement is quoted; the school's main site returns HTTP 403 to scripted requests, so its richer preparatory‑year syllabus **could not be retrieved and is not cited**. |
 | **Introduction to Architecture, ARCH 1101, Course Outline** — Michael Duddy, CUNY New York City College of Technology, 2017. [Record](https://academicworks.cuny.edu/ny_oers/58/) | **CC BY 4.0** | **No — could not be retrieved.** The download endpoint answers scripted requests with HTTP 202/403. Its record also describes a *course outline*, not a perspective chapter; the abstract mentions "drafting, sketching" and perspective coverage is unconfirmed. It is cited for completeness and **not used** in the comparison below, because comparing against a document nobody has read would be the exact failure this project exists to avoid. |
 
 > On the CC BY‑SA text specifically: this repository is Apache‑2.0, and ShareAlike would extend to
@@ -121,13 +129,12 @@ BYU‑Idaho's ART 110 runs five modules whose stated outcomes move the same way:
 3‑dimensional objects in accurate 1 and 2 pt. perspective" and then "Draw complex interior (room)
 scenes and exterior (landscape) scenes."
 
-**U‑tad (Degree in Animation — Spatial Drawing & Layout)** structures foundational draftsmanship
-around progressive scene construction:
-1. **Primary solids & one-point frontal boxes** (verifying horizontal parallelism to $LT$).
-2. **Two-point oblique clusters ($30^\circ/60^\circ$ & $45^\circ/45^\circ$)** (locating $F_1, F_2$ and true elevations from the ground line).
-3. **Line weight hierarchy for layout artists** (subordinate 2H/3H construction traces vs bold HB/2B definitive contours).
+The Universitat Politècnica de València sets the same order inside a single subject. Its
+*Perspectiva y Técnicas de Representación* is built on *"el estudio y práctica de la Perspectiva
+cónica geométrica"* and works through perspective **frontal → oblicua → de plano inclinado** — which
+is one‑point, then two‑point, then three‑point, in the vocabulary of a Spanish fine‑arts faculty.
 
-Consolidated across all three curricula, the published sequence guides a student as:
+Consolidated across these curricula, the published sequence guides a student as:
 
 ```
 simple solids in one-point (frontal)
@@ -161,11 +168,133 @@ reintroduce exactly the gap this document exists to close.
 | Cylinders and ellipses | No ellipse detection. BYU scores ellipse shape and major/minor axis; Atelier measures neither. |
 | Interior scenes | Measurable in principle — an interior is one‑point with more orthogonals — but untested against real room drawings. |
 | Exterior / landscape scenes | Depth here is largely atmospheric, which is tonal rather than geometric. Outside the CV engine's remit. |
-| Three‑point perspective | `k=3` is unimplemented; the solver handles k=1 and k=2 only. |
+| Three‑point perspective | `k=3` is unimplemented; the solver handles k=1 and k=2 only. Valencia teaches it as *perspectiva de plano inclinado*, in the same subject as the other two. |
+| Cast shadows and reflections | Granada's Tema 7 is *"Perspectiva aplicada. Luz y sombra. Reflejos"*. Shadow construction converges on its own points and is geometric, so it is measurable in principle — but nothing in the engine looks for it. |
+| Whole‑scene layout | The Animation Workshop teaches *Environment Design and Construction* and *Shot Production: 2D Backgrounds*. Atelier measures one construction at a time. |
+
+Two of these rungs became citable only after §5 widened the source base: three‑point perspective
+and shadow construction are now named in a public Spanish syllabus rather than inferred.
 
 ---
 
-## 5. The finding
+## 5. Cross-institutional curriculum comparison
+
+The two sources in §2 are a Californian community college and an American university's online
+course. Both are American, both are general studio drawing, and a progression derived from two
+such sources could fairly be called parochial. This section widens the base to **seven programmes
+across five countries**, mixing animation schools with public fine‑arts faculties, to test whether
+the ladder in §4 is the trade's or this project's.
+
+Every cell below is quoted or closely paraphrased from the page linked in §1. Where a programme
+does not name perspective, that is recorded as an absence rather than filled in.
+
+| Institution | Subject / module | Perspective competency, as published | Progression |
+|---|---|---|---|
+| **Sheridan College** (Canada, public college) — Honours Bachelor of Animation | *Principles of Layout 1* (Sem 1) and *2* (Sem 2); *2D Layouts* (Sem 3); *CG Layouts* (Sem 4); *Layout: Pre‑Production* (Sem 5); *Layout: Production* (Sem 6) | Programme learning outcome: *"Design layouts and backgrounds that incorporate principles of composition, **perspective** and colour, **with speed, accuracy and dexterity**, using a variety of media"* | Six consecutive semesters of layout, spiralling: principles → 2D → CG → pre‑production → production. Drawing runs in parallel: *Introduction to Life Drawing* → *Introduction to Dynamic Anatomy* → *Intermediate Figure Analysis* → *Exploration of Figure Analysis* |
+| **CalArts** (USA) — BFA Character Animation | **FVCA‑140 *Perspective I*** (BFA1, spring, 1.5 credits); **FVCA‑240 *Animation Layout*** (BFA2, autumn, 1.5 credits) | FVCA‑140 in full: *"Basic rendering and perspective drawing."* FVCA‑240 in full: *"Basic composition and design of layout animation techniques."* | Perspective is a discrete first‑year course and does not recur under that name; layout follows in year 2, then *Advanced Life Drawing* (FVCA‑311–316) in years 3–4 |
+| **GOBELINS Paris** (France) — BA Character Animation and Animated Filmmaking | *Drawing for animation* | *"Drawing for animation: volume construction, perspective, image composition, movement analysis."* Entry aptitude: *"A regular draughtsman with a predisposition for expressing movement, volume and perspective."* | 3 years. Perspective is never isolated — it is bundled with volume construction, composition and movement analysis from the outset |
+| **The Animation Workshop / VIA University College** (Denmark, public) — Bachelor in Animation | Common modules (60 ECTS) include *Drawing* and *Layout*; the CG Arts line (90 ECTS) adds *Digital Layout* and *Environment Design and Construction*; electives add *Advanced Digital Layout* and *Shot Production: 2D Backgrounds* | **Perspective is never named.** The nearest published competency is knowledge of *"relevant design and composition theories and the ability to reflect on the implementation of these theories within animation media"* | Common modules → study line → electives. Spatial construction is taught as *layout*, and perspective is assumed inside it |
+| **Universitat Politècnica de València** (Spain, public) — Grado en Bellas Artes | *Fundamentos del dibujo* (1st year) → *Perspectiva y Técnicas de Representación* | *"Esta asignatura atiende a las diferentes maneras de ver y representar el espacio tridimensional en el plano, tomando como base el estudio y práctica de la Perspectiva cónica geométrica"*; the foundation subject *"enseña a ver"* and teaches *"la representación gráfica objetiva del mundo de las formas"* | Perspective **frontal → oblicua → de plano inclinado** (one‑, two‑ and three‑point), then natural/observational perspective, then applied work in comic, illustration, mural and floor painting, ending at anamorphosis and impossible figures |
+| **Universidad de Granada** (Spain, public) — Facultad de Bellas Artes | *Sistema de Análisis de la Forma y la Representación* (2651116), 6 ECTS, **curso 1, semestre 2** | CE13: *"Comprender y aplicar los fundamentos de dibujo, color y volumen."* Learning outcomes: *"Conocer los sistemas de representación del espacio"* and *"la percepción espacial tridimensional desde las representaciones bidimensionales"* | Bloque III *"Geometría descriptiva, Sistemas de Representación y el Espacio Perspectivo"* → Tema 5 *"La Geometría Proyectiva. Sistemas de Proyección Cilíndrica. Representación de cuerpos"* → Tema 6 *"La Perspectiva* Artificialis *y el Sistema de Proyección Central: Perspectiva Cónica"* → Tema 7 *"Perspectiva aplicada. Luz y sombra. Reflejos"* |
+| **ESMA** (France / Canada) — CG Animation programme, Montreal | Six sessions; perspective is not a listed subject of the 3D programme | Screened at the door instead: the portfolio must show *"good skills in traditional drawing"* and observation drawings of *"Faces, Bodies / Anatomy, Sceneries, Animals, **Perspectives**, Architecture"* | Perspective is a prerequisite competency, taught in the preparatory year and assumed thereafter |
+
+### What every programme has in common
+
+**One. Perspective is a first‑ or second‑year competency, everywhere.** CalArts places it in the
+spring of year one. Granada places it in *curso 1, semestre 2*. Sheridan opens semester one with
+*Principles of Layout 1*. ESMA does not teach it in the degree at all because it expects it at
+admission. No programme in this table treats perspective as advanced material.
+
+**Two. It is assessed as part of spatial construction, not as drafting.** Sheridan's outcome binds
+perspective to composition and colour in the same sentence; GOBELINS binds it to volume
+construction and movement analysis; Denmark does not name it at all and folds it into *Layout*.
+This is a direct argument for Atelier's two‑plane split: the trade does not separate the geometry
+from the picture, so a tool that reports only the geometry has to hand the rest to something that
+can talk about the picture.
+
+**Three — and this is the one that matters — not one of the seven states a numerical tolerance.**
+Sheridan gets closest and is worth quoting again: *"with speed, accuracy and dexterity."* **Accuracy**
+appears as a graded programme outcome across a four‑year honours degree, and nowhere in the
+published curriculum does anything say how accurate. §6 draws that conclusion from two American
+sources; it holds across all seven, in five countries, quoted in two languages, spanning public
+universities and private animation schools alike. It is not an artefact of the sample.
+
+**Four. The taught order is the same order.** Foundation drawing, then one‑point, then two‑point,
+then applied scenes. Valencia states it as *frontal → oblicua → de plano inclinado*; Granada as
+descriptive geometry → central projection → applied perspective; Lemoore as interior → street →
+tall building. Three curricula written independently, in two languages, in the same sequence.
+
+**This is what licenses the agent's `next_exercise` recommendation.** The ladder in §4 is not a
+sequence invented to fill a field in a JSON schema. It is the sequence seven institutions publish.
+
+### What is specific to each — and therefore what "next" could mean
+
+The differences are as useful as the agreement, because each one names a rung beyond where Atelier
+currently reaches. None of these are implemented; they are recorded here so that the gaps table in
+the README has a source rather than an opinion.
+
+| Programme | What it adds that the others do not | Where it sits relative to Atelier |
+|---|---|---|
+| Universitat Politècnica de València | *Perspectiva de plano inclinado* — three‑point — plus anamorphosis and impossible figures | `k=3` is unimplemented; the solver handles k=1 and k=2 |
+| Universidad de Granada | *"Perspectiva aplicada. Luz y sombra. Reflejos"* — shadow and reflection construction in perspective | Not measured. Cast‑shadow convergence is geometric and would be measurable in principle |
+| Sheridan College | *CG Layouts* as a competency distinct from *2D Layouts* | Out of scope: Atelier measures a photograph of a drawing |
+| The Animation Workshop | *Environment Design and Construction*, *Shot Production: 2D Backgrounds* | Whole‑scene layout rather than a single construction; untested |
+| GOBELINS Paris | Perspective tied explicitly to **movement analysis** | Out of scope: single still images |
+| CalArts | Perspective as a closed 1.5‑credit unit, then never revisited under that name | Matches Atelier's scope almost exactly — this is the rung the tool occupies |
+
+The last row is the useful one for positioning. CalArts spends 1.5 credits on *"basic rendering and
+perspective drawing"* in the first year and then assumes it forever. That single course, assessed by
+eye once and never re‑measured, is precisely the interval where a student either acquires accurate
+convergence or does not — and it is the interval Atelier instruments.
+
+---
+
+### The subject that contains perspective
+
+Everything above treats conic perspective as the subject. In the Spanish public syllabi it is not:
+it is one topic inside **Sistemas de Representación**, and it is not the first one.
+
+Granada's *temario* orders it plainly. **Tema 5** is *"La Geometría Proyectiva. Sistemas de
+Proyección Cilíndrica. Representación de cuerpos"* — cylindrical projection is parallel projection,
+which is to say axonometry — and only **Tema 6** reaches *"el Sistema de Proyección Central:
+Perspectiva Cónica"*. The complementary bibliography names it outright: Bonet Minguet, *Perspectiva
+axonométrica y caballera*, and Thomae, *Perspectiva y axonometría*. Valencia's subject works the
+same ground from the other side, covering perspective **frontal, oblicua y de plano inclinado**.
+
+**Parallel projection is taught before conic perspective, not after it.** That ordering is a
+finding, not a detail, and it has a consequence for what a measuring tool should cover first.
+
+**Atelier now measures both.** `tools/axonometry.py` compares every detected edge against the fixed
+axes of isometric, dimetric or cavalier projection, and the vision gate decides which of the two
+systems a photograph is before anything is measured — because running a parallel projection through
+the perspective path finds a vanishing point among edges that were never meant to meet, and then
+reports an error about it.
+
+The interesting part is that the second mode is **more** trustworthy than the first, which is the
+opposite of what a bolted-on feature usually is. Section 6 states the weakness of the conic path
+honestly: RANSAC estimates the vanishing point from the student's own lines, so a drawing that is
+consistently wrong yields a vanishing point that agrees with it. Axonometry has no such estimator.
+The axes of an isometric projection are at 30, 90 and 150 degrees **by definition of the system**.
+Nothing is inferred; every edge is compared against a constant. In the golden case, an error
+injected at exactly 6 degrees is recovered as exactly 6 degrees, and the test asserts it to within
+0.05 — a bound the perspective suite could never hold.
+
+It also separates two errors that a single average hides, and which need different corrections:
+
+| What the numbers say | What it means | What the student does |
+|---|---|---|
+| Low per-line error, low systematic error | The axes were set right and followed steadily | Move on |
+| Low per-line error, **high systematic error** | Every edge of one family is off by the same amount — the set square was placed wrong | Fix the axis once, before drawing |
+| **High per-line error**, low systematic error | The axis was right and the hand wandered | Steadier construction, edge by edge |
+
+A published rubric cannot make that distinction, because making it requires measuring each family's
+mean direction separately and comparing it against a constant. This is the same argument as §6,
+one level sharper: the gap is not that instructors are imprecise, it is that the distinction is
+invisible without measurement.
+
+---
+
+## 6. The finding
 
 **Published drawing rubrics do not measure. They count, and they describe.**
 
@@ -202,9 +331,21 @@ is precisely what makes them unrepeatable.
   quoted here under the licence's attribution requirement.
 - *ART 110 Basic Perspective*, BYU‑Idaho, Winter 2015. Rubric criteria quoted for commentary; no
   licence is stated by the source.
-- *Grado en Animación (Fundamentos del Dibujo & Perspectiva Espacial)*, U‑tad (Centro Universitario
-  de Tecnología y Arte Digital, Madrid). Learning outcomes and layout perspective criteria cited
-  for pedagogical curriculum mapping.
+- *Honours Bachelor of Animation*, Sheridan College, Ontario. Course sequence and programme
+  learning outcomes quoted for commentary; no licence is stated by the source.
+- *BFA Character Animation*, California Institute of the Arts. Catalogue entries for FVCA‑140
+  *Perspective I* and FVCA‑240 *Animation Layout* quoted for commentary.
+- *Bachelor in Character Animation and Animated Filmmaking*, GOBELINS Paris. Subject list and entry
+  aptitudes quoted for commentary.
+- *Bachelor in Animation — Study Program, Animation and CG Arts*, The Animation Workshop, VIA
+  University College, Denmark, 2016. Competency wording and ECTS structure quoted for commentary.
+- *Perspectiva y Técnicas de Representación* and *Fundamentos del dibujo*, Departamento de Dibujo,
+  Universitat Politècnica de València. Subject descriptions quoted in Spanish for commentary.
+- *Sistema de Análisis de la Forma y la Representación* (2651116), Facultad de Bellas Artes,
+  Universidad de Granada. Competences and *temario* quoted in Spanish for commentary.
+- *CG Animation programme*, ESMA Montreal. Portfolio requirement quoted for commentary.
+- The studio rubric the agent applies derives from real instructor rubrics for formal
+  perspective‑drawing coursework. It is not reproduced here and its source is not named.
 - Duddy, Michael. *Introduction to Architecture, ARCH 1101, Course Outline*. CUNY New York City
   College of Technology, 2017. **CC BY 4.0**. Cited; document not retrievable and not used.
 - Pozzo, Andrea. *Rules and Examples of Perspective proper for Painters and Architects*, 1693.

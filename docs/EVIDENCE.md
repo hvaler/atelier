@@ -207,8 +207,16 @@ Correctas! - Con error: 0, Superado: 7, Omitido: 0, Total: 7 - Atelier.Web.Tests
 | **`test_async_digest.py`** | Pytest | GCS ingestion, refusal path & weekly digest | 6 | ✅ Passed |
 | **`test_health.py`** | Pytest | Cloud Run health & root | 2 | ✅ Passed |
 | **`test_localisation.py`** | Pytest | Prose-degree gate in both languages, cache key, ASK scripts | 11 | ✅ Passed |
+| **`test_axonometry.py`** | Pytest | Parallel projection: angle maths, golden cases, subject-agnostic validator | 23 | ✅ Passed |
 | **`Atelier.Web.Tests`** | xUnit | Typed client contract, provenance mapping, health | 8 | ✅ Passed |
-| **TOTAL** | | | **55 tests** | **✅ 55/55 PASSED** (47 Python + 8 .NET) |
+| **TOTAL** | | | **78 tests** | **✅ 78/78 PASSED** (70 Python + 8 .NET) |
+
+The axonometric suite asserts more tightly than the perspective one, and the difference is the
+point rather than an accident. Conic perspective estimates its own reference with RANSAC, so its
+assertions are bounded — "the vanishing point within one pixel", "under five degrees". A parallel
+projection has no estimator: the axes are constants of the system, so an error injected at exactly
+6° is asserted to come back at 6° **to within 0.05°**. A looser bound there would hide the property
+that makes the second mode worth having.
 
 ---
 

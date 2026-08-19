@@ -5,7 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from src.config import settings
+from src.models.axonometry import AxonometricAnalysisRequest, AxonometricAnalysisResult
 from src.models.geometry import GeometryAnalysisRequest, GeometryAnalysisResult
+from src.tools.axonometry import analyze_axonometric
 from src.tools.geometry import analyze_geometry, decode_image_base64
 
 app = FastAPI(
@@ -83,6 +85,45 @@ def analyze_drawing(request: GeometryAnalysisRequest) -> GeometryAnalysisResult:
         generate_overlay_flag=request.generate_overlay,
     )
     return result
+
+
+@app.post("/api/analyze/axonometric", response_model=AxonometricAnalysisResult, status_code=status.HTTP_200_OK)
+def analyze_axonometric_drawing(request: AxonometricAnalysisRequest) -> AxonometricAnalysisResult:
+    """
+    Measure an axonometric drawing against the fixed axes of its projection system (ADR-001).
+
+    A separate endpoint rather than a flag on /api/analyze, because the two produce genuinely
+    different measurements. Conic perspective estimates a vanishing point from the drawing and
+    reports deviation from that estimate; axonometry compares against angles that are constants of
+    the system. Squeezing both through one response shape would mean a payload where half the
+    fields are always null and `convergence_error_deg` measures something that never converges.
+    """
+    if not request.image_base64:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="image_base64 must be provided in the request body.",
+        )
+
+    try:
+        image = decode_image_base64(request.image_base64)
+    except (ValueError, TypeError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid image format: {e!s}",
+        ) from e
+
+    try:
+        return analyze_axonometric(
+            image=image,
+            system=request.system,
+            receding_angle_deg=request.receding_angle_deg,
+            off_axis_threshold_deg=request.off_axis_threshold_deg,
+            min_confidence_threshold=request.min_confidence_threshold,
+            generate_overlay_image=request.generate_overlay,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+
 
 
 

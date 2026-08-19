@@ -5,9 +5,21 @@ that Plane B never describes a drawing the model was not shown.
 """
 
 import re
+from typing import Protocol
 
 from src.models.critique import CritiqueOutput
-from src.models.geometry import GeometryAnalysisResult
+
+
+class MeasuredAnalysis(Protocol):
+    """Anything the engine produced that can say which numbers it measured.
+
+    Deliberately a protocol and not a base class: `GeometryAnalysisResult` and
+    `AxonometricAnalysisResult` have genuinely different shapes — one has vanishing points, the
+    other has axes — and forcing a shared parent would push perspective vocabulary into a system
+    that has no vanishing point. What they share is a promise, not a structure.
+    """
+
+    def measured_values(self) -> set[float]: ...
 
 #: Any figure in degrees appearing in Plane B prose. Plane B is the qualitative plane; every
 #: number in this system belongs to Plane A, where it can be checked against OpenCV.
@@ -21,7 +33,7 @@ _DEGREES_IN_PROSE = re.compile(
 
 def validate_critique_measurements(
     critique: CritiqueOutput,
-    geometry: GeometryAnalysisResult,
+    geometry: MeasuredAnalysis,
     tolerance: float = 0.5,
     had_image: bool = True,
 ) -> tuple[bool, list[str]]:
@@ -40,25 +52,10 @@ def validate_critique_measurements(
     """
     errors: list[str] = []
 
-    # Valid set of allowable measured numerical values
-    valid_numbers = {
-        round(geometry.avg_convergence_error_deg, 2),
-        round(geometry.max_convergence_error_deg, 2),
-        float(geometry.k_requested),
-        float(geometry.k_detected),
-        float(geometry.line_count),
-        round(geometry.confidence, 2),
-        round(geometry.confidence * 100, 1),
-    }
-
-    for vp in geometry.vanishing_points:
-        valid_numbers.add(round(vp.avg_error_deg, 2))
-        valid_numbers.add(float(vp.supporting_lines))
-        valid_numbers.add(round(vp.point.x, 1))
-        valid_numbers.add(round(vp.point.y, 1))
-
-    if geometry.horizon_line is not None:
-        valid_numbers.add(round(geometry.horizon_line.angle_deg, 2))
+    # The whitelist is whatever the analysis says it measured. Asking the analysis rather than
+    # reading its fields is what lets a second projection system be added without quietly
+    # arriving unguarded.
+    valid_numbers = geometry.measured_values()
 
     # 1. Validate each MeasuredFindingItem
     if not critique.measured_findings:

@@ -9,6 +9,7 @@ public interface IAtelierAgentClient
     Task<List<StudentProfileDto>> GetStudentsAsync();
     Task<AskPromptDataDto?> GetAskPromptAsync(string studentId);
     Task<GeometryAnalysisResultDto?> AnalyzeGeometryAsync(string imageBase64, int kPoints, bool generateOverlay = true);
+    Task<AxonometricAnalysisResultDto?> AnalyzeAxonometricAsync(string imageBase64, string system, double? recedingAngleDeg = null, bool generateOverlay = true);
     Task<CritiqueResponseDto?> GenerateCritiqueAsync(CritiqueRequestDto request);
     Task<DrawingGateResultDto?> ClassifyDrawingAsync(string imageBase64);
     Task<RoutingResultDto?> RouteIntentAsync(string? studentIntent, string studentLevel);
@@ -90,6 +91,44 @@ public class AtelierAgentClient : IAtelierAgentClient
         }
 
         _logger.LogError("atelier-agent refused the analysis request.");
+        return null;
+    }
+
+
+    public async Task<AxonometricAnalysisResultDto?> AnalyzeAxonometricAsync(
+        string imageBase64, string system, double? recedingAngleDeg = null, bool generateOverlay = true)
+    {
+        if (string.IsNullOrWhiteSpace(imageBase64))
+        {
+            _logger.LogError("Refusing to request an axonometric analysis with no image.");
+            return null;
+        }
+
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("/api/analyze/axonometric", new AxonometricAnalysisRequestDto
+            {
+                ImageBase64 = imageBase64,
+                System = system,
+                RecedingAngleDeg = recedingAngleDeg,
+                GenerateOverlay = generateOverlay
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<AxonometricAnalysisResultDto>();
+            }
+
+            _logger.LogError("atelier-agent refused the axonometric analysis: {Status}", response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to run axonometric analysis on atelier-agent.");
+        }
+
+        // No fallback, for the same reason the perspective path has none: a hardcoded set of axis
+        // errors is indistinguishable from a working system, and that is precisely what this
+        // project spent its time removing.
         return null;
     }
 

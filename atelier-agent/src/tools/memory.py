@@ -127,7 +127,13 @@ class MemoryRepository:
         progress_curve: list[ProgressPoint] = []
         all_errors: list[float] = []
 
+        # Conic exercises only. Axonometric ones are stored, critiqued and counted towards tone
+        # adaptation, but they do not join this curve: convergence error and axis deviation are
+        # both measured in degrees and are not the same quantity, so a single line through both
+        # would read as progress or regression that nobody actually made.
         for ex in exercises:
+            if ex.geometry_analysis is None:
+                continue
             err = ex.geometry_analysis.avg_convergence_error_deg
             all_errors.append(err)
             progress_curve.append(
@@ -170,6 +176,8 @@ class MemoryRepository:
         f2_errors = []
 
         for ex in exercises:
+            if ex.geometry_analysis is None:
+                continue
             for vp in ex.geometry_analysis.vanishing_points:
                 if vp.label == "F1" and vp.avg_error_deg > 3.5:
                     f1_errors.append(vp.avg_error_deg)

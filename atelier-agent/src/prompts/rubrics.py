@@ -111,3 +111,84 @@ Please produce a structured critique JSON matching the required schema with:
 4. pedagogical_summary (strengths, single focus area, encouragement)
 5. next_exercise (title, description, target_metric, difficulty)
 """
+
+
+AXONOMETRIC_INVARIANT = """
+THIS DRAWING IS NOT A PERSPECTIVE DRAWING. It is an axonometric projection — a parallel
+projection — and every instruction above that mentions vanishing points, convergence or a horizon
+does not apply here. There is no vanishing point in this drawing and you must not refer to one.
+
+What replaces it:
+- The projection system has three axes, each of which must run at a FIXED angle that is a constant
+  of the system, not something derived from the drawing. Isometric: 30, 90 and 150 degrees.
+- Edges belonging to the same axis must stay PARALLEL to each other. That is the invariant here,
+  the way convergence to a point is the invariant in perspective.
+- Two different errors are measured and they mean different things. A per-line error means the
+  student was inconsistent. A SYSTEMATIC error means every edge of that axis is off by the same
+  amount — the set square was placed at the wrong angle, and the drawing is internally consistent
+  but tilted. Say which one you are looking at, because the correction is different: one is about
+  a steadier hand, the other about setting the axis before drawing anything.
+
+Use only the vocabulary of axonometry: axis, angle, parallel, systematic deviation. Never
+'vanishing point', never 'horizon', never 'convergence'.
+"""
+
+
+def build_axonometric_user_prompt(
+    student_name: str,
+    level: str,
+    system: str,
+    axes_summary: str,
+    avg_error_deg: float,
+    max_error_deg: float,
+    parallelism_error_deg: float,
+    line_count: int,
+    off_axis_line_count: int,
+    confidence: float,
+    student_intent: str | None = None,
+    student_difficulty: str | None = None,
+    language: str = "en",
+) -> str:
+    """Construct the user prompt for an axonometric critique."""
+    intent_clause = f"- Student intended to practice: {student_intent!r}\n" if student_intent else ""
+    diff_clause = f"- Student reported difficulty with: {student_difficulty!r}\n" if student_difficulty else ""
+
+    language_name = {"es": "Spanish (Spain)", "en": "English"}.get(language, "English")
+    language_clause = (
+        f"OUTPUT LANGUAGE: Write every piece of prose — headline, pedagogical_context, "
+        f"observation, strengths, focus_area, encouragement, and the whole next_exercise — in "
+        f"{language_name}. Field names, the 'status' and 'difficulty' enums, and metric_name stay "
+        f"in English: they are identifiers the application matches on, not text anyone reads.\n\n"
+    )
+
+    return f"""{language_clause}STUDENT CONTEXT:
+- Name: {student_name}
+- Level: {level}
+{intent_clause}{diff_clause}
+DETERMINISTIC MEASUREMENT PAYLOAD (from OpenCV, ADR-001):
+- Projection System: {system} (parallel projection — no vanishing point exists in this drawing)
+- Average Axis Deviation: {avg_error_deg:.2f} degrees
+- Maximum Axis Deviation: {max_error_deg:.2f} degrees
+- Widest Spread Within One Axis Family (parallelism): {parallelism_error_deg:.2f} degrees
+- Line Segments Analyzed: {line_count}
+- Segments Beyond The Gross Threshold: {off_axis_line_count}
+- Measurement Confidence: {confidence:.2f} (Scale 0.0 to 1.0)
+- Axes:
+{axes_summary}
+
+METRIC NAMES: every measured_findings entry must use one of these exact metric_name values, and
+no others: average_axis_error, max_axis_error, parallelism_error, axis_x_systematic_error,
+axis_y_systematic_error, axis_z_systematic_error, line_count, off_axis_line_count. They are
+identifiers the interface looks up to label and translate the finding.
+
+This rule applies to metric_name ONLY. next_exercise.target_metric is prose a student reads, so
+write it as a short phrase in their language, never as an identifier.
+
+Please produce a structured critique JSON matching the required schema with:
+1. headline
+2. measured_findings (citing ONLY the numbers above)
+3. qualitative_observations (line weight, spatial clarity, cleanliness) — from the attached image
+   only, and with no degree figures
+4. pedagogical_summary (strengths, single focus area, encouragement)
+5. next_exercise (title, description, target_metric, difficulty)
+"""

@@ -19,7 +19,9 @@ from src.models.critique import (
 )
 from src.prompts.rubrics import (
     ADVANCED_SYSTEM_PROMPT,
+    AXONOMETRIC_INVARIANT,
     BEGINNER_SYSTEM_PROMPT,
+    build_axonometric_user_prompt,
     build_critique_user_prompt,
 )
 from src.tools.validator import validate_critique_measurements
@@ -31,7 +33,14 @@ def get_cache_key(request: CritiqueRequest) -> str:
     """Generate a deterministic hash key for caching critique responses."""
     # Language belongs in the key. Without it the first English answer is served back to a
     # Spanish request for the same drawing, which looks exactly like a translation that failed.
-    content = f"{request.student.student_id}_{request.student.level}_{request.geometry.avg_convergence_error_deg}_{request.geometry.k_requested}_{request.geometry.line_count}_{request.language}"
+    # So does the projection: the same student and the same error figure mean different things
+    # measured against a vanishing point and measured against fixed axes.
+    if request.geometry is not None:
+        shape = f"conic_{request.geometry.avg_convergence_error_deg}_{request.geometry.k_requested}_{request.geometry.line_count}"
+    else:
+        axo = request.axonometry
+        shape = f"axo_{axo.system}_{axo.avg_axis_error_deg}_{axo.parallelism_error_deg}_{axo.line_count}"
+    content = f"{request.student.student_id}_{request.student.level}_{shape}_{request.language}"
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 
@@ -56,6 +65,9 @@ def save_to_cache(cache_key: str, critique: CritiqueOutput, cache_dir: Path) -> 
 
 def generate_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
     """Generate a high-quality pedagogical critique without live API calls (for testing & offline demo)."""
+    if request.axonometry is not None:
+        return generate_axonometric_fallback_critique(request)
+
     student = request.student
     geom = request.geometry
     is_beginner = student.level.lower() == "beginner"
@@ -230,30 +242,64 @@ def generate_pedagogical_critique(request: CritiqueRequest) -> CritiqueResponse:
         if cached_critique is not None:
             return CritiqueResponse(critique=cached_critique, cached=True, validation_retries=0)
 
-    # 2. Select Level-Aware System Prompt
+    # 2. Select Level-Aware System Prompt. The level picks the tone; the projection picks the
+    #    vocabulary, and for a parallel projection it has to actively cancel the perspective
+    #    invariant above, because a model told to ground its findings in vanishing points will
+    #    find a way to mention one even when the drawing has none.
     is_beginner = request.student.level.lower() == "beginner"
     system_prompt = BEGINNER_SYSTEM_PROMPT if is_beginner else ADVANCED_SYSTEM_PROMPT
 
-    vps_desc = "\n".join(
-        f"  - {vp.label}: {vp.point.x:.1f}, {vp.point.y:.1f} (Avg Error: {vp.avg_error_deg:.2f} deg, Supporting Lines: {vp.supporting_lines})"
-        for vp in request.geometry.vanishing_points
-    )
-    if not vps_desc:
-        vps_desc = "  - No clear vanishing points detected (low confidence)."
+    if request.axonometry is not None:
+        axo = request.axonometry
+        system_prompt = system_prompt + "\n\n" + AXONOMETRIC_INVARIANT
 
-    user_prompt = build_critique_user_prompt(
-        student_name=request.student.name,
-        level=request.student.level,
-        k_points=request.geometry.k_requested,
-        avg_error_deg=request.geometry.avg_convergence_error_deg,
-        max_error_deg=request.geometry.max_convergence_error_deg,
-        line_count=request.geometry.line_count,
-        confidence=request.geometry.confidence,
-        vps_summary=vps_desc,
-        student_intent=request.student_intent,
-        student_difficulty=request.student_difficulty,
-        language=request.language,
-    )
+        axes_desc = "\n".join(
+            f"  - {a.label}: nominal {a.nominal_angle_deg:.2f} deg, "
+            + (
+                f"measured {a.measured_angle_deg:.2f} deg "
+                f"(systematic {a.systematic_error_deg:+.2f} deg), "
+                if a.measured_angle_deg is not None
+                else "no edges assigned, "
+            )
+            + f"{a.supporting_lines} edges, avg deviation {a.avg_error_deg:.2f} deg"
+            for a in axo.axes
+        )
+        user_prompt = build_axonometric_user_prompt(
+            student_name=request.student.name,
+            level=request.student.level,
+            system=axo.system,
+            axes_summary=axes_desc or "  - No axes were supported by any detected edge.",
+            avg_error_deg=axo.avg_axis_error_deg,
+            max_error_deg=axo.max_axis_error_deg,
+            parallelism_error_deg=axo.parallelism_error_deg,
+            line_count=axo.line_count,
+            off_axis_line_count=axo.off_axis_line_count,
+            confidence=axo.confidence,
+            student_intent=request.student_intent,
+            student_difficulty=request.student_difficulty,
+            language=request.language,
+        )
+    else:
+        vps_desc = "\n".join(
+            f"  - {vp.label}: {vp.point.x:.1f}, {vp.point.y:.1f} (Avg Error: {vp.avg_error_deg:.2f} deg, Supporting Lines: {vp.supporting_lines})"
+            for vp in request.geometry.vanishing_points
+        )
+        if not vps_desc:
+            vps_desc = "  - No clear vanishing points detected (low confidence)."
+
+        user_prompt = build_critique_user_prompt(
+            student_name=request.student.name,
+            level=request.student.level,
+            k_points=request.geometry.k_requested,
+            avg_error_deg=request.geometry.avg_convergence_error_deg,
+            max_error_deg=request.geometry.max_convergence_error_deg,
+            line_count=request.geometry.line_count,
+            confidence=request.geometry.confidence,
+            vps_summary=vps_desc,
+            student_intent=request.student_intent,
+            student_difficulty=request.student_difficulty,
+            language=request.language,
+        )
 
     # 3. Call Vertex AI with anti-hallucination validation loop
     max_retries = 2
@@ -263,7 +309,7 @@ def generate_pedagogical_critique(request: CritiqueRequest) -> CritiqueResponse:
     for attempt in range(max_retries + 1):
         critique_result = call_vertex_ai_critique(request, system_prompt, user_prompt)
         is_valid, validation_errors = validate_critique_measurements(
-            critique_result, request.geometry, had_image=bool(request.image_base64)
+            critique_result, request.analysis, had_image=bool(request.image_base64)
         )
 
         if is_valid:
@@ -295,4 +341,93 @@ def generate_pedagogical_critique(request: CritiqueRequest) -> CritiqueResponse:
         critique=critique_result,
         cached=False,
         validation_retries=retries_done,
+    )
+
+
+def generate_axonometric_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
+    """
+    The offline template for a parallel projection.
+
+    It exists for the same reason the perspective one does — a dead model must not produce a 500
+    in front of a student — and it is labelled `source="fallback"` for the same reason: so that
+    nothing on the screen can claim a model wrote it.
+
+    Unlike the perspective template it says almost nothing qualitative. Plane B is a claim about a
+    picture, and this branch runs precisely when nothing looked at the picture.
+    """
+    student = request.student
+    axo = request.axonometry
+    assert axo is not None  # guaranteed by CritiqueRequest.exactly_one_analysis
+
+    measured = [
+        MeasuredFindingItem(
+            metric_name="average_axis_error",
+            measured_value=axo.avg_axis_error_deg,
+            unit="degrees",
+            pedagogical_context=(
+                f"Across {axo.line_count} detected edges the average deviation from the "
+                f"{axo.system} axes is {axo.avg_axis_error_deg:.2f} degrees."
+            ),
+        ),
+        MeasuredFindingItem(
+            metric_name="parallelism_error",
+            measured_value=axo.parallelism_error_deg,
+            unit="degrees",
+            pedagogical_context=(
+                f"The widest spread inside a single axis family is {axo.parallelism_error_deg:.2f} "
+                "degrees. In a parallel projection those edges are meant to stay parallel to one "
+                "another, so this is the figure that says whether they did."
+            ),
+        ),
+    ]
+
+    for axis in axo.axes:
+        if axis.systematic_error_deg is None or axis.supporting_lines == 0:
+            continue
+        measured.append(
+            MeasuredFindingItem(
+                metric_name=f"axis_{axis.label.lower()}_systematic_error",
+                measured_value=axis.systematic_error_deg,
+                unit="degrees",
+                pedagogical_context=(
+                    f"The {axis.label} axis should run at {axis.nominal_angle_deg:.2f} degrees and "
+                    f"its {axis.supporting_lines} edges average {axis.measured_angle_deg:.2f}. "
+                    "A whole family off by the same amount is a set square placed wrong, not an "
+                    "unsteady hand."
+                ),
+            )
+        )
+
+    pedagogical = PedagogicalSummary(
+        strengths=["The construction was legible enough for the engine to find its axes"],
+        focus_area=(
+            "Setting each axis before drawing along it: in a parallel projection the angle is "
+            "fixed by the system, so it is decided once rather than judged edge by edge."
+        ),
+        encouragement=(
+            f"{student.name}, the measurements above are real. The written critique is not — no "
+            "model was reachable, so this text is a template."
+        ),
+    )
+    next_ex = NextExerciseRecommendation(
+        title="Isometric cube, axes set first",
+        description=(
+            "Draw the three axes at 30, 90 and 150 degrees before anything else, then build a "
+            "cube on them. Every edge must be parallel to one of the three."
+        ),
+        target_metric="axis_systematic_error",
+        difficulty="beginner" if student.level.lower() == "beginner" else "intermediate",
+    )
+
+    return CritiqueOutput(
+        student_name=student.name,
+        level=student.level,
+        headline=f"Axonometric measurements for {student.name}",
+        measured_findings=measured,
+        qualitative_observations=[],
+        pedagogical_summary=pedagogical,
+        next_exercise=next_ex,
+        source="fallback",
+        model_version="deterministic-template",
+        validated=False,
     )

@@ -62,3 +62,30 @@ class GeometryAnalysisResult(BaseModel):
     image_height: int
     lines: list[LineSegment] = Field(default_factory=list, description="Extracted line segments with individual metrics")
     overlay_image_base64: str | None = Field(None, description="Base64-encoded PNG with visual perspective overlay")
+
+    def measured_values(self) -> set[float]:
+        """
+        Every number this analysis produced, for the anti-hallucination whitelist.
+
+        The validator used to reach into these fields by name, which meant it only guarded conic
+        perspective: a second projection system would have arrived carrying figures that nothing
+        was checking, and the failure would have been silent because the critique would still
+        look validated. Each analysis now declares its own numbers instead.
+        """
+        values: set[float] = {
+            round(self.avg_convergence_error_deg, 2),
+            round(self.max_convergence_error_deg, 2),
+            float(self.k_requested),
+            float(self.k_detected),
+            float(self.line_count),
+            round(self.confidence, 2),
+            round(self.confidence * 100, 1),
+        }
+        for vp in self.vanishing_points:
+            values.add(round(vp.avg_error_deg, 2))
+            values.add(float(vp.supporting_lines))
+            values.add(round(vp.point.x, 1))
+            values.add(round(vp.point.y, 1))
+        if self.horizon_line is not None:
+            values.add(round(self.horizon_line.angle_deg, 2))
+        return values

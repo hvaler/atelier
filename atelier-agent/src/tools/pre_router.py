@@ -145,27 +145,58 @@ def route_from_intent(student_intent: str | None, student_level: str = "beginner
 # The gate: is this even a perspective exercise?
 # ---------------------------------------------------------------------------------------------
 
-GATE_SYSTEM_PROMPT = """You look at a photograph of a page and decide whether it is a
-perspective drawing exercise that a geometry engine should measure.
+GATE_SYSTEM_PROMPT = """You look at a photograph of a page and decide whether it is a technical
+drawing exercise that a geometry engine should measure, and if so, which kind.
+
+There are two kinds, and telling them apart is the whole job:
+
+- CONIC PERSPECTIVE: receding edges CONVERGE. Follow two edges that run away from the viewer and
+  they meet, on the page or off it. There is a horizon.
+- AXONOMETRIC (parallel projection: isometric, dimetric, cavalier): receding edges stay PARALLEL.
+  They never meet. An isometric cube reads as a regular hexagon; a cavalier box has a square front
+  face with depth running off at a constant slant. There is no horizon and no vanishing point.
 
 Answer with:
-- is_exercise: true only if there are straight construction lines receding towards one or more
-  vanishing points. A finished illustration, a portrait, a photograph of an object, a page of
-  text, a blank page, or an image too blurred to read straight edges: all false.
-- exercise_type: '1-point-box', '2-point-oblique', 'curvilinear' or 'not-an-exercise'
-- recommended_k: 1 or 2 when it is an exercise; 0 when it is not
+- is_exercise: true only if there are straight construction lines forming a spatial construction.
+  A finished illustration, a portrait, a photograph of an object, a page of text, a blank page, or
+  an image too blurred to read straight edges: all false.
+- projection: 'conic' when edges converge, 'axonometric' when they stay parallel, 'none' when this
+  is not an exercise.
+- exercise_type: '1-point-box', '2-point-oblique', 'curvilinear', 'isometric', 'dimetric',
+  'cavalier' or 'not-an-exercise'
+- axonometric_system: 'isometric', 'dimetric' or 'cavalier' when projection is axonometric; null
+  otherwise. Isometric: three axes evenly spaced, the solid reads as a hexagon. Cavalier: one face
+  is a true square or rectangle facing the viewer, and depth runs off at a slant.
+- recommended_k: for conic, 1 or 2. For axonometric, 3, because a parallel projection shows three
+  axes. 0 when it is not an exercise.
 - reasoning: one short sentence saying what you saw
 
-Be strict. Measuring a drawing that is not a perspective exercise produces numbers that mean
-nothing, and a critique written about them is worse than no critique."""
+Be strict, and do not guess between the two kinds. If the edges converge it is conic; if they stay
+parallel it is axonometric. Measuring an axonometric drawing as if it were perspective finds a
+vanishing point among lines that were never meant to meet, and then reports an error about it."""
 
 
 class DrawingGateDecision(BaseModel):
     """What the vision model may decide about the photograph."""
 
-    is_exercise: bool = Field(..., description="Whether this is a perspective exercise worth measuring")
-    exercise_type: str = Field("not-an-exercise", description="'1-point-box', '2-point-oblique', 'curvilinear' or 'not-an-exercise'")
-    recommended_k: int = Field(0, description="1 or 2 when measurable, 0 when not")
+    is_exercise: bool = Field(..., description="Whether this is a drawing exercise worth measuring")
+    projection: str = Field(
+        "conic",
+        description=(
+            "'conic' when receding edges converge, 'axonometric' when they stay parallel, 'none' "
+            "when this is not an exercise. This selects the reference the engine measures against, "
+            "and the two references have nothing in common: conic estimates a vanishing point from "
+            "the drawing itself, axonometric compares against fixed axis angles."
+        ),
+    )
+    exercise_type: str = Field(
+        "not-an-exercise",
+        description="'1-point-box', '2-point-oblique', 'curvilinear', 'isometric', 'dimetric', 'cavalier' or 'not-an-exercise'",
+    )
+    axonometric_system: str | None = Field(
+        None, description="'isometric', 'dimetric' or 'cavalier' when projection is axonometric"
+    )
+    recommended_k: int = Field(0, description="1 or 2 for conic, 3 for axonometric, 0 when not measurable")
     reasoning: str = Field("", description="One sentence describing what was seen")
 
 
@@ -191,9 +222,15 @@ def classify_drawing(image_bytes: bytes, mime_type: str = "image/png") -> Drawin
     `fallback`, so the caller can tell the difference between "we looked and it is a drawing"
     and "we could not look".
     """
+    # The open gate stays conic on purpose. It is the behaviour every existing caller already
+    # gets, and a fallback is the wrong place to start guessing at a projection system: choosing
+    # the wrong reference would produce a confident measurement of the wrong thing, which is worse
+    # than the unchecked pass this branch already admits to.
     open_gate = DrawingGateResult(
         is_exercise=True,
+        projection="conic",
         exercise_type="1-point-box",
+        axonometric_system=None,
         recommended_k=1,
         reasoning="The gate model could not be reached; the drawing was let through unchecked.",
         source="fallback",
@@ -213,7 +250,7 @@ def classify_drawing(image_bytes: bytes, mime_type: str = "image/png") -> Drawin
             model=settings.gemini_model,
             contents=[
                 types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-                "Is this a perspective drawing exercise?",
+                "Is this a technical drawing exercise, and is it conic or axonometric?",
             ],
             config=types.GenerateContentConfig(
                 system_instruction=GATE_SYSTEM_PROMPT,
@@ -226,8 +263,21 @@ def classify_drawing(image_bytes: bytes, mime_type: str = "image/png") -> Drawin
             raise ValueError("Empty gate response.")
 
         decision = DrawingGateDecision.model_validate_json(response.text)
-        if decision.is_exercise and decision.recommended_k not in (1, 2):
-            raise ValueError(f"Gate said exercise but k={decision.recommended_k}.")
+
+        # The answer has to be internally consistent before it is allowed to select a measurement
+        # reference. An 'axonometric' verdict naming no system would otherwise fall through to
+        # whichever default the caller happened to pass.
+        if decision.is_exercise:
+            if decision.projection == "axonometric":
+                if decision.axonometric_system not in ("isometric", "dimetric", "cavalier"):
+                    raise ValueError(
+                        f"Gate said axonometric but named system {decision.axonometric_system!r}."
+                    )
+            elif decision.projection == "conic":
+                if decision.recommended_k not in (1, 2):
+                    raise ValueError(f"Gate said conic but k={decision.recommended_k}.")
+            else:
+                raise ValueError(f"Gate said exercise but projection={decision.projection!r}.")
 
         return DrawingGateResult(
             **decision.model_dump(),

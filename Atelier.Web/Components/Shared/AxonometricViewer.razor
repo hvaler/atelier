@@ -1,0 +1,139 @@
+@namespace Atelier.Web.Components.Shared
+
+@* The axonometric counterpart of OverlayViewer. It is a separate component rather than a mode of
+   that one because the two show different things: there is no vanishing point to point at and no
+   horizon to draw, and the headline figure is not convergence but how far each axis family drifted
+   from an angle the projection system fixes in advance. *@
+<div class="axonometric-viewer card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+    <div class="card-header bg-body-tertiary text-body d-flex flex-wrap justify-content-between align-items-center py-3 px-4">
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary px-3 py-2 rounded-pill font-monospace">
+                @Loc[SystemKey]
+            </span>
+            <span class="text-body-secondary small">|</span>
+            <span class="text-body small">
+                @Loc["Confidence:"] <strong class="@(Analysis.ConfidenceLow ? "text-danger" : "text-success")">@Analysis.Confidence.ToString("P0")</strong>
+            </span>
+        </div>
+        <span class="badge bg-secondary-subtle text-body-secondary px-3 py-2 rounded-pill small">
+            @Loc["No vanishing point: parallel projection"]
+        </span>
+    </div>
+
+    <div class="card-body bg-body-secondary p-3 text-center">
+        @if (!string.IsNullOrEmpty(Analysis.OverlayImageBase64))
+        {
+            <img src="data:image/png;base64,@Analysis.OverlayImageBase64"
+                 class="img-fluid rounded-3 shadow" style="max-height: 520px; object-fit: contain;"
+                 alt="@Loc["Axis deviation overlay"]" />
+        }
+        else if (!string.IsNullOrEmpty(OriginalImageBase64))
+        {
+            <img src="data:image/png;base64,@OriginalImageBase64"
+                 class="img-fluid rounded-3 shadow" style="max-height: 520px; object-fit: contain;"
+                 alt="@Loc["Drawing"]" />
+        }
+    </div>
+
+    <div class="card-body bg-body-tertiary text-body px-4 pt-4 pb-0">
+        <h6 class="text-primary mb-3">@Loc["Axis measurements"]</h6>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>@Loc["Axis"]</th>
+                        <th>@Loc["Should be"]</th>
+                        <th>@Loc["Measured"]</th>
+                        <th>@Loc["Systematic deviation"]</th>
+                        <th>@Loc["Edges"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var axis in Analysis.Axes)
+                    {
+                        <tr>
+                            <td><strong>@axis.Label</strong></td>
+                            <td class="font-monospace">@axis.NominalAngleDeg.ToString("F1")°</td>
+                            <td class="font-monospace">
+                                @* An axis with no edges assigned has no measured angle. Printing 0
+                                   there would read as "perfectly aligned" for a family that was
+                                   never drawn. *@
+                                @(axis.MeasuredAngleDeg is double m ? $"{m:F1}°" : Loc["not drawn"].Value)
+                            </td>
+                            <td>
+                                @if (axis.SystematicErrorDeg is double s)
+                                {
+                                    <span class="badge @(Math.Abs(s) < 1.0 ? "bg-success" : Math.Abs(s) <= 3.0 ? "bg-warning text-dark" : "bg-danger")">
+                                        @s.ToString("+0.0;-0.0;0.0")°
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-body-secondary">—</span>
+                                }
+                            </td>
+                            <td class="font-monospace">@axis.SupportingLines</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @* The distinction the table exists to make. Two drawings can share an average and mean
+           opposite things, and the correction is different in each case. *@
+        @if (WorstSystematic is not null && Math.Abs(WorstSystematic.SystematicErrorDeg ?? 0) >= 2.0)
+        {
+            <div class="alert alert-warning border-0 rounded-3 small mb-3">
+                @(Loc["The whole {0} family is off by about {1}° in the same direction. That is the axis being set wrong before drawing, not an unsteady hand — it is fixed once, at the start, rather than edge by edge.",
+                      WorstSystematic.Label, Math.Abs(WorstSystematic.SystematicErrorDeg ?? 0).ToString("F1")])
+            </div>
+        }
+    </div>
+
+    <div class="card-footer bg-body-tertiary text-body border-0 py-3 px-4 d-flex flex-wrap gap-4">
+        <div>
+            <small class="text-body-secondary d-block">@Loc["Average Angular Error"]</small>
+            <strong class="fs-5 @(Analysis.AvgAxisErrorDeg < 3.0 ? "text-success" : "text-warning")">
+                @Analysis.AvgAxisErrorDeg.ToString("F1")°
+            </strong>
+        </div>
+        <div>
+            <small class="text-body-secondary d-block">@Loc["Max Line Deviation"]</small>
+            <strong class="fs-5 @(Analysis.MaxAxisErrorDeg < 5.0 ? "text-success" : "text-danger")">
+                @Analysis.MaxAxisErrorDeg.ToString("F1")°
+            </strong>
+        </div>
+        <div>
+            <small class="text-body-secondary d-block">@Loc["Parallelism spread"]</small>
+            <strong class="fs-5 text-info">@Analysis.ParallelismErrorDeg.ToString("F1")°</strong>
+        </div>
+        <div>
+            <small class="text-body-secondary d-block">@Loc["Edges off any axis"]</small>
+            <strong class="fs-5 @(Analysis.OffAxisLineCount == 0 ? "text-success" : "text-warning")">
+                @Analysis.OffAxisLineCount / @Analysis.LineCount
+            </strong>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public AxonometricAnalysisResultDto Analysis { get; set; } = new();
+
+    [Parameter]
+    public string? OriginalImageBase64 { get; set; }
+
+    /// <summary>Resource key for the system name, so "isometric" is a word and not an identifier.</summary>
+    private string SystemKey => Analysis.System switch
+    {
+        "dimetric" => "Dimetric projection",
+        "cavalier" => "Cavalier projection",
+        _ => "Isometric projection",
+    };
+
+    private AxisMeasurementDto? WorstSystematic =>
+        Analysis.Axes
+            .Where(a => a.SystematicErrorDeg is not null && a.SupportingLines > 1)
+            .OrderByDescending(a => Math.Abs(a.SystematicErrorDeg ?? 0))
+            .FirstOrDefault();
+}

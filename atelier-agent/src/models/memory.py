@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 from pydantic import BaseModel, Field
 
+from src.models.axonometry import AxonometricAnalysisResult
 from src.models.critique import CritiqueOutput, NextExerciseRecommendation, StudentProfile
 from src.models.geometry import GeometryAnalysisResult
 
@@ -33,7 +34,18 @@ class ExerciseRecord(BaseModel):
     source: str = Field("ui", description="'ui' or 'folder'")
     student_intent: str | None = Field(None, description="What the student intended to practice (ASK)")
     student_difficulty: str | None = Field(None, description="What felt hardest during the drawing (ASK)")
-    geometry_analysis: GeometryAnalysisResult
+    geometry_analysis: GeometryAnalysisResult | None = Field(
+        None, description="Conic perspective measurements, when that is what was drawn"
+    )
+    axonometric_analysis: AxonometricAnalysisResult | None = Field(
+        None,
+        description=(
+            "Parallel-projection measurements, when that is what was drawn. Kept in its own field "
+            "rather than coerced into the perspective one: an average axis deviation and an "
+            "average convergence error are both 'degrees' and are not the same measurement, and a "
+            "progress curve that mixed them would be a line through two different quantities."
+        ),
+    )
     critique: CritiqueOutput
     feedback_events: list[FeedbackEvent] = Field(default_factory=list)
     created_at: str = Field(default_factory=get_current_utc_iso)

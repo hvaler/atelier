@@ -513,4 +513,103 @@
   <data name="technical" xml:space="preserve">
     <value>técnico</value>
   </data>
+  <data name="Isometric projection" xml:space="preserve">
+    <value>Perspectiva isométrica</value>
+  </data>
+  <data name="Dimetric projection" xml:space="preserve">
+    <value>Perspectiva dimétrica</value>
+  </data>
+  <data name="Cavalier projection" xml:space="preserve">
+    <value>Perspectiva caballera</value>
+  </data>
+  <data name="No vanishing point: parallel projection" xml:space="preserve">
+    <value>Sin punto de fuga: proyección paralela</value>
+  </data>
+  <data name="Axis measurements" xml:space="preserve">
+    <value>Medidas de los ejes</value>
+  </data>
+  <data name="Axis" xml:space="preserve">
+    <value>Eje</value>
+  </data>
+  <data name="Should be" xml:space="preserve">
+    <value>Debería ser</value>
+  </data>
+  <data name="Measured" xml:space="preserve">
+    <value>Medido</value>
+  </data>
+  <data name="Systematic deviation" xml:space="preserve">
+    <value>Desviación sistemática</value>
+  </data>
+  <data name="Edges" xml:space="preserve">
+    <value>Aristas</value>
+  </data>
+  <data name="not drawn" xml:space="preserve">
+    <value>sin dibujar</value>
+  </data>
+  <data name="Axis deviation overlay" xml:space="preserve">
+    <value>Superposición de desviación de ejes</value>
+  </data>
+  <data name="Parallelism spread" xml:space="preserve">
+    <value>Dispersión de paralelismo</value>
+  </data>
+  <data name="Edges off any axis" xml:space="preserve">
+    <value>Aristas fuera de eje</value>
+  </data>
+  <data name="The whole {0} family is off by about {1}° in the same direction. That is the axis being set wrong before drawing, not an unsteady hand — it is fixed once, at the start, rather than edge by edge." xml:space="preserve">
+    <value>Toda la familia {0} está desviada unos {1}° en el mismo sentido. Eso es el eje mal colocado antes de dibujar, no un pulso inseguro: se corrige una vez, al principio, y no arista por arista.</value>
+  </data>
+  <data name="Isometric (axes exact)" xml:space="preserve">
+    <value>Isométrica (ejes exactos)</value>
+  </data>
+  <data name="Isometric (X axis set 6° wrong)" xml:space="preserve">
+    <value>Isométrica (eje X colocado 6° mal)</value>
+  </data>
+  <data name="Cavalier (45° receding axis)" xml:space="preserve">
+    <value>Caballera (eje de fuga a 45°)</value>
+  </data>
+  <data name="average axis error" xml:space="preserve">
+    <value>error medio de eje</value>
+  </data>
+  <data name="max axis error" xml:space="preserve">
+    <value>error máximo de eje</value>
+  </data>
+  <data name="parallelism error" xml:space="preserve">
+    <value>error de paralelismo</value>
+  </data>
+  <data name="axis x systematic error" xml:space="preserve">
+    <value>error sistemático del eje X</value>
+  </data>
+  <data name="axis y systematic error" xml:space="preserve">
+    <value>error sistemático del eje Y</value>
+  </data>
+  <data name="axis z systematic error" xml:space="preserve">
+    <value>error sistemático del eje Z</value>
+  </data>
+  <data name="off axis line count" xml:space="preserve">
+    <value>aristas fuera de eje</value>
+  </data>
+  <data name="Measured against: {0}" xml:space="preserve">
+    <value>Medido contra: {0}</value>
+  </data>
+  <data name="Isometric • 0.0° Error (Golden)" xml:space="preserve">
+    <value>Isométrica • 0,0° de error (dorado)</value>
+  </data>
+  <data name="Isometric • 6.0° Systematic Error" xml:space="preserve">
+    <value>Isométrica • 6,0° de error sistemático</value>
+  </data>
+  <data name="Cavalier • 0.0° Error (Golden)" xml:space="preserve">
+    <value>Caballera • 0,0° de error (dorado)</value>
+  </data>
+  <data name="Isometric cube with all three axis families exactly on 30°, 90° and 150°. Parallel projection: no vanishing point exists in this drawing." xml:space="preserve">
+    <value>Cubo isométrico con las tres familias de ejes exactamente en 30°, 90° y 150°. Proyección paralela: en este dibujo no existe ningún punto de fuga.</value>
+  </data>
+  <data name="Every edge of the X family drawn at 36° instead of 30° — the set square placed wrong, not an unsteady hand. The corners fail to close by exactly that much." xml:space="preserve">
+    <value>Todas las aristas de la familia X trazadas a 36° en vez de a 30°: el cartabón mal colocado, no un pulso inseguro. Las esquinas no cierran exactamente por esa diferencia.</value>
+  </data>
+  <data name="Cavalier projection: a true square front face, with the receding axis at 45°. A different reference again, and the engine is told which one to use before it measures." xml:space="preserve">
+    <value>Perspectiva caballera: cara frontal en verdadera magnitud y eje de fuga a 45°. Otra referencia distinta, y al motor se le dice cuál usar antes de medir.</value>
+  </data>
+  <data name="Benchmark drawings in both projection systems, each carrying an angular error of a known size, used to verify that the measurement moves with the drawing (ADR-001)." xml:space="preserve">
+    <value>Dibujos de referencia en los dos sistemas de representación, cada uno con un error angular de tamaño conocido, para comprobar que la medida se mueve con el dibujo (ADR-001).</value>
+  </data>
 </root>

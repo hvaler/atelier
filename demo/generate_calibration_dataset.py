@@ -1,4 +1,5 @@
-"""Generate synthetic calibration dataset with deliberate perspective errors for testing and demo."""
+"""Generate the synthetic calibration dataset: conic perspective and axonometric projection,
+each with deliberate angular errors of a known size, for the golden tests and the demo."""
 
 import math
 from pathlib import Path
@@ -98,6 +99,78 @@ def generate_2point_drawing(
     cv2.imwrite(str(output_path), canvas)
 
 
+def generate_axonometric_drawing(
+    output_path: Path,
+    system: str = "isometric",
+    error_deg: float = 0.0,
+    perturbed_axis: str = "X",
+    receding_angle_deg: float = 45.0,
+):
+    """
+    Generate an axonometric wireframe box with a known angular error injected into one axis family.
+
+    The error is injected per *family*, not per edge, because that is the mistake axonometry
+    actually produces: a student who sets the 30-degree axis with a badly placed set square draws
+    every edge of that family at the same wrong angle. The corners then fail to close by an amount
+    proportional to the error, which is what the drawing looks like on paper and what the engine
+    must be able to name.
+
+    Nothing is written on the canvas. Burned-in titles were once the majority of the segments the
+    detector found, and the headline measurement of the whole product was reading them.
+    """
+    canvas = np.ones((600, 800, 3), dtype=np.uint8) * 248  # Warm white paper
+    ink = (40, 40, 40)
+
+    # Drawing-space axis directions (y up), in degrees.
+    if system == "isometric":
+        nominal = {"X": 30.0, "Y": 150.0, "Z": 90.0}
+    elif system == "cavalier":
+        nominal = {"X": 0.0, "Y": receding_angle_deg, "Z": 90.0}
+    else:
+        raise ValueError(f"Unsupported system for the calibration set: {system}")
+
+    drawn = dict(nominal)
+    drawn[perturbed_axis] = nominal[perturbed_axis] + error_deg
+
+    def unit(axis_label: str, angles: dict) -> tuple[float, float]:
+        rad = math.radians(angles[axis_label])
+        return math.cos(rad), math.sin(rad)
+
+    side = 190.0
+    origin = (330.0, 430.0)  # image coordinates of the near-bottom vertex
+
+    def vertex(a: int, b: int, c: int) -> tuple[float, float]:
+        """Cube vertex at a*X + b*Y + c*Z, placed with the *true* axis directions."""
+        dx = dy = 0.0
+        for count, label in ((a, "X"), (b, "Y"), (c, "Z")):
+            if count:
+                ux, uy = unit(label, nominal)
+                dx += side * count * ux
+                dy += side * count * uy
+        return origin[0] + dx, origin[1] - dy  # y flips back into image space
+
+    # The twelve edges of the box, each as (start vertex, axis family it runs along).
+    edges: list[tuple[tuple[int, int, int], str]] = []
+    for b in (0, 1):
+        for c in (0, 1):
+            edges.append(((0, b, c), "X"))
+    for a in (0, 1):
+        for c in (0, 1):
+            edges.append(((a, 0, c), "Y"))
+    for a in (0, 1):
+        for b in (0, 1):
+            edges.append(((a, b, 0), "Z"))
+
+    for start, label in edges:
+        sx, sy = vertex(*start)
+        ux, uy = unit(label, drawn)
+        ex, ey = sx + side * ux, sy - side * uy
+        cv2.line(canvas, (int(sx), int(sy)), (int(ex), int(ey)), ink, 2, cv2.LINE_AA)
+
+    cv2.imwrite(str(output_path), canvas)
+    return output_path
+
+
 def main():
     dataset_dir = Path("demo/dataset")
     dataset_dir.mkdir(parents=True, exist_ok=True)
@@ -110,6 +183,11 @@ def main():
     # 2. 2-Point perspective drawings (Advanced level)
     generate_2point_drawing(dataset_dir / "04_2point_perfect.png", error_f1_deg=0.0, title="2-Point Perfect Oblique")
     generate_2point_drawing(dataset_dir / "05_2point_error_6deg.png", error_f1_deg=6.0, title="2-Point Left VP Error (6deg)")
+
+    # 3. Axonometric drawings (parallel projection: the axes are fixed, nothing is estimated)
+    generate_axonometric_drawing(dataset_dir / "06_isometric_perfect.png", system="isometric", error_deg=0.0)
+    generate_axonometric_drawing(dataset_dir / "07_isometric_error_6deg.png", system="isometric", error_deg=6.0, perturbed_axis="X")
+    generate_axonometric_drawing(dataset_dir / "08_cavalier_perfect.png", system="cavalier", error_deg=0.0)
 
     print(f"[OK] Calibration dataset generated at: {dataset_dir}")
 

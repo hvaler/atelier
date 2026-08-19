@@ -12,7 +12,7 @@
             <span class="text-primary">@Loc["Calibration dataset"]</span> @Loc["and golden cases"]
         </h2>
         <p class="text-body-secondary small mb-0">
-            @Loc["Benchmark test dataset featuring deliberate known angular errors to verify deterministic precision (ADR-001)."]
+            @Loc["Benchmark drawings in both projection systems, each carrying an angular error of a known size, used to verify that the measurement moves with the drawing (ADR-001)."]
         </p>
     </div>
 
@@ -81,6 +81,48 @@
                 <h5 class="fw-bold text-body">05_2point_error_6deg.png</h5>
                 <img src="/samples/05_2point_error_6deg.png" alt="05_2point_error_6deg.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
                 <p class="text-body-secondary small">@Loc["Left-converging lines deviate 6.0° upwards from F1 while right-converging lines remain accurate to F2."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Advanced"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 6: Isometric perfect -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-success mb-2 w-auto align-self-start">@Loc["Isometric • 0.0° Error (Golden)"]</span>
+                <h5 class="fw-bold text-body">06_isometric_perfect.png</h5>
+                <img src="/samples/06_isometric_perfect.png" alt="06_isometric_perfect.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
+                <p class="text-body-secondary small">@Loc["Isometric cube with all three axis families exactly on 30°, 90° and 150°. Parallel projection: no vanishing point exists in this drawing."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Beginner"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 7: Isometric, X axis set wrong -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-warning text-dark mb-2 w-auto align-self-start">@Loc["Isometric • 6.0° Systematic Error"]</span>
+                <h5 class="fw-bold text-body">07_isometric_error_6deg.png</h5>
+                <img src="/samples/07_isometric_error_6deg.png" alt="07_isometric_error_6deg.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
+                <p class="text-body-secondary small">@Loc["Every edge of the X family drawn at 36° instead of 30° — the set square placed wrong, not an unsteady hand. The corners fail to close by exactly that much."]</p>
+                <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
+                    <small class="text-info">@Loc["Target: Beginner"]</small>
+                    <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 8: Cavalier -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-body-tertiary text-body p-3 h-100">
+                <span class="badge bg-success mb-2 w-auto align-self-start">@Loc["Cavalier • 0.0° Error (Golden)"]</span>
+                <h5 class="fw-bold text-body">08_cavalier_perfect.png</h5>
+                <img src="/samples/08_cavalier_perfect.png" alt="08_cavalier_perfect.png" class="img-fluid rounded-3 mb-2 bg-white" loading="lazy" />
+                <p class="text-body-secondary small">@Loc["Cavalier projection: a true square front face, with the receding axis at 45°. A different reference again, and the engine is told which one to use before it measures."]</p>
                 <div class="mt-auto pt-2 border-top border-secondary-subtle border-opacity-25 d-flex justify-content-between align-items-center">
                     <small class="text-info">@Loc["Target: Advanced"]</small>
                     <a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">@Loc["Test in Studio →"]</a>

@@ -2,8 +2,9 @@
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
+from src.models.axonometry import AxonometricAnalysisResult
 from src.models.geometry import GeometryAnalysisResult
 
 
@@ -90,7 +91,12 @@ class CritiqueOutput(CritiqueLlmOutput):
 
 class CritiqueRequest(BaseModel):
     image_base64: str | None = Field(None, description="Base64-encoded drawing image")
-    geometry: GeometryAnalysisResult = Field(..., description="Deterministic measurements from OpenCV analyze_geometry")
+    geometry: GeometryAnalysisResult | None = Field(
+        None, description="Deterministic measurements from OpenCV analyze_geometry (conic perspective)"
+    )
+    axonometry: AxonometricAnalysisResult | None = Field(
+        None, description="Deterministic measurements from OpenCV analyze_axonometric (parallel projection)"
+    )
     student: StudentProfile = Field(..., description="Student profile and learning level")
     student_intent: str | None = Field(None, description="What the student intended to practice (ASK step)")
     student_difficulty: str | None = Field(None, description="What part felt hardest during the drawing")
@@ -103,6 +109,32 @@ class CritiqueRequest(BaseModel):
         ),
     )
     use_cache: bool = Field(True, description="Whether to check local demo cache before invoking LLM")
+
+    @model_validator(mode="after")
+    def exactly_one_analysis(self) -> "CritiqueRequest":
+        """
+        A critique is written about one measurement, not zero and not two.
+
+        Zero would mean Plane A had nothing to be grounded in, which is the whole invariant. Two
+        would mean the validator whitelisted the union of both sets of numbers, so a figure
+        invented for the axonometric drawing could be waved through because it happened to match
+        a vanishing-point coordinate from a perspective one.
+        """
+        if (self.geometry is None) == (self.axonometry is None):
+            raise ValueError(
+                "Provide exactly one of 'geometry' (conic perspective) or 'axonometry' "
+                "(parallel projection)."
+            )
+        return self
+
+    @property
+    def analysis(self):
+        """Whichever deterministic analysis this critique must be grounded in."""
+        return self.geometry if self.geometry is not None else self.axonometry
+
+    @property
+    def projection(self) -> str:
+        return "conic" if self.geometry is not None else "axonometric"
 
 
 class CritiqueResponse(BaseModel):

@@ -147,6 +147,138 @@ public class GeometryAnalysisResultDto
     public string? OverlayImageBase64 { get; set; }
 }
 
+/// <summary>
+/// One projected spatial axis: where it must point, and what this drawing did with it.
+/// </summary>
+public class AxisMeasurementDto
+{
+    [JsonPropertyName("index")]
+    public int Index { get; set; }
+
+    [JsonPropertyName("label")]
+    public string Label { get; set; } = string.Empty;
+
+    [JsonPropertyName("nominal_angle_deg")]
+    public double NominalAngleDeg { get; set; }
+
+    /// <summary>Mean direction of the edges assigned to this axis; null when none were.</summary>
+    [JsonPropertyName("measured_angle_deg")]
+    public double? MeasuredAngleDeg { get; set; }
+
+    /// <summary>
+    /// Measured minus nominal. This is the figure with teaching value: a whole family off by the
+    /// same amount is a set square placed wrong, which is a different correction from an unsteady
+    /// hand, and the two are indistinguishable if only the per-line average is shown.
+    /// </summary>
+    [JsonPropertyName("systematic_error_deg")]
+    public double? SystematicErrorDeg { get; set; }
+
+    [JsonPropertyName("supporting_lines")]
+    public int SupportingLines { get; set; }
+
+    [JsonPropertyName("avg_error_deg")]
+    public double AvgErrorDeg { get; set; }
+
+    [JsonPropertyName("max_error_deg")]
+    public double MaxErrorDeg { get; set; }
+}
+
+public class AxisSegmentDto
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("start")]
+    public Point2DDto Start { get; set; } = new();
+
+    [JsonPropertyName("end")]
+    public Point2DDto End { get; set; } = new();
+
+    [JsonPropertyName("angle_deg")]
+    public double AngleDeg { get; set; }
+
+    [JsonPropertyName("length_px")]
+    public double LengthPx { get; set; }
+
+    [JsonPropertyName("axis_index")]
+    public int AxisIndex { get; set; }
+
+    [JsonPropertyName("axis_error_deg")]
+    public double AxisErrorDeg { get; set; }
+
+    [JsonPropertyName("off_axis")]
+    public bool OffAxis { get; set; }
+}
+
+/// <summary>
+/// Measurements of a parallel projection. A separate shape from <see cref="GeometryAnalysisResultDto"/>
+/// because there is no vanishing point and no horizon in an axonometric drawing: reusing that type
+/// would mean two permanently null fields and a convergence error that measures no convergence.
+/// </summary>
+public class AxonometricAnalysisResultDto
+{
+    [JsonPropertyName("system")]
+    public string System { get; set; } = "isometric";
+
+    [JsonPropertyName("axes")]
+    public List<AxisMeasurementDto> Axes { get; set; } = [];
+
+    [JsonPropertyName("avg_axis_error_deg")]
+    public double AvgAxisErrorDeg { get; set; }
+
+    [JsonPropertyName("max_axis_error_deg")]
+    public double MaxAxisErrorDeg { get; set; }
+
+    /// <summary>
+    /// The widest spread within one axis family. In a parallel projection those edges must stay
+    /// parallel to each other, so this is the invariant that replaces convergence to a point.
+    /// </summary>
+    [JsonPropertyName("parallelism_error_deg")]
+    public double ParallelismErrorDeg { get; set; }
+
+    [JsonPropertyName("off_axis_line_count")]
+    public int OffAxisLineCount { get; set; }
+
+    [JsonPropertyName("line_count")]
+    public int LineCount { get; set; }
+
+    [JsonPropertyName("axes_supported")]
+    public int AxesSupported { get; set; }
+
+    [JsonPropertyName("confidence")]
+    public double Confidence { get; set; }
+
+    [JsonPropertyName("confidence_low")]
+    public bool ConfidenceLow { get; set; }
+
+    [JsonPropertyName("image_width")]
+    public int ImageWidth { get; set; }
+
+    [JsonPropertyName("image_height")]
+    public int ImageHeight { get; set; }
+
+    [JsonPropertyName("lines")]
+    public List<AxisSegmentDto> Lines { get; set; } = [];
+
+    [JsonPropertyName("overlay_image_base64")]
+    public string? OverlayImageBase64 { get; set; }
+}
+
+public class AxonometricAnalysisRequestDto
+{
+    [JsonPropertyName("image_base64")]
+    public string? ImageBase64 { get; set; }
+
+    [JsonPropertyName("system")]
+    public string System { get; set; } = "isometric";
+
+    [JsonPropertyName("receding_angle_deg")]
+    public double? RecedingAngleDeg { get; set; }
+
+    [JsonPropertyName("generate_overlay")]
+    public bool GenerateOverlay { get; set; } = true;
+}
+
 public class MeasuredFindingItemDto
 {
     [JsonPropertyName("metric_name")]
@@ -265,6 +397,14 @@ public class ExerciseRecordDto
     [JsonPropertyName("geometry_analysis")]
     public GeometryAnalysisResultDto? GeometryAnalysis { get; set; }
 
+    /// <summary>
+    /// Parallel-projection measurements, in their own field. An average axis deviation and an
+    /// average convergence error are both degrees and are not the same quantity, so the
+    /// progression curve reads only the conic field rather than mixing the two into one line.
+    /// </summary>
+    [JsonPropertyName("axonometric_analysis")]
+    public AxonometricAnalysisResultDto? AxonometricAnalysis { get; set; }
+
     [JsonPropertyName("critique")]
     public CritiqueOutputDto? Critique { get; set; }
 }
@@ -274,8 +414,16 @@ public class CritiqueRequestDto
     [JsonPropertyName("image_base64")]
     public string? ImageBase64 { get; set; }
 
+    /// <summary>
+    /// The conic-perspective measurements, when that is what was drawn. Exactly one of this and
+    /// <see cref="Axonometry"/> must be set: with neither, Plane A has nothing to be grounded in;
+    /// with both, the validator would whitelist the union of two unrelated sets of numbers.
+    /// </summary>
     [JsonPropertyName("geometry")]
-    public GeometryAnalysisResultDto Geometry { get; set; } = new();
+    public GeometryAnalysisResultDto? Geometry { get; set; }
+
+    [JsonPropertyName("axonometry")]
+    public AxonometricAnalysisResultDto? Axonometry { get; set; }
 
     [JsonPropertyName("student")]
     public StudentProfileDto Student { get; set; } = new();
@@ -447,8 +595,20 @@ public class DrawingGateResultDto
     [JsonPropertyName("is_exercise")]
     public bool IsExercise { get; set; } = true;
 
+    /// <summary>
+    /// "conic" when the receding edges converge, "axonometric" when they stay parallel, "none"
+    /// when this is not an exercise. This is what selects the reference the drawing is measured
+    /// against, and the two have nothing in common: one estimates a vanishing point from the
+    /// drawing itself, the other compares against angles fixed by the projection system.
+    /// </summary>
+    [JsonPropertyName("projection")]
+    public string Projection { get; set; } = "conic";
+
     [JsonPropertyName("exercise_type")]
     public string ExerciseType { get; set; } = "not-an-exercise";
+
+    [JsonPropertyName("axonometric_system")]
+    public string? AxonometricSystem { get; set; }
 
     [JsonPropertyName("recommended_k")]
     public int RecommendedK { get; set; }

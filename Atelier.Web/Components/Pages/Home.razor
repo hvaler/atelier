@@ -51,6 +51,9 @@
                         <option value="03_1point_error_9deg.png">@Loc["1-Point Perspective (Deliberate 9° error)"]</option>
                         <option value="04_2point_perfect.png">@Loc["2-Point Perspective (Perfect F1/F2)"]</option>
                         <option value="05_2point_error_6deg.png">@Loc["2-Point Perspective (F1 Drift 6° error)"]</option>
+                        <option value="06_isometric_perfect.png">@Loc["Isometric (axes exact)"]</option>
+                        <option value="07_isometric_error_6deg.png">@Loc["Isometric (X axis set 6° wrong)"]</option>
+                        <option value="08_cavalier_perfect.png">@Loc["Cavalier (45° receding axis)"]</option>
                     </select>
                 </div>
 
@@ -98,6 +101,10 @@
             @if (CurrentGeometry is not null)
             {
                 <OverlayViewer Geometry="CurrentGeometry" OriginalImageBase64="@CurrentBase64" />
+            }
+            else if (CurrentAxonometry is not null)
+            {
+                <AxonometricViewer Analysis="CurrentAxonometry" OriginalImageBase64="@CurrentBase64" />
             }
 
             <!-- Two-Plane Pedagogical Critique -->
@@ -156,6 +163,12 @@
 
     private string? CurrentBase64 { get; set; }
     private GeometryAnalysisResultDto? CurrentGeometry { get; set; }
+    /// <summary>Set instead of <see cref="CurrentGeometry"/> when the drawing is a parallel
+    /// projection. Never both: the two are different measurements of different things, and a
+    /// screen showing one while holding the other is how a stale reading gets read as fresh.</summary>
+    private AxonometricAnalysisResultDto? CurrentAxonometry { get; set; }
+    /// <summary>True when either analysis produced something to critique.</summary>
+    private bool HasAnalysis => CurrentGeometry is not null || CurrentAxonometry is not null;
     private CritiqueOutputDto? CurrentCritique { get; set; }
     private string CurrentExerciseId { get; set; } = string.Empty;
     /// <summary>Whether the agent actually stored this exercise. The feedback step is only
@@ -176,9 +189,29 @@
     /// <summary>The perspective the rubric will expect for this student, in their language.
     /// Built here rather than inline because a nested localiser lookup inside a Razor
     /// conditional is unreadable in markup.</summary>
-    private string TargetModeLabel => string.Format(
-        Loc["Target Mode: {0}"],
-        CurrentStudent?.Level == "beginner" ? Loc["1-Point (k=1)"] : Loc["2-Point (k=2)"]);
+    private string TargetModeLabel
+    {
+        get
+        {
+            // Once a parallel projection is on screen, "1-point (k=1)" is describing a different
+            // drawing. The badge names what is actually being measured against, not what the
+            // student's profile level would have implied.
+            if (CurrentAxonometry is not null)
+            {
+                var systemKey = CurrentAxonometry.System switch
+                {
+                    "dimetric" => "Dimetric projection",
+                    "cavalier" => "Cavalier projection",
+                    _ => "Isometric projection",
+                };
+                return string.Format(Loc["Measured against: {0}"], Loc[systemKey]);
+            }
+
+            return string.Format(
+                Loc["Target Mode: {0}"],
+                CurrentStudent?.Level == "beginner" ? Loc["1-Point (k=1)"] : Loc["2-Point (k=2)"]);
+        }
+    }
 
     private bool IsAnalyzing { get; set; }
     private bool AnalysisCompleted { get; set; }
@@ -230,18 +263,55 @@
         // output: picking "deliberate 9 degree error" showed the same 1.8 degrees as "perfect".
         // The five files under wwwroot/samples carry known injected errors, which is the whole
         // point of them — the measured number has to move when the drawing does.
-        var kPoints = filename.StartsWith("04") || filename.StartsWith("05") ? 2 : 1;
         IsAnalyzing = true;
         AnalysisCompleted = false;
+        ClearAnalysis();
 
         var path = Path.Combine(Env.WebRootPath, "samples", filename);
         CurrentBase64 = File.Exists(path)
             ? Convert.ToBase64String(await File.ReadAllBytesAsync(path))
             : string.Empty;
 
-        CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, kPoints, generateOverlay: true);
-        AgentUnavailable = CurrentGeometry is null;
+        // The calibration set now holds both kinds, so the sample decides which reference it is
+        // measured against. Measuring an isometric cube as if it were perspective would find a
+        // vanishing point among edges that were never meant to meet.
+        var axonometricSystem = AxonometricSystemForSample(filename);
+        if (axonometricSystem is not null)
+        {
+            CurrentAxonometry = await AgentClient.AnalyzeAxonometricAsync(CurrentBase64, axonometricSystem);
+            AgentUnavailable = CurrentAxonometry is null;
+        }
+        else
+        {
+            var kPoints = filename.StartsWith("04") || filename.StartsWith("05") ? 2 : 1;
+            CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, kPoints, generateOverlay: true);
+            AgentUnavailable = CurrentGeometry is null;
+        }
+
         IsAnalyzing = false;
+    }
+
+    /// <summary>Which projection system a calibration sample was drawn in, or null for conic.</summary>
+    private static string? AxonometricSystemForSample(string filename) => filename switch
+    {
+        "06_isometric_perfect.png" => "isometric",
+        "07_isometric_error_6deg.png" => "isometric",
+        "08_cavalier_perfect.png" => "cavalier",
+        _ => null,
+    };
+
+    /// <summary>
+    /// Drop every measurement from the previous drawing. Leaving one behind is how a refused
+    /// upload came to display the confidence score of the drawing before it.
+    /// </summary>
+    private void ClearAnalysis()
+    {
+        CurrentGeometry = null;
+        CurrentAxonometry = null;
+        CurrentCritique = null;
+        ExerciseSaved = false;
+        IntentMismatch = false;
+        NotAnExercise = null;
     }
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
@@ -256,7 +326,7 @@
 
         IsAnalyzing = true;
         AnalysisCompleted = false;
-        NotAnExercise = null;
+        ClearAnalysis();
 
         // The gate first. A photograph that is not a perspective exercise — a page of text, a
         // blank sheet, a picture of the cat — would otherwise go through RANSAC, produce a
@@ -266,30 +336,37 @@
         if (gate is { IsExercise: false })
         {
             NotAnExercise = gate.Reasoning;
-            // Everything from the previous drawing goes too. Leaving the last critique on screen
-            // under a "nothing was measured" notice invites reading it as being about this image.
-            CurrentGeometry = null;
-            CurrentCritique = null;
             AnalysisCompleted = false;
-            ExerciseSaved = false;
-            IntentMismatch = false;
             IsAnalyzing = false;
             return;
         }
 
-        // The gate's k when it actually looked; the profile level only as the fallback.
-        var kPoints = gate is { Source: "vertex", RecommendedK: 1 or 2 }
-            ? gate.RecommendedK
-            : (CurrentStudent?.Level == "beginner" ? 1 : 2);
+        // The gate does not only decide whether to measure; it decides what to measure against.
+        // A parallel projection has no vanishing point, so running it through the perspective
+        // path would produce a confident number about a point that does not exist in the drawing.
+        // Only a gate that actually looked gets to make that call — the fallback stays conic,
+        // which is the behaviour this page has always had.
+        if (gate is { Source: "vertex", Projection: "axonometric" } && gate.AxonometricSystem is { Length: > 0 } system)
+        {
+            CurrentAxonometry = await AgentClient.AnalyzeAxonometricAsync(CurrentBase64, system);
+            AgentUnavailable = CurrentAxonometry is null;
+        }
+        else
+        {
+            var kPoints = gate is { Source: "vertex", RecommendedK: 1 or 2 }
+                ? gate.RecommendedK
+                : (CurrentStudent?.Level == "beginner" ? 1 : 2);
 
-        CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, kPoints, generateOverlay: true);
-        AgentUnavailable = CurrentGeometry is null;
+            CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, kPoints, generateOverlay: true);
+            AgentUnavailable = CurrentGeometry is null;
+        }
+
         IsAnalyzing = false;
     }
 
     private async Task HandleAskCompleted((string Intent, string Difficulty) context)
     {
-        if (CurrentGeometry == null || CurrentStudent == null) return;
+        if (!HasAnalysis || CurrentStudent == null) return;
 
         IsAnalyzing = true;
         ExerciseSaved = false;
@@ -310,16 +387,13 @@
                          && CurrentGeometry is not null
                          && Routing.RecommendedK != CurrentGeometry.KRequested;
 
-        if (CurrentGeometry is null)
-        {
-            IsAnalyzing = false;
-            AnalysisCompleted = true;
-            return;
-        }
-
         var critiqueReq = new CritiqueRequestDto
         {
+            // Exactly one of the two. The agent refuses a request carrying both, because the
+            // anti-hallucination whitelist would then be the union of two unrelated sets of
+            // numbers and a figure invented for one drawing could match a figure from the other.
             Geometry = CurrentGeometry,
+            Axonometry = CurrentAxonometry,
             Student = CurrentStudent,
             // The drawing itself. Plane B asks the model about line weight and spatial clarity;
             // without the image the validator rejects those observations, retries three times,
@@ -350,6 +424,7 @@
                 StudentIntent = context.Intent,
                 StudentDifficulty = context.Difficulty,
                 GeometryAnalysis = CurrentGeometry,
+                AxonometricAnalysis = CurrentAxonometry,
                 Critique = CurrentCritique
             });
 
