@@ -18,8 +18,10 @@ Phase 2 is the uncut take. Everything else may be cut together.
    A cold start in the middle of an uncut take costs you thirty seconds of silence.
 2. **Open the studio once and run one analysis** to warm the Vertex path, then reload. The take
    starts from a clean page.
-3. **Set the interface to the language you will narrate in.** The picker is top-right; the choice
-   writes a cookie and reloads.
+3. **Language — this is a hard rule, not a preference.** The Rules say the video *"must be in
+   English or include English subtitles"*, and the organisers' own checklist repeats "in English".
+   Narrate in English, **or** narrate in Spanish and ship English subtitles. Set the interface to
+   whichever language you narrate in; the picker is top-right and the choice writes a cookie.
 4. **Pick your theme.** Dark reads better against a screen recording; light reads better if you are
    also showing paper. Decide before, not during.
 5. **Collapse or expand the rail deliberately.** It remembers, so whatever you leave it as is what
@@ -44,6 +46,10 @@ Phase 2 is the uncut take. Everything else may be cut together.
     a set square at the end of a stack of plates.
 - **The line**: *"Atelier automates the objective verification the discipline already defines. It
   does not invent a new criterion."*
+- **Name the stack out loud, here or in 2.3.** The organisers' checklist asks the video to carry
+  *"clear identification of which Gemini model and agent framework used"*. Say both, in words:
+  **Gemini 3.5 Flash on Vertex AI**, called through the **Google GenAI SDK**. A badge in the README
+  does not satisfy a video requirement.
 
 ---
 

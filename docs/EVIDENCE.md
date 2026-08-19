@@ -129,6 +129,12 @@ unreachable model produces a **labelled** fallback rather than a confident inven
 The second line is why the step exists: a **beginner** is measured as two-point because of what
 they wrote, overriding the level stored on their profile.
 
+> **This transcript predates a rename and has deliberately not been edited to match the code.** The
+> two conic cases are now called `one-point-conical` and `two-point-oblique`, after the names
+> descriptive geometry itself uses; re-running the command today prints those. The routing decisions
+> — which k, from which words, from which source — are unchanged. Rewriting recorded output to match
+> current code would make this file a claim rather than evidence, which is the opposite of its job.
+
 **Stage 2 — Gemini 3.5 Flash looks at the page** (`/api/router/gate`, Vertex AI):
 
 ```text

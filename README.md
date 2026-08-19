@@ -1,4 +1,4 @@
-# Atelier — AI Studio Master for Remote Art Students
+# Atelier — an agent that verifies descriptive-geometry constructions
 
 ![Atelier: three receding edges land on the vanishing point, one misses by six degrees](docs/img/logo-wide.png)
 
@@ -11,7 +11,24 @@
 [![Google GenAI SDK](https://img.shields.io/badge/Google_GenAI_SDK-google--genai-4285F4.svg)](https://pypi.org/project/google-genai/)
 [![Gemini](https://img.shields.io/badge/Gemini-3.5_Flash-8E24AA.svg)](https://deepmind.google/technologies/gemini/)
 
-**Atelier** is an agentic AI studio master designed for remote art students. It pairs **deterministic OpenCV computer vision** (for calculating vanishing points, horizon lines, and per-line angular convergence errors in degrees) with **Gemini 3.5 Flash on Google Cloud Vertex AI** (for empathetic, level-aware pedagogical critiques).
+**Atelier** verifies technical drawings in **descriptive geometry** — *sistemas de representación*,
+the Monge tradition taught as a first-year subject in architecture, engineering and animation
+degrees.
+
+That discipline has a property most drawing subjects do not: **correctness is objective**. An
+isometric axis is at 30° or it is not; a point's plan lies on the reference line dropped from its
+elevation or it does not. And yet across **eighteen published syllabi and rubrics**
+([`docs/PEDAGOGY.md`](docs/PEDAGOGY.md)) **not one states a numerical tolerance.** The discipline
+defines correctness exactly and then hands the checking to a person with a set square at the end of
+a stack of plates — which is slow, and which is why a student working remotely waits days to learn
+that one edge missed by eight degrees.
+
+Atelier pairs **deterministic OpenCV computer vision** — vanishing points, axis angles, ground-line
+correspondence, per-line angular error in degrees — with **Gemini 3.5 Flash on Vertex AI**, which
+teaches but is **forbidden from producing a number**. A validator enforces it.
+
+> **It automates the objective verification the discipline already defines. It does not invent a new
+> criterion.**
 
 ---
 
@@ -21,14 +38,14 @@
 | :--- | :--- | :--- |
 | **Gemini 3.5+ via Gemini API or Vertex AI** | Gemini 3.5 Flash on Vertex AI (critique + dialogue) | [`atelier-agent/src/tools/critique.py`](atelier-agent/src/tools/critique.py) |
 | **≥1 Google Agent Framework** | Google GenAI SDK (`google-genai`) — every model call | [`atelier-agent/requirements.txt`](atelier-agent/requirements.txt) · [`src/tools/`](atelier-agent/src/tools/) |
-| **≥1 Google Cloud infrastructure service** | Cloud Run · Firestore · GCS · Eventarc · Cloud Scheduler | [`infra/`](infra/) · [`src/tools/`](atelier-agent/src/tools/) |
+| **≥1 Google Cloud infrastructure service** | **Cloud Run** and **Firestore** (both on the rules' enumerated list) · plus Cloud Storage, Eventarc and Cloud Scheduler | [`infra/`](infra/) · [`src/tools/`](atelier-agent/src/tools/) |
 
 ---
 
 ## 🌐 Live Demo & Hosted Deployment
 
 - 💻 **Studio Web Client (Blazor / .NET 10)**: `https://atelier-web-773993294789.europe-west1.run.app`
-- 🤖 **Agent Backend API (FastAPI / Cloud Run)**: `https://atelier-agent-773993294789.europe-west1.run.app`
+- 🤖 **Agent Backend API (Google GenAI SDK + FastAPI / Cloud Run)**: `https://atelier-agent-773993294789.europe-west1.run.app`
 - 📚 **Interactive Swagger API Docs**: `https://atelier-agent-773993294789.europe-west1.run.app/docs`
 
 > 💡 *Note on Cold Starts*: To conserve Google Cloud student budget, Cloud Run services scale to 0 instances when idle. The initial load request may take ~5-10 seconds to spin up containers.
@@ -345,6 +362,21 @@ cd atelier-agent
 # Run .NET Blazor tests (8 tests)
 dotnet test Atelier.slnx
 ```
+
+---
+
+## 🛠️ Tooling disclosure
+
+No pre-existing code or prior work was incorporated into this project; the first commit is dated
+**18 August 2026**, inside the submission period. AI coding assistants were used during development,
+which the hackathon rules explicitly permit as standard development tools. **Every AI capability the
+product itself uses at runtime is Google's**: Gemini 3.5 Flash on Vertex AI and Gemma 4 through the
+Gemini API, both called via the Google GenAI SDK.
+
+Third-party dependencies are used under their own licences: `google-genai` (Apache-2.0), OpenCV
+(Apache-2.0), Bootstrap (MIT). No third-party pedagogical material is redistributed — see
+[`docs/references/README.md`](docs/references/README.md) for the licence check on the eighteen
+sources cited in [`docs/PEDAGOGY.md`](docs/PEDAGOGY.md).
 
 ---
 

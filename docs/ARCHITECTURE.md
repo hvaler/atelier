@@ -30,8 +30,8 @@ graph TB
             Gemini["✨ Gemini Flash\n(Level-Aware Two-Plane Critique)"]
         end
 
-        subgraph "Memory & State"
-            Firestore["📦 Cloud Firestore\n(Append-Only Event Store)\nstudents/{id}/exercises/{id}\n/feedback/{id}"]
+        subgraph "Memory & State — ALL PERSISTENT STATE LIVES HERE"
+            Firestore["📦 Cloud Firestore\n(Append-Only Event Store)\nstudents/{id} — level profile\n/exercises/{id} — measurements + critique\n/feedback/{id} — immutable feedback events\n/digests/{id} — weekly summaries"]
         end
     end
 
@@ -50,6 +50,18 @@ graph TB
 
     AgentService -->|Return Annotated Overlay & Critique| WebUI
 ```
+
+**Where state is stored.** All persistent state is in **Cloud Firestore**, and nowhere else. Neither
+service keeps state of its own: `Atelier.Web` holds only the current Blazor circuit, and
+`atelier-agent` is stateless between requests — either can be redeployed or scaled to zero mid-session
+without losing a student's history. Drawings themselves are transient: uploads arrive as bytes over
+HTTP, or land in Cloud Storage for the asynchronous path, and only the measurements and the critique
+are persisted.
+
+**Google Cloud services used.** Cloud Run (both services), Firestore (state), Vertex AI (Gemini 3.5
+Flash), Gemini API (Gemma 4), Cloud Storage (async inbox), Eventarc (upload trigger), Cloud Scheduler
+(weekly digest), Secret Manager (credentials), Artifact Registry (images). Of these, **Cloud Run and
+Firestore** are the ones on the hackathon's enumerated list of qualifying infrastructure services.
 
 ---
 

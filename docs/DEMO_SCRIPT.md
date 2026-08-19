@@ -12,7 +12,9 @@
 **[Visual: speaker on camera, holding a technical drawing on paper — an isometric cube or a two-view
 plate reads better than a sketch. Then screen share.]**
 
-> *"Descriptive geometry — sistemas de representación — is a first-year subject in architecture,
+> *"Atelier is an agent built on **Gemini 3.5 Flash**, called through the **Google GenAI SDK**.*
+>
+> *Descriptive geometry — sistemas de representación — is a first-year subject in architecture,
 > engineering and animation degrees. It has a property most drawing subjects do not: **correctness
 > is objective.** An isometric axis is at thirty degrees or it is not. A point's plan sits under its
 > elevation or it does not. Nothing depends on an examiner's taste.*
@@ -118,9 +120,14 @@ plate reads better than a sketch. Then screen share.]**
 >
 > *A private Cloud Storage inbox with an Eventarc trigger, so a photograph dropped in a folder is
 > analysed with nobody touching the app. Firestore, **append-only** — nothing is ever updated in
-> place. And Gemini 3.5 Flash on Vertex AI in europe-west3, which is deliberately not the Cloud Run
-> region: the model is not published there, and pointing Vertex at the service's own region made
-> every critique fail into a silent fallback for days before we caught it."*
+> place. And **Gemini 3.5 Flash on Vertex AI**, every call made through the **Google GenAI SDK** —
+> here are the requests, in europe-west3, which is deliberately not the Cloud Run region: the model
+> is not published there, and pointing Vertex at the service's own region made every critique fail
+> into a silent fallback for days before we caught it."*
+
+> **Do not cut this sentence.** The organisers' checklist asks the video for *"clear identification
+> of which Gemini model and agent framework used"*. Beat 1 says it, this beat shows it — model and
+> framework named while their own traffic is on screen. If Beat 1 gets trimmed for time, this stays.
 
 ---
 

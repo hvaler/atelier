@@ -835,7 +835,7 @@ public class DrawingGateResultDto
 public class RoutingResultDto
 {
     [JsonPropertyName("exercise_type")]
-    public string ExerciseType { get; set; } = "1-point-box";
+    public string ExerciseType { get; set; } = "one-point-conical";
 
     [JsonPropertyName("recommended_k")]
     public int RecommendedK { get; set; } = 1;

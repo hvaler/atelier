@@ -91,19 +91,19 @@
     <value>Muestra de calibración:</value>
   </data>
   <data name="1-Point Perspective (Perfect 0° error)" xml:space="preserve">
-    <value>Perspectiva de 1 punto (perfecta, 0° de error)</value>
+    <value>Cónica frontal — exacta (0° de error)</value>
   </data>
   <data name="1-Point Perspective (Slight 4° error)" xml:space="preserve">
-    <value>Perspectiva de 1 punto (4° de error, leve)</value>
+    <value>Cónica frontal — 4° de error</value>
   </data>
   <data name="1-Point Perspective (Deliberate 9° error)" xml:space="preserve">
-    <value>Perspectiva de 1 punto (9° de error, deliberado)</value>
+    <value>Cónica frontal — 9° de error, deliberado</value>
   </data>
   <data name="2-Point Perspective (Perfect F1/F2)" xml:space="preserve">
-    <value>Perspectiva de 2 puntos (F1/F2 perfectos)</value>
+    <value>Cónica oblicua — F1/F2 exactos</value>
   </data>
   <data name="2-Point Perspective (F1 Drift 6° error)" xml:space="preserve">
-    <value>Perspectiva de 2 puntos (F1 desviado 6°)</value>
+    <value>Cónica oblicua — F1 desviado 6°</value>
   </data>
   <data name="Or Upload Student Drawing Photo:" xml:space="preserve">
     <value>O sube la foto de tu dibujo:</value>
@@ -112,10 +112,10 @@
     <value>Modo previsto: {0}</value>
   </data>
   <data name="1-Point (k=1)" xml:space="preserve">
-    <value>1 punto (k=1)</value>
+    <value>Cónica frontal (k=1)</value>
   </data>
   <data name="2-Point (k=2)" xml:space="preserve">
-    <value>2 puntos (k=2)</value>
+    <value>Cónica oblicua (k=2)</value>
   </data>
   <data name="Refresh Questions" xml:space="preserve">
     <value>Otras preguntas</value>
@@ -157,19 +157,19 @@
     <value>Conjunto de referencia con errores angulares conocidos e introducidos a propósito, para comprobar la precisión determinista (ADR-001).</value>
   </data>
   <data name="1-Point • 0.0° Error (Golden)" xml:space="preserve">
-    <value>1 punto • 0,0° de error (dorado)</value>
+    <value>Cónica frontal • 0,0° (dorado)</value>
   </data>
   <data name="1-Point • 4.0° Slight Error" xml:space="preserve">
-    <value>1 punto • 4,0° de error (leve)</value>
+    <value>Cónica frontal • 4,0° de error</value>
   </data>
   <data name="1-Point • 9.0° Noticeable Error" xml:space="preserve">
-    <value>1 punto • 9,0° de error (visible)</value>
+    <value>Cónica frontal • 9,0° de error</value>
   </data>
   <data name="2-Point • 0.0° Error (Golden)" xml:space="preserve">
-    <value>2 puntos • 0,0° de error (dorado)</value>
+    <value>Cónica oblicua • 0,0° (dorado)</value>
   </data>
   <data name="2-Point • 6.0° F1 Divergence" xml:space="preserve">
-    <value>2 puntos • 6,0° de desvío en F1</value>
+    <value>Cónica oblicua • 6,0° en F1</value>
   </data>
   <data name="Frontal perspective box with lines converging strictly to center vanishing point on the horizon." xml:space="preserve">
     <value>Caja en perspectiva frontal cuyas líneas convergen exactamente en el punto de fuga central del horizonte.</value>
@@ -244,10 +244,10 @@
     <value>Objetivo: {0}</value>
   </data>
   <data name="1-Point Perspective" xml:space="preserve">
-    <value>Perspectiva de 1 punto</value>
+    <value>Cónica frontal</value>
   </data>
   <data name="2-Point Perspective" xml:space="preserve">
-    <value>Perspectiva de 2 puntos</value>
+    <value>Cónica oblicua</value>
   </data>
   <data name="Confidence:" xml:space="preserve">
     <value>Confianza:</value>
@@ -343,7 +343,7 @@
     <value>Cuéntale a Atelier qué estabas practicando antes de analizar</value>
   </data>
   <data name="e.g. 1-Point box or 2-Point building..." xml:space="preserve">
-    <value>p. ej. una caja de 1 punto o un edificio de 2 puntos…</value>
+    <value>p. ej. un prisma en cónica frontal, o un edificio en cónica oblicua…</value>
   </data>
   <data name="e.g. Converging the top lines or line weight..." xml:space="preserve">
     <value>p. ej. juntar las líneas de arriba, o el grosor del trazo…</value>

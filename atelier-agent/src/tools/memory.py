@@ -202,28 +202,8 @@ class MemoryRepository:
         else:
             current_focus = "2-Point oblique volumetric proportions"
 
-        # 5. Formulate next exercise recommendation (GUIDE)
-        if student.level == "beginner":
-            next_ex = NextExerciseRecommendation(
-                title="1-Point Perspective: 3 Aligned Cubes",
-                description="Draw three boxes (one left, one center, one right) all pointing to the same dot on the horizon.",
-                target_metric="1-point VP consistency",
-                difficulty="beginner",
-            )
-        elif "F1" in current_focus:
-            next_ex = NextExerciseRecommendation(
-                title="Targeted F1 Convergence Drill",
-                description="Draw an elongated rectangular prism where the longer receding side angles strictly to F1.",
-                target_metric="F1 left VP convergence",
-                difficulty="advanced",
-            )
-        else:
-            next_ex = NextExerciseRecommendation(
-                title="2-Point Architectural Complex",
-                description="Construct two interlocking geometric volumes ensuring all horizontal edges converge to F1/F2.",
-                target_metric="2-point oblique perspective",
-                difficulty="advanced",
-            )
+        # 5. Formulate the next exercise (GUIDE), from the documented ladder.
+        next_ex = next_exercise_on_ladder(student.level, current_focus)
 
         return DerivedProfile(
             student=student,
@@ -313,4 +293,84 @@ def summarise_exercise(record: ExerciseRecord) -> ExerciseSummary:
         source=record.critique.source if record.critique else "fallback",
         student_intent=record.student_intent,
         feedback_count=len(record.feedback_events),
+    )
+
+
+# ---------------------------------------------------------------------------------------------
+# The exercise ladder
+# ---------------------------------------------------------------------------------------------
+#
+# Not a list invented to fill a field in a JSON schema. This is the order the published curricula
+# put these constructions in, recorded and cited in `docs/PEDAGOGY.md` §5:
+#
+#     perspectiva cónica frontal  (one-point conical)
+#             ↓
+#     perspectiva cónica oblicua  (two-point oblique, F1 and F2 on the horizon)
+#             ↓
+#     puntos métricos y de distancia  (true dimensions carried into the perspective)
+#             ↓
+#     abatimientos y verdaderas magnitudes  (rabatment)
+#             ↓
+#     sombras  (cast shadows)
+#             ↓
+#     escenas complejas
+#
+# Sources, both public and quoted in PEDAGOGY.md: *Geometría Descriptiva* (2301113), E.T.S. de
+# Ingeniería de Edificación, Universidad de Granada; *Geometría Descriptiva* (101002), E.
+# Politécnica Superior de Zamora, Universidad de Salamanca.
+#
+# **The ladder stops where the engine does.** Rabatment, measuring points and cast shadows are
+# documented rungs Atelier cannot yet assess, so nothing here prescribes them: recommending an
+# exercise the system will then be unable to measure is the gap this project exists to close, not
+# to reopen. They are recorded in the README gaps table instead.
+
+#: Where the citable ladder comes from, carried on every recommendation so the agent can say so.
+LADDER_SOURCE = "documented progression, docs/PEDAGOGY.md §5"
+
+
+def next_exercise_on_ladder(level: str, current_focus: str) -> NextExerciseRecommendation:
+    """
+    The next rung, chosen by level and by what the measurements keep flagging.
+
+    Deliberately deterministic: a student who has the same recurring issue twice should get the
+    same targeted drill twice, not a different creative suggestion each time.
+    """
+    if level == "beginner":
+        return NextExerciseRecommendation(
+            title="Perspectiva cónica frontal: three aligned prisms",
+            description=(
+                "Draw the horizon line (LH) first and mark one vanishing point on it. Construct "
+                "three rectangular prisms — left, centre, right — with their front faces parallel "
+                "to the picture plane, so every receding edge runs to that single point. Keep the "
+                "construction traces lighter than the definitive edges. "
+                f"First rung of the {LADDER_SOURCE}."
+            ),
+            target_metric="convergence to a single vanishing point",
+            difficulty="beginner",
+        )
+
+    if "F1" in current_focus:
+        return NextExerciseRecommendation(
+            title="Targeted F1 convergence drill",
+            description=(
+                "In perspectiva cónica oblicua, construct an elongated prism whose longer receding "
+                "family runs strictly to F1, with F1 and F2 both marked on the horizon line before "
+                "you start. The measurements keep flagging this family, so this drill isolates it. "
+                f"Second rung of the {LADDER_SOURCE}."
+            ),
+            target_metric="F1 convergence error",
+            difficulty="advanced",
+        )
+
+    return NextExerciseRecommendation(
+        title="Perspectiva cónica oblicua: two interlocking volumes",
+        description=(
+            "Set the horizon line and both vanishing points, then construct two interlocking "
+            "volumes so that every horizontal family resolves to F1 or F2 and the shared edges "
+            "stay consistent between them. Keep verticals true. "
+            f"Second rung of the {LADDER_SOURCE}; the rungs above it — measuring points, "
+            "rabatment and cast shadows — are documented but not yet measurable here."
+        ),
+        target_metric="two-point oblique convergence",
+        difficulty="advanced",
     )

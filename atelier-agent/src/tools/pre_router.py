@@ -43,14 +43,28 @@ from src.config import settings
 
 logger = logging.getLogger(__name__)
 
-ROUTER_SYSTEM_PROMPT = """You route a drawing to the right perspective model before any
+# The two measurable cases of conic projection, and the vanishing-point count each one implies.
+# Kept as one mapping because the consistency check below used to test for the substring "2-point";
+# renaming the taxonomy silently inverted that test and every genuine two-point routing was refused
+# as self-contradictory. A rename now breaks this table loudly instead.
+ONE_POINT_CONICAL = "one-point-conical"
+TWO_POINT_OBLIQUE = "two-point-oblique"
+CONIC_K_BY_TYPE = {ONE_POINT_CONICAL: 1, TWO_POINT_OBLIQUE: 2}
+
+ROUTER_SYSTEM_PROMPT = """You route a drawing to the right case of conic projection before any
 measurement happens. You are given only the student's own words about what they were practising.
 
+The two cases are the ones descriptive geometry names:
+- ONE-POINT CONICAL (perspectiva cónica frontal): the picture plane is parallel to a principal face
+  of the subject, so one family of edges recedes to a single vanishing point on the horizon line.
+- TWO-POINT OBLIQUE (perspectiva cónica oblicua): the subject is turned to the picture plane, so two
+  families of edges recede to two vanishing points, F1 and F2, both on the horizon line.
+
 Answer with:
-- exercise_type: '1-point-box', '2-point-oblique', 'curvilinear' or 'freehand'
-- recommended_k: 1 when a single vanishing point is implied (a corridor, a road, a box seen
-  face-on, a room from the doorway); 2 when the subject is seen from a corner (a building
-  corner, a box at an angle, an oblique street view)
+- exercise_type: 'one-point-conical', 'two-point-oblique', 'curvilinear' or 'freehand'
+- recommended_k: 1 when one vanishing point is implied (a corridor, a road, a box seen face-on, a
+  room from the doorway); 2 when the subject is seen from a corner (a building corner, a box at an
+  angle, an oblique street view)
 - reasoning: one short sentence naming the words that decided it
 
 If the description does not say, choose the fallback you are told and say so in the reasoning.
@@ -60,7 +74,13 @@ Never invent detail the student did not give you."""
 class RoutingDecision(BaseModel):
     """What the router is allowed to decide. Provenance is stamped by the caller, not the model."""
 
-    exercise_type: str = Field(..., description="'1-point-box', '2-point-oblique', 'curvilinear' or 'freehand'")
+    exercise_type: str = Field(
+        ...,
+        description=(
+            "'one-point-conical' (perspectiva cónica frontal), 'two-point-oblique' (perspectiva "
+            "cónica oblicua), 'curvilinear' or 'freehand'"
+        ),
+    )
     recommended_k: int = Field(1, description="Vanishing point count to measure against: 1 or 2")
     reasoning: str = Field("", description="One sentence naming what in the description decided it")
 
@@ -81,7 +101,7 @@ def route_from_intent(student_intent: str | None, student_level: str = "beginner
     """
     fallback_k = 2 if student_level.lower() == "advanced" else 1
     fallback = RoutingResult(
-        exercise_type="2-point-oblique" if fallback_k == 2 else "1-point-box",
+        exercise_type=TWO_POINT_OBLIQUE if fallback_k == 2 else ONE_POINT_CONICAL,
         recommended_k=fallback_k,
         reasoning=f"No usable description; fell back to the student's level ({student_level}).",
         source="fallback",
@@ -118,10 +138,12 @@ def route_from_intent(student_intent: str | None, student_level: str = "beginner
         decision = RoutingDecision.model_validate_json(response.text)
         if decision.recommended_k not in (1, 2):
             raise ValueError(f"Router returned k={decision.recommended_k}; only 1 and 2 are measurable.")
-        # Observed on this model: it answered `2-point-oblique` with `recommended_k=1` for "a box
+        # Observed on this model: it answered `two-point-oblique` with `recommended_k=1` for "a box
         # at an angle". A router that contradicts itself is not usable output, whichever half is
-        # right, so it is refused rather than half-believed.
-        expected_k = 2 if "2-point" in decision.exercise_type else 1
+        # right, so it is refused rather than half-believed. Types outside the two conic cases
+        # (`curvilinear`, `freehand`) imply no second vanishing point, so k=2 there is incoherent
+        # too and is refused for the same reason.
+        expected_k = CONIC_K_BY_TYPE.get(decision.exercise_type, 1)
         if decision.recommended_k != expected_k:
             raise ValueError(
                 f"Router contradicted itself: {decision.exercise_type} with k={decision.recommended_k}."
@@ -167,8 +189,8 @@ Answer with:
   an image too blurred to read straight edges: all false.
 - projection: 'conic' when edges converge, 'axonometric' when they stay parallel, 'orthographic'
   for two flat views about a ground line, 'none' when this is not an exercise.
-- exercise_type: '1-point-box', '2-point-oblique', 'curvilinear', 'isometric', 'dimetric',
-  'cavalier', 'orthographic-two-view' or 'not-an-exercise'
+- exercise_type: 'one-point-conical', 'two-point-oblique', 'curvilinear', 'isometric',
+  'dimetric', 'cavalier', 'orthographic-two-view' or 'not-an-exercise'
 - axonometric_system: 'isometric', 'dimetric' or 'cavalier' when projection is axonometric; null
   otherwise. Isometric: three axes evenly spaced, the solid reads as a hexagon. Cavalier: one face
   is a true square or rectangle facing the viewer, and depth runs off at a slant.
@@ -202,7 +224,7 @@ class DrawingGateDecision(BaseModel):
     )
     exercise_type: str = Field(
         "not-an-exercise",
-        description="'1-point-box', '2-point-oblique', 'curvilinear', 'isometric', 'dimetric', 'cavalier', 'orthographic-two-view' or 'not-an-exercise'",
+        description="'one-point-conical', 'two-point-oblique', 'curvilinear', 'isometric', 'dimetric', 'cavalier', 'orthographic-two-view' or 'not-an-exercise'",
     )
     axonometric_system: str | None = Field(
         None, description="'isometric', 'dimetric' or 'cavalier' when projection is axonometric"
@@ -240,7 +262,7 @@ def classify_drawing(image_bytes: bytes, mime_type: str = "image/png") -> Drawin
     open_gate = DrawingGateResult(
         is_exercise=True,
         projection="conic",
-        exercise_type="1-point-box",
+        exercise_type="one-point-conical",
         axonometric_system=None,
         recommended_k=1,
         reasoning="The gate model could not be reached; the drawing was let through unchecked.",

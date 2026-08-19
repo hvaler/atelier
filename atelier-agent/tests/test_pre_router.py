@@ -90,7 +90,7 @@ def test_a_real_decision_is_labelled_as_one(monkeypatch):
 
     class FakeResponse:
         text = (
-            '{"exercise_type": "2-point-oblique", "recommended_k": 2, '
+            '{"exercise_type": "two-point-oblique", "recommended_k": 2, '
             '"reasoning": "the student wrote corner"}'
         )
 

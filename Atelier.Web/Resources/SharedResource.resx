@@ -91,19 +91,19 @@
     <value>Pre-Calibrated Golden Sample:</value>
   </data>
   <data name="1-Point Perspective (Perfect 0° error)" xml:space="preserve">
-    <value>1-Point Perspective (Perfect 0° error)</value>
+    <value>One-point conical — exact (0° error)</value>
   </data>
   <data name="1-Point Perspective (Slight 4° error)" xml:space="preserve">
-    <value>1-Point Perspective (Slight 4° error)</value>
+    <value>One-point conical — 4° error</value>
   </data>
   <data name="1-Point Perspective (Deliberate 9° error)" xml:space="preserve">
-    <value>1-Point Perspective (Deliberate 9° error)</value>
+    <value>One-point conical — 9° error, deliberate</value>
   </data>
   <data name="2-Point Perspective (Perfect F1/F2)" xml:space="preserve">
-    <value>2-Point Perspective (Perfect F1/F2)</value>
+    <value>Two-point oblique — F1/F2 exact</value>
   </data>
   <data name="2-Point Perspective (F1 Drift 6° error)" xml:space="preserve">
-    <value>2-Point Perspective (F1 Drift 6° error)</value>
+    <value>Two-point oblique — F1 drifted 6°</value>
   </data>
   <data name="Or Upload Student Drawing Photo:" xml:space="preserve">
     <value>Or Upload Student Drawing Photo:</value>
@@ -112,10 +112,10 @@
     <value>Target Mode: {0}</value>
   </data>
   <data name="1-Point (k=1)" xml:space="preserve">
-    <value>1-Point (k=1)</value>
+    <value>One-point conical (k=1)</value>
   </data>
   <data name="2-Point (k=2)" xml:space="preserve">
-    <value>2-Point (k=2)</value>
+    <value>Two-point oblique (k=2)</value>
   </data>
   <data name="Refresh Questions" xml:space="preserve">
     <value>Refresh Questions</value>
@@ -157,19 +157,19 @@
     <value>Benchmark test dataset featuring deliberate known angular errors to verify deterministic precision (ADR-001).</value>
   </data>
   <data name="1-Point • 0.0° Error (Golden)" xml:space="preserve">
-    <value>1-Point • 0.0° Error (Golden)</value>
+    <value>One-point conical • 0.0° (golden)</value>
   </data>
   <data name="1-Point • 4.0° Slight Error" xml:space="preserve">
-    <value>1-Point • 4.0° Slight Error</value>
+    <value>One-point conical • 4.0° error</value>
   </data>
   <data name="1-Point • 9.0° Noticeable Error" xml:space="preserve">
-    <value>1-Point • 9.0° Noticeable Error</value>
+    <value>One-point conical • 9.0° error</value>
   </data>
   <data name="2-Point • 0.0° Error (Golden)" xml:space="preserve">
-    <value>2-Point • 0.0° Error (Golden)</value>
+    <value>Two-point oblique • 0.0° (golden)</value>
   </data>
   <data name="2-Point • 6.0° F1 Divergence" xml:space="preserve">
-    <value>2-Point • 6.0° F1 Divergence</value>
+    <value>Two-point oblique • 6.0° at F1</value>
   </data>
   <data name="Frontal perspective box with lines converging strictly to center vanishing point on the horizon." xml:space="preserve">
     <value>Frontal perspective box with lines converging strictly to center vanishing point on the horizon.</value>
@@ -244,10 +244,10 @@
     <value>Target: {0}</value>
   </data>
   <data name="1-Point Perspective" xml:space="preserve">
-    <value>1-Point Perspective</value>
+    <value>One-point conical</value>
   </data>
   <data name="2-Point Perspective" xml:space="preserve">
-    <value>2-Point Perspective</value>
+    <value>Two-point oblique</value>
   </data>
   <data name="Confidence:" xml:space="preserve">
     <value>Confidence:</value>
@@ -343,7 +343,7 @@
     <value>Tell Atelier about your practice focus before analyzing</value>
   </data>
   <data name="e.g. 1-Point box or 2-Point building..." xml:space="preserve">
-    <value>e.g. 1-Point box or 2-Point building...</value>
+    <value>e.g. a one-point prism, or a building in two-point oblique…</value>
   </data>
   <data name="e.g. Converging the top lines or line weight..." xml:space="preserve">
     <value>e.g. Converging the top lines or line weight...</value>

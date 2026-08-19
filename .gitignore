@@ -41,3 +41,7 @@ appsettings.*.local.json
 # --- OS ---
 .DS_Store
 Thumbs.db
+
+# Internal compliance audit against the hackathon rules. Working notes, not part of the
+# submission, and it names deadlines and personal eligibility questions.
+docs/HACKATHON_COMPLIANCE.md
