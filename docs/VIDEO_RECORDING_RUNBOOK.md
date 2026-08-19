@@ -30,7 +30,28 @@
      - Click **👍 Helpful** + enter a brief note. Show the profile adaptation banner.
   6. **Level-Aware Shift**: Switch to **Sofia (Advanced)**:
      - Show how vocabulary instantly switches to studio master technical terms ($LH$, $LT$, true magnitude, $F_1/F_2$ oblique convergence).
-     - Navigate to **📈 Student Progression** to show the native SVG convergence error reduction curve (4.8° -> 1.8°) and the Cloud Scheduler weekly practice plan.
+     - Navigate to **📈 Student Progression**. Read the figures off the page as they are — they come
+       from Firestore and they are low because they are real. **Do not promise a smooth improvement
+       curve**: an earlier version of this runbook told you to show 4.8° falling to 1.8°, which was a
+       hardcoded fallback in the web client, not a student's history. It has been deleted.
+
+  7. **The refusal — the strongest ten seconds available.** Upload something that is *not* a
+     drawing (a page of handwriting works). Gemini 3.5 Flash looks at it before anything is
+     measured and declines, in its own words: *"only repeated lines of text and no perspective
+     drawings or construction lines."* **Nothing is measured and nothing is critiqued.** Say why
+     that matters: without the gate the page goes through RANSAC, finds a vanishing point among
+     whatever edges exist, and spends real tokens telling a child their line weight is confident.
+  8. **The honesty beat.** Point at the green **Anti-Hallucination: Validated** badge and say what
+     gates it: it appears only when Gemini actually answered. When the model is unreachable the
+     same panel turns amber — *"Deterministic fallback — no model answered"* — with the real
+     `model_version` beneath it. The badge is earned per critique, not painted on.
+  9. *(If it fires)* **Description against drawing.** Type "the corner of a building" over a
+     one-point sketch. Gemma reads the words, the engine has measured the drawing, and they
+     disagree — so Atelier says so and **changes nothing**: *"You described a 2-point-oblique.
+     This drawing was measured as 1-point, which is what it looks like."* The measurement is
+     evidence; the description is a claim. Do not re-shoot to force this one — it depends on how
+     the router reads the sentence, and a take chosen because it went your way is the thing this
+     project is against.
 
 ---
 
@@ -52,7 +73,7 @@
 ### Phase 4: Wrap-Up & Open Source Invitation (3:00 - 3:30)
 - **Visual**: GitHub repository page (`https://github.com/hvaler/atelier`).
 - **Narrative**:
-  - 36 automated tests (29 Python + 7 .NET), Apache 2.0 open-source, architecture documentation, and live demo URL.
+  - 44 automated tests (36 Python + 8 .NET), Apache 2.0 open-source, architecture documentation, and live demo URL.
   - Closing sentence: *"Atelier makes invisible perspective errors visible, empowering art students everywhere to grow with confidence."*
 
 ---

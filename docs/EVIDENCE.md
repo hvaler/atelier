@@ -200,14 +200,14 @@ Correctas! - Con error: 0, Superado: 7, Omitido: 0, Total: 7 - Atelier.Web.Tests
 
 | Test Suite | Framework | Target Component | Test Count | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **`test_geometry.py`** | Pytest | OpenCV RANSAC VP & Error | 7 | ✅ 100% Passed |
-| **`test_critique.py`** | Pytest | Vertex AI Gemini & Validator | 6 | ✅ 100% Passed |
-| **`test_memory_collaborative.py`** | Pytest | 4 Verbs & Event Sourcing | 6 | ✅ 100% Passed |
-| **`test_pre_router.py`** | Pytest | Intent pre-router, fallback labelling | 5 | ✅ Passed |
-| **`test_async_digest.py`** | Pytest | Eventarc & Weekly Scheduler | 5 | ✅ 100% Passed |
-| **`test_health.py`** | Pytest | Cloud Run Health & Root | 2 | ✅ 100% Passed |
-| **`Atelier.Web.Tests`** | xUnit | Blazor Health & Typed Client | 7 | ✅ 100% Passed |
-| **TOTAL** | | | **36 tests** | **✅ 36/36 PASSED** |
+| **`test_geometry.py`** | Pytest | OpenCV RANSAC VP & per-line error, calibration dataset | 9 | ✅ Passed |
+| **`test_pre_router.py`** | Pytest | Intent pre-router & gate, fallback labelling | 7 | ✅ Passed |
+| **`test_critique.py`** | Pytest | Vertex AI Gemini & anti-hallucination validator | 6 | ✅ Passed |
+| **`test_memory_collaborative.py`** | Pytest | 4 Verbs & event-sourced adaptation | 6 | ✅ Passed |
+| **`test_async_digest.py`** | Pytest | GCS ingestion, refusal path & weekly digest | 6 | ✅ Passed |
+| **`test_health.py`** | Pytest | Cloud Run health & root | 2 | ✅ Passed |
+| **`Atelier.Web.Tests`** | xUnit | Typed client contract, provenance mapping, health | 8 | ✅ Passed |
+| **TOTAL** | | | **44 tests** | **✅ 44/44 PASSED** (36 Python + 8 .NET) |
 
 ---
 

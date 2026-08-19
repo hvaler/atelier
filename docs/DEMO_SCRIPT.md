@@ -52,6 +52,6 @@
 > - ***Google Cloud Run** running our .NET 10 Blazor frontend and Python microservices.*  
 > - ***Google Cloud Storage + Eventarc** for background photo ingestion, and **Cloud Scheduler** for weekly progress digests.*  
 >  
-> *The entire codebase is open-source, fully tested with 26 Python tests and 7 .NET integration tests, and deployed to Cloud Run.*  
+> *The entire codebase is open-source, fully tested with 36 Python tests and 8 .NET contract tests, and deployed to Cloud Run.*  
 >  
 > *Atelier makes invisible perspective errors visible, empowering art students everywhere to grow with confidence. Thank you!"*

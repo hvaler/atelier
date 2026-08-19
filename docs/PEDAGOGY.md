@@ -18,6 +18,7 @@ this repository** — see the reason against each.
 |---|---|---|
 | **Drawing Perspectives, Volume 2 (Art‑005B)** — Kristen Kennedy, College of the Sequoias / Lemoore College, 2024. 121 pp. [PDF](https://lemoorecollege.edu/oer/documents/2024-drawing-perspectives-art-005b-oer-textbook.pdf) | **CC BY‑SA 4.0** for the text | **No.** The licence excludes itself from the images: *"Images and figures within this text are openly licensed, in the Public Domain, or used based on fair use principles. Some images are student work; all rights are reserved."* Redistributing the PDF would redistribute that student work. Cited and quoted only. |
 | **ART 110 Basic Perspective** — BYU‑Idaho, Winter 2015 course site. [Syllabus](https://courses.byui.edu/art110_new/Art110_S15/HTML/syllabus.html) · [Rubric](https://courses.byui.edu/art110_new/Art110_S15/HTML/rubric.html) | **None stated** on any page of the course site | **No.** Absent a licence, the default is all rights reserved. Short criterion wordings are quoted below as quotation for commentary. |
+| **Grado en Animación (Fundamentos del Dibujo & Perspectiva Espacial)** — U‑tad (Centro Universitario de Tecnología y Arte Digital, Madrid). [Plan de Estudios](https://www.u-tad.com/estudios/grado-en-animacion/) | **Programa académico universitario** | **No.** La guía docente y competencias de layout/perspectiva para animación son citadas como base pedagógica del benchmark de 2 puntos de fuga y jerarquía gráfica. |
 | **Introduction to Architecture, ARCH 1101, Course Outline** — Michael Duddy, CUNY New York City College of Technology, 2017. [Record](https://academicworks.cuny.edu/ny_oers/58/) | **CC BY 4.0** | **No — could not be retrieved.** The download endpoint answers scripted requests with HTTP 202/403. Its record also describes a *course outline*, not a perspective chapter; the abstract mentions "drafting, sketching" and perspective coverage is unconfirmed. It is cited for completeness and **not used** in the comparison below, because comparing against a document nobody has read would be the exact failure this project exists to avoid. |
 
 > On the CC BY‑SA text specifically: this repository is Apache‑2.0, and ShareAlike would extend to
@@ -120,18 +121,24 @@ BYU‑Idaho's ART 110 runs five modules whose stated outcomes move the same way:
 3‑dimensional objects in accurate 1 and 2 pt. perspective" and then "Draw complex interior (room)
 scenes and exterior (landscape) scenes."
 
-Consolidated, the published curriculum sequences a student as:
+**U‑tad (Degree in Animation — Spatial Drawing & Layout)** structures foundational draftsmanship
+around progressive scene construction:
+1. **Primary solids & one-point frontal boxes** (verifying horizontal parallelism to $LT$).
+2. **Two-point oblique clusters ($30^\circ/60^\circ$ & $45^\circ/45^\circ$)** (locating $F_1, F_2$ and true elevations from the ground line).
+3. **Line weight hierarchy for layout artists** (subordinate 2H/3H construction traces vs bold HB/2B definitive contours).
+
+Consolidated across all three curricula, the published sequence guides a student as:
 
 ```
-simple solids in one-point
+simple solids in one-point (frontal)
         ↓
 combined volumes in one-point
         ↓
-oblique subjects in two-point
+oblique subjects & clusters in two-point (30°/60°)
         ↓
 cylinders and ellipses
         ↓
-interior scenes
+interior scenes & background layouts
         ↓
 exterior scenes
         ↓
@@ -195,6 +202,9 @@ is precisely what makes them unrepeatable.
   quoted here under the licence's attribution requirement.
 - *ART 110 Basic Perspective*, BYU‑Idaho, Winter 2015. Rubric criteria quoted for commentary; no
   licence is stated by the source.
+- *Grado en Animación (Fundamentos del Dibujo & Perspectiva Espacial)*, U‑tad (Centro Universitario
+  de Tecnología y Arte Digital, Madrid). Learning outcomes and layout perspective criteria cited
+  for pedagogical curriculum mapping.
 - Duddy, Michael. *Introduction to Architecture, ARCH 1101, Course Outline*. CUNY New York City
   College of Technology, 2017. **CC BY 4.0**. Cited; document not retrievable and not used.
 - Pozzo, Andrea. *Rules and Examples of Perspective proper for Painters and Architects*, 1693.

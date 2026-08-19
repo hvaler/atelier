@@ -250,11 +250,11 @@ dotnet run
 All claims are backed by executable tests logged in [`docs/EVIDENCE.md`](docs/EVIDENCE.md).
 
 ```bash
-# Run Python backend tests (29 tests)
+# Run Python backend tests (36 tests)
 cd atelier-agent
 .venv\Scripts\python -m pytest tests -v
 
-# Run .NET Blazor tests (7 tests)
+# Run .NET Blazor tests (8 tests)
 dotnet test Atelier.slnx
 ```
 
