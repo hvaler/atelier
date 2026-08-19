@@ -77,6 +77,7 @@ def test_only_measurable_vanishing_point_counts_are_accepted(monkeypatch):
     import google.genai
 
     monkeypatch.setattr(google.genai, "Client", FakeClient)
+    monkeypatch.setattr(pre_router.settings, "gemini_api_key", "test-key")
 
     result = route_from_intent("a spiral staircase", "advanced")
 
@@ -104,10 +105,46 @@ def test_a_real_decision_is_labelled_as_one(monkeypatch):
     import google.genai
 
     monkeypatch.setattr(google.genai, "Client", FakeClient)
+    # The Gemma router authenticates with an API key, not ADC; CI has neither.
+    monkeypatch.setattr(pre_router.settings, "gemini_api_key", "test-key")
 
     result = route_from_intent("the corner of a building", "beginner")
 
-    assert result.source == "vertex"
-    assert result.model_version == pre_router.settings.gemini_model
+    assert result.source == "gemma"
+    assert result.model_version == pre_router.settings.router_model
     # The description wins over the profile: a beginner who drew a corner is measured as one.
     assert result.recommended_k == 2
+
+
+def test_no_api_key_is_a_labelled_fallback(monkeypatch):
+    """Without a key the router cannot reach Gemma, and says so rather than guessing."""
+    monkeypatch.setattr(pre_router.settings, "gemini_api_key", None)
+
+    result = route_from_intent("the corner of a building", "beginner")
+
+    assert result.source == "fallback"
+    assert result.recommended_k == 1
+
+
+def test_the_gate_opens_when_it_cannot_look(monkeypatch):
+    """
+    An unreachable vision model must not block a student's work — but must not pretend it looked.
+
+    Failing open is the right call here and the opposite of the rule elsewhere in this codebase:
+    refusing every drawing because Vertex is down would be worse than measuring one that should
+    not have been measured. What matters is that `source` says which happened.
+    """
+
+    class Boom:
+        def __init__(self, *args, **kwargs):
+            raise RuntimeError("no route to host")
+
+    import google.genai
+
+    monkeypatch.setattr(google.genai, "Client", Boom)
+
+    result = pre_router.classify_drawing(b"not really a png")
+
+    assert result.is_exercise is True
+    assert result.source == "fallback"
+    assert result.model_version == "none"

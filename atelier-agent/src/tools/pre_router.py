@@ -8,11 +8,11 @@ model made, and the `canny_thresholds` it "recommended" were consumed by nothing
 `geometry.py` hardcoded `cv2.Canny(blurred, 50, 150)`. It was documented across the README,
 the architecture diagram and the evidence log as a shipped Vertex AI feature.
 
-**Why it is no longer called Gemma.** Gemma is not a publisher model on Vertex AI — reaching it
-needs a Model Garden endpoint, which is a deployed and billed resource. Verified against this
-project: `gemma-3-27b-it`, `-12b-it` and `-4b-it` all return `404 NOT_FOUND`, as do every
-`*-flash-lite` variant. The only model this project can call is `gemini-3.5-flash`. Naming a
-module after a model it cannot reach is how the previous version came to exist.
+**Why it is no longer called `gemma_router`.** Gemma is not a publisher model on Vertex AI —
+`gemma-3-27b-it`, `-12b-it`, `-4b-it` and the Gemma 4 line all return `404 NOT_FOUND` there, as
+does every `*-flash-lite` variant. It *is* hosted on the Gemini API, which is where this module
+reaches it, with a key from Secret Manager. The old module named itself after a model it had
+never called through an endpoint that could not serve it.
 
 **Why the routing step is worth keeping at all.** The old one recommended `k`, which the caller
 already knew: `k` came from `student.level`, a stored profile field. A router that returns a
@@ -20,6 +20,19 @@ value you passed in is not a router. This one reads the student's own descriptio
 were practising — the free text from the ASK verb — and picks the perspective model from that.
 A beginner who drew a two-point corridor gets measured as a two-point drawing, because they
 said so, rather than as one-point because of a field in their profile.
+
+**Two models, because they are good at different things.**
+
+- `route_from_intent` runs on **Gemma 4** through the Gemini API. Words only. Measured on this
+  project's key: a structured routing answer in ~1.6 seconds, four times out of four.
+- `classify_drawing` runs on **Gemini 3.5 Flash** on Vertex AI, and looks at the photograph.
+  This is the gate the original design asked for and the deleted module never had: *is this even
+  a perspective exercise?* A picture of a cat, or a page too blurred to read, is refused here —
+  before the geometry engine and before a critique call spends tokens describing nothing.
+
+Gemma does not take the picture. Its vision path was measured and rejected: it spends the entire
+output budget reasoning and returns empty text, and at larger budgets it does not return at all.
+A pre-router that takes minutes has defeated its own purpose.
 """
 
 import logging
@@ -55,7 +68,7 @@ class RoutingDecision(BaseModel):
 class RoutingResult(RoutingDecision):
     """A routing decision plus where it came from."""
 
-    source: str = Field("fallback", description="'vertex' when a model decided, 'fallback' when the profile did")
+    source: str = Field("fallback", description="'gemma' when the router model decided, 'fallback' when the profile did")
     model_version: str = Field("profile-level", description="Set by the server, never by the model")
 
 
@@ -82,13 +95,12 @@ def route_from_intent(student_intent: str | None, student_level: str = "beginner
         from google import genai
         from google.genai import types
 
-        client = genai.Client(
-            vertexai=True,
-            project=settings.gcp_project,
-            location=settings.gemini_location,
-        )
+        if not settings.gemini_api_key:
+            raise ValueError("GEMINI_API_KEY is unset; the Gemma router is unreachable.")
+
+        client = genai.Client(api_key=settings.gemini_api_key)
         response = client.models.generate_content(
-            model=settings.gemini_model,
+            model=settings.router_model,
             contents=(
                 f'The student wrote: "{student_intent.strip()}"\n'
                 f"If it does not say, fall back to k={fallback_k} (their level is {student_level})."
@@ -106,11 +118,19 @@ def route_from_intent(student_intent: str | None, student_level: str = "beginner
         decision = RoutingDecision.model_validate_json(response.text)
         if decision.recommended_k not in (1, 2):
             raise ValueError(f"Router returned k={decision.recommended_k}; only 1 and 2 are measurable.")
+        # Observed on this model: it answered `2-point-oblique` with `recommended_k=1` for "a box
+        # at an angle". A router that contradicts itself is not usable output, whichever half is
+        # right, so it is refused rather than half-believed.
+        expected_k = 2 if "2-point" in decision.exercise_type else 1
+        if decision.recommended_k != expected_k:
+            raise ValueError(
+                f"Router contradicted itself: {decision.exercise_type} with k={decision.recommended_k}."
+            )
 
         return RoutingResult(
             **decision.model_dump(),
-            source="vertex",
-            model_version=settings.gemini_model,
+            source="gemma",
+            model_version=settings.router_model,
         )
     except Exception as exc:  # noqa: BLE001 - reported, not swallowed
         logger.warning(
@@ -119,3 +139,105 @@ def route_from_intent(student_intent: str | None, student_level: str = "beginner
             exc,
         )
         return fallback
+
+
+# ---------------------------------------------------------------------------------------------
+# The gate: is this even a perspective exercise?
+# ---------------------------------------------------------------------------------------------
+
+GATE_SYSTEM_PROMPT = """You look at a photograph of a page and decide whether it is a
+perspective drawing exercise that a geometry engine should measure.
+
+Answer with:
+- is_exercise: true only if there are straight construction lines receding towards one or more
+  vanishing points. A finished illustration, a portrait, a photograph of an object, a page of
+  text, a blank page, or an image too blurred to read straight edges: all false.
+- exercise_type: '1-point-box', '2-point-oblique', 'curvilinear' or 'not-an-exercise'
+- recommended_k: 1 or 2 when it is an exercise; 0 when it is not
+- reasoning: one short sentence saying what you saw
+
+Be strict. Measuring a drawing that is not a perspective exercise produces numbers that mean
+nothing, and a critique written about them is worse than no critique."""
+
+
+class DrawingGateDecision(BaseModel):
+    """What the vision model may decide about the photograph."""
+
+    is_exercise: bool = Field(..., description="Whether this is a perspective exercise worth measuring")
+    exercise_type: str = Field("not-an-exercise", description="'1-point-box', '2-point-oblique', 'curvilinear' or 'not-an-exercise'")
+    recommended_k: int = Field(0, description="1 or 2 when measurable, 0 when not")
+    reasoning: str = Field("", description="One sentence describing what was seen")
+
+
+class DrawingGateResult(DrawingGateDecision):
+    """A gate decision plus where it came from."""
+
+    source: str = Field("fallback", description="'vertex' when the model looked, 'fallback' when it could not")
+    model_version: str = Field("none", description="Set by the server, never by the model")
+
+
+def classify_drawing(image_bytes: bytes, mime_type: str = "image/png") -> DrawingGateResult:
+    """
+    Decide whether a photograph is worth measuring, before anything expensive happens.
+
+    This is the step the original design asked for — *1-point / 2-point / not-an-exercise, before
+    the analysis* — and the deleted module never performed: it read no image and returned a
+    branch on a string. The valuable class is the third one. Without it, a photograph of a cat
+    goes through RANSAC, produces a vanishing point from whatever edges exist, and a critique
+    call spends real tokens telling a child their line weight is confident.
+
+    **On failure it opens rather than closes.** An unreachable model must not silently stop a
+    student's work from being marked; the fallback says `is_exercise=True` and labels itself
+    `fallback`, so the caller can tell the difference between "we looked and it is a drawing"
+    and "we could not look".
+    """
+    open_gate = DrawingGateResult(
+        is_exercise=True,
+        exercise_type="1-point-box",
+        recommended_k=1,
+        reasoning="The gate model could not be reached; the drawing was let through unchecked.",
+        source="fallback",
+        model_version="none",
+    )
+
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(
+            vertexai=True,
+            project=settings.gcp_project,
+            location=settings.gemini_location,
+        )
+        response = client.models.generate_content(
+            model=settings.gemini_model,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+                "Is this a perspective drawing exercise?",
+            ],
+            config=types.GenerateContentConfig(
+                system_instruction=GATE_SYSTEM_PROMPT,
+                response_mime_type="application/json",
+                response_schema=DrawingGateDecision,
+                temperature=0.0,
+            ),
+        )
+        if not response.text:
+            raise ValueError("Empty gate response.")
+
+        decision = DrawingGateDecision.model_validate_json(response.text)
+        if decision.is_exercise and decision.recommended_k not in (1, 2):
+            raise ValueError(f"Gate said exercise but k={decision.recommended_k}.")
+
+        return DrawingGateResult(
+            **decision.model_dump(),
+            source="vertex",
+            model_version=settings.gemini_model,
+        )
+    except Exception as exc:  # noqa: BLE001 - reported, not swallowed
+        logger.warning(
+            "Drawing gate unavailable (%s: %s); letting the image through unchecked.",
+            type(exc).__name__,
+            exc,
+        )
+        return open_gate

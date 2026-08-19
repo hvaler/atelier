@@ -92,7 +92,7 @@
   2. **GUIDE**: Targeted exercise prescriptions driven by recurring deviation patterns.
   3. **CAPTURE**: Explicit student feedback (`helpful: bool` + note) saved as immutable events.
   4. **ADAPT**: Dynamic profile derivation (shifting tone from technical to encouraging automatically).
-- 🧠 **Intent Pre-Router on Vertex AI**: before any measurement, the student's own description of what they were practising chooses the perspective model. A beginner who writes *"the corner of a building"* is measured as two-point, because they said so — not as one-point because of a field in their profile. Falls back to the profile level when there is nothing to read, and **says which happened** (`source: vertex | fallback`).
+- 🧠 **Two-stage pre-router, two models**: **Gemma 4** (`gemma-4-26b-a4b-it`, Gemini API) reads the student's own description and picks 1-point or 2-point — a beginner who writes *"the corner of a building"* is measured as two-point because they said so, not as one-point because of a field in their profile. **Gemini 3.5 Flash** (Vertex AI) then *looks at the photograph* and answers the question that saves the most work: **is this a perspective exercise at all?** A page of text or a blank sheet is refused before the geometry engine runs and before a critique spends tokens describing nothing. Both label their own provenance (`source: gemma | vertex | fallback`).
 - 📈 **Append-Only Memory & Weekly Digests**: Event-sourced progression tracking in Google Cloud Firestore with automated weekly practice plans synthesized via Cloud Scheduler.
 - 🔒 **Async-First & Privacy-Preserving (ADR-004, ADR-006)**: Private Google Cloud Storage inbox (`gs://atelier-hack-inbox/{studentId}/`), Eventarc triggers, signed URLs, and first-names-only privacy model for young students.
 
@@ -109,7 +109,7 @@ In the spirit of radical technical honesty, here is what is 100% implemented ver
 | **Two-Plane Critique Model** | ✅ **100% Complete & Validated** | Plane A (OpenCV measured) + Plane B (Studio qualitative rubric) strictly separated. |
 | **Anti-Hallucination Validator** | ✅ **100% Complete & Tested** | In-code gate rejecting fabricated numerical measurements with feedback retry loop. |
 | **Collaborative Loop (4 Verbs)** | ✅ **100% Complete** | Ask, Guide, Capture & Adapt with dynamic tone shift and Firestore append-only models. |
-| **Intent Pre-Router** | ✅ Complete | `/api/router/classify` chooses k=1 or k=2 from the student's description, labelled with its own provenance. **The Gemma bonus is not claimed**: Gemma is not a publisher model on Vertex AI and reaching it needs a billed Model Garden endpoint. |
+| **Two-stage Pre-Router** | ✅ Complete (+0.2 bonus: Gemma) | `/api/router/classify` on Gemma 4, `/api/router/gate` on Gemini 3.5 Flash vision. Gemma's vision path was measured and rejected: it spends its whole output budget reasoning and returns empty. |
 | **Async GCS Ingestion (Eventarc + Scheduler)** | ✅ **Verified on GCP (2026-08-18)** | Object finalize triggers Cloud Run pipeline and persists immutable events in Firestore. |
 | **Multimodal Blazor UI** | ✅ **100% Complete** | Interactive overlay viewer, side-by-side comparison, and SVG progress curve. |
 | **3-Point Curvilinear Perspective ($k=3$)** | ⏳ *Planned for Phase 2* | 3-point worm/bird's-eye perspective is planned for high-level architectural rendering. |

@@ -27,6 +27,21 @@ class Settings(BaseSettings):
     #: drawings inside the EU and co-located with the Firestore database (eur3).
     gemini_location: str = os.getenv("GEMINI_LOCATION", "europe-west3")
 
+    #: The routing model, and the key that reaches it.
+    #:
+    #: Gemma is not published on Vertex AI — `gemma-3-*-it` and `gemma-4-*` all return 404 there,
+    #: and reaching one would need a billed Model Garden endpoint. It *is* hosted on the Gemini
+    #: API, which authenticates with an API key rather than ADC. That is the only reason this
+    #: project has a second credential path; it is scoped to one call and read from Secret
+    #: Manager, never committed.
+    #:
+    #: Verified on this key: gemma-4-26b-a4b-it answers a structured routing prompt in ~1.6s,
+    #: four times out of four. Its vision path does not work — it spends the whole output budget
+    #: reasoning and returns empty, and at larger budgets it hangs for minutes. So Gemma reads
+    #: words and `gemini_model` looks at pictures.
+    router_model: str = os.getenv("ROUTER_MODEL", "gemma-4-26b-a4b-it")
+    gemini_api_key: str | None = os.getenv("GEMINI_API_KEY")
+
     #: Where student memory lives. Firestore in production, dicts everywhere else.
     #:
     #: Explicit rather than inferred from whether credentials happen to be present: a service

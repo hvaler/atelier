@@ -25,8 +25,8 @@ graph TB
         end
 
         subgraph "Google Vertex AI"
-            Router["🧠 Gemini 3.5 Flash
-(Intent Pre-Routing)"]
+            Router["🧠 Gemma 4 (Gemini API)
+(Routes from the student's words)"]
             Gemini["✨ Gemini Flash\n(Level-Aware Two-Plane Critique)"]
         end
 
@@ -44,6 +44,7 @@ graph TB
     Scheduler -->|Weekly POST /api/digest/weekly| AgentService
 
     AgentService -->|Route from student intent| Router
+    AgentService -->|Is this an exercise at all?| Gemini
     AgentService -->|Generate Studio Critique| Gemini
     AgentService -->|Persist Exercises & Read Profile| Firestore
 

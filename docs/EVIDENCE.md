@@ -115,19 +115,39 @@ Every case runs without credentials: the deterministic fallback path, an injecte
 failure, a refused `k=3`, and a mocked successful decision. What CI enforces is that an
 unreachable model produces a **labelled** fallback rather than a confident invention.
 
-### Verified Output — a live routing decision
+### Verified Output — both stages, measured
+
+**Stage 1 — Gemma 4 routes from words** (`gemma-4-26b-a4b-it`, Gemini API, ~1.6s each, 4/4):
 
 ```text
-"I was drawing a long corridor going away from me"   beginner -> k=1  1-point-box      [vertex]
-"the corner of a building, seen from the street"     beginner -> k=2  2-point-oblique  [vertex]
-"a box at an angle on my desk"                       advanced -> k=2  2-point-oblique  [vertex]
-(no description)                                     advanced -> k=2  2-point-oblique  [fallback]
+"a long corridor going away from me"          beginner -> k=1  1-point-box      [gemma]
+"the corner of a building from the street"    beginner -> k=2  2-point-oblique  [gemma]
+"a box at an angle on my desk"                advanced -> k=2  2-point-oblique  [gemma]
+(no description)                              advanced -> k=2  2-point-oblique  [fallback]
 ```
 
-The second line is the reason the step exists: a **beginner** is measured as two-point because
-of what they wrote, overriding the level stored on their profile. The last line is the reason it
-is trustworthy: with nothing to read it falls back and says so, instead of inventing a
-confidence figure — the old stub reported `0.94` for a decision no model made.
+The second line is why the step exists: a **beginner** is measured as two-point because of what
+they wrote, overriding the level stored on their profile.
+
+**Stage 2 — Gemini 3.5 Flash looks at the page** (`/api/router/gate`, Vertex AI):
+
+```text
+2-point calibration drawing   is_exercise=True   k=2  "construction lines of a box in two-point
+                                                       perspective"
+a page of typed text          is_exercise=False  k=0  "only repeated lines of text and no drawings
+                                                       or perspective lines"
+a blank page                  is_exercise=False  k=0  "the image is completely blank"
+```
+
+This is the gate the original design asked for and the deleted module never had. Without it a
+photograph of a cat goes through RANSAC, produces a vanishing point from whatever edges exist,
+and a critique call spends real tokens telling a child their line weight is confident.
+
+**Why the work is split across two models.** Gemma's vision path was measured and rejected: with
+an image attached it returns `finish_reason=MAX_TOKENS` and empty text at 80 and 300 output
+tokens, and at 800 it does not return for over six minutes. `thinking_budget` is not supported on
+Gemma, so the reasoning cannot be capped. A pre-router that takes minutes has defeated its own
+purpose. Gemma reads words; Gemini looks at pictures.
 
 ---
 

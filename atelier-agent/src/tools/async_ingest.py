@@ -13,6 +13,7 @@ from src.models.memory import ExerciseRecord
 from src.tools.critique import generate_pedagogical_critique
 from src.tools.geometry import analyze_geometry, decode_image_base64
 from src.tools.memory import memory_repo
+from src.tools.pre_router import classify_drawing
 
 logger = logging.getLogger(__name__)
 
@@ -75,15 +76,25 @@ def process_gcs_upload_event(event: GcsEventPayload) -> GcsProcessingResponse:
         else download_drawing_from_gcs(event.bucket, event.name)
     )
 
-    # 3. Deterministic geometry analysis (ADR-001)
-    k_points = 1 if student.level == "beginner" else 2
+    # 3. The gate, before anything expensive. Nobody is watching this path — a file lands in a
+    #    bucket and the pipeline runs — so this is exactly where a photograph that is not a
+    #    drawing would otherwise be measured, critiqued and filed under a child's name.
+    gate = classify_drawing(cv2.imencode(".png", image)[1].tobytes())
+    if not gate.is_exercise:
+        raise ValueError(
+            f"gs://{event.bucket}/{event.name} is not a perspective exercise: {gate.reasoning}"
+        )
+
+    # 4. Deterministic geometry analysis (ADR-001). The gate's k wins when it looked at the
+    #    drawing; the profile level is only the fallback.
+    k_points = gate.recommended_k if gate.source == "vertex" else (1 if student.level == "beginner" else 2)
     geom_result = analyze_geometry(
         image=image,
         k_points=k_points,
         generate_overlay_flag=True,
     )
 
-    # 4. Generate pedagogical critique (Gemini 3.5 Flash on Vertex AI)
+    # 5. Generate pedagogical critique (Gemini 3.5 Flash on Vertex AI)
     critique_req = CritiqueRequest(
         geometry=geom_result,
         student=student,
@@ -92,7 +103,7 @@ def process_gcs_upload_event(event: GcsEventPayload) -> GcsProcessingResponse:
     )
     critique_resp = generate_pedagogical_critique(critique_req)
 
-    # 5. Persist to append-only memory (ADR-005)
+    # 6. Persist to append-only memory (ADR-005)
     exercise_id = f"ex-gcs-{uuid.uuid4().hex[:8]}"
     record = ExerciseRecord(
         exercise_id=exercise_id,

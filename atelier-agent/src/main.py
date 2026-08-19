@@ -217,7 +217,12 @@ def list_student_digests(student_id: str) -> list[WeeklyDigest]:
     return get_student_digests(student_id)
 
 
-from src.tools.pre_router import RoutingResult, route_from_intent
+from src.tools.pre_router import (
+    DrawingGateResult,
+    RoutingResult,
+    classify_drawing,
+    route_from_intent,
+)
 
 
 class RouterRequest(BaseModel):
@@ -229,11 +234,24 @@ class RouterRequest(BaseModel):
 
 @app.post("/api/router/classify", response_model=RoutingResult, status_code=status.HTTP_200_OK)
 def classify_drawing_intent(request: RouterRequest) -> RoutingResult:
-    """Choose the perspective model from the student's own description of what they drew."""
+    """Choose the perspective model from the student's own description, on Gemma 4."""
     return route_from_intent(
         student_intent=request.student_intent,
         student_level=request.student_level_hint,
     )
+
+
+@app.post("/api/router/gate", response_model=DrawingGateResult, status_code=status.HTTP_200_OK)
+def gate_drawing(request: GeometryAnalysisRequest) -> DrawingGateResult:
+    """Is this photograph a perspective exercise at all? Gemini 3.5 Flash looks before we measure."""
+    if not request.image_base64:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="image_base64 must be provided in the request body.",
+        )
+    import base64
+
+    return classify_drawing(base64.b64decode(request.image_base64))
 
 
 @app.get("/")

@@ -91,7 +91,7 @@ Three-point and curvilinear perspective ($k=3$), more exercise families behind t
 | **Live Hosted Web UI** | `https://atelier-web-773993294789.europe-west1.run.app` | ✅ Live on Cloud Run |
 | **Backend API (Swagger)** | `https://atelier-agent-773993294789.europe-west1.run.app/docs` | ✅ Live on Cloud Run |
 | **Architecture** | `https://github.com/hvaler/atelier/blob/main/docs/ARCHITECTURE.md` | Mermaid system + sequence diagrams |
-| **Bonus 1 (+0.2 pts)** | *Not claimed.* **Gemma** is not a publisher model on Vertex AI — `gemma-3-27b-it`, `-12b-it` and `-4b-it` all return 404 in this project, and reaching one needs a billed Model Garden endpoint. The routing step is real, but it runs on Gemini 3.5 Flash. | — |
+| **Bonus 1 (+0.2 pts)** | **Gemma 4 pre-router** (`/api/router/classify`) — `gemma-4-26b-a4b-it` on the Gemini API routes 1-point vs 2-point from the student's own description in ~1.6s. Gemma is *not* on Vertex AI (`gemma-*` returns 404 there), so this is the Gemini API backend, keyed from Secret Manager. | ✅ |
 | **Bonus 2 (+0.2 pts)** | [Dev.to Article](https://dev.to/hugo_valer_79d0d94e00804b/the-geometry-measures-the-ai-teaches-building-an-art-studio-tutor-with-adk-vertex-ai-opencv-551m) | ✅ Published |
 | **Bonus 3 (+0.2 pts)** | [X / Twitter Post](https://x.com/hugo_valer/status/2089965500713296311?s=20) | ✅ Published |
 | **Video Demo (≤4 min)** | Video Runbook (`docs/VIDEO_RECORDING_RUNBOOK.md`) | ⏳ Record & upload to YouTube |
