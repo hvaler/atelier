@@ -214,11 +214,49 @@ public class CritiqueOutputDto
     [JsonPropertyName("next_exercise")]
     public NextExerciseRecommendationDto NextExercise { get; set; } = new();
 
+    /// <summary>
+    /// Where this critique came from: "vertex" when Gemini answered, "fallback" when the
+    /// deterministic studio template did. Defaults to "fallback" for the same reason the server
+    /// does — unless something proves a model was involved, none was. The green
+    /// "Anti-Hallucination: Validated" badge is gated on this.
+    /// </summary>
+    [JsonPropertyName("source")]
+    public string Source { get; set; } = "fallback";
+
     [JsonPropertyName("model_version")]
-    public string ModelVersion { get; set; } = "gemini-3.5-flash";
+    public string ModelVersion { get; set; } = "deterministic-template";
 
     [JsonPropertyName("validated")]
-    public bool Validated { get; set; } = true;
+    public bool Validated { get; set; }
+}
+
+/// <summary>
+/// An exercise as the agent stores it. The UI used to mint an id locally and never send this,
+/// so feedback arrived for an exercise that did not exist, the 404 was swallowed, and the screen
+/// said "Profile Adapted" over an empty database.
+/// </summary>
+public class ExerciseRecordDto
+{
+    [JsonPropertyName("exercise_id")]
+    public string ExerciseId { get; set; } = string.Empty;
+
+    [JsonPropertyName("student_id")]
+    public string StudentId { get; set; } = string.Empty;
+
+    [JsonPropertyName("source")]
+    public string Source { get; set; } = "upload";
+
+    [JsonPropertyName("student_intent")]
+    public string? StudentIntent { get; set; }
+
+    [JsonPropertyName("student_difficulty")]
+    public string? StudentDifficulty { get; set; }
+
+    [JsonPropertyName("geometry_analysis")]
+    public GeometryAnalysisResultDto? GeometryAnalysis { get; set; }
+
+    [JsonPropertyName("critique")]
+    public CritiqueOutputDto? Critique { get; set; }
 }
 
 public class CritiqueRequestDto

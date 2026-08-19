@@ -9,7 +9,8 @@ public interface IAtelierAgentClient
     Task<AskPromptDataDto?> GetAskPromptAsync(string studentId);
     Task<GeometryAnalysisResultDto?> AnalyzeGeometryAsync(string imageBase64, int kPoints, bool generateOverlay = true);
     Task<CritiqueResponseDto?> GenerateCritiqueAsync(CritiqueRequestDto request);
-    Task<FeedbackRequestDto?> SubmitFeedbackAsync(string exerciseId, string studentId, bool helpful, string? note);
+    Task<ExerciseRecordDto?> SaveExerciseAsync(ExerciseRecordDto exercise);
+    Task<bool> SubmitFeedbackAsync(string exerciseId, string studentId, bool helpful, string? note);
     Task<DerivedProfileDto?> GetDerivedProfileAsync(string studentId);
     Task<NextExerciseRecommendationDto?> GetNextGuidedExerciseAsync(string studentId);
     Task<WeeklyDigestDto?> GetWeeklyDigestAsync(string studentId);
@@ -78,34 +79,12 @@ public class AtelierAgentClient : IAtelierAgentClient
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to analyze geometry on atelier-agent.");
+            _logger.LogError(ex, "Failed to analyze geometry on atelier-agent.");
+            return null;
         }
 
-        // Fallback simulation for tests/offline
-        return new GeometryAnalysisResultDto
-        {
-            KRequested = kPoints,
-            KDetected = kPoints,
-            AvgConvergenceErrorDeg = kPoints == 1 ? 1.8 : 2.4,
-            MaxConvergenceErrorDeg = kPoints == 1 ? 3.2 : 4.6,
-            Confidence = 0.88,
-            ConfidenceLow = false,
-            LineCount = 8,
-            ImageWidth = 800,
-            ImageHeight = 600,
-            VanishingPoints =
-            [
-                new VanishingPointDto
-                {
-                    Index = 0,
-                    Label = kPoints == 1 ? "VP" : "F1",
-                    Point = new Point2DDto { X = 400, Y = 250, NormX = 0.5, NormY = 0.41 },
-                    AvgErrorDeg = 1.8,
-                    SupportingLines = 6
-                }
-            ],
-            OverlayImageBase64 = imageBase64
-        };
+        _logger.LogError("atelier-agent refused the analysis request.");
+        return null;
     }
 
     public async Task<CritiqueResponseDto?> GenerateCritiqueAsync(CritiqueRequestDto request)
@@ -120,65 +99,52 @@ public class AtelierAgentClient : IAtelierAgentClient
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to generate critique on atelier-agent.");
+            _logger.LogError(ex, "Failed to generate critique on atelier-agent.");
+            return null;
         }
 
-        // Fallback critique
-        var isBeginner = request.Student.Level == "beginner";
-        return new CritiqueResponseDto
-        {
-            Cached = false,
-            ValidationRetries = 0,
-            Critique = new CritiqueOutputDto
-            {
-                StudentName = request.Student.Name,
-                Level = request.Student.Level,
-                Headline = isBeginner ? $"Wonderful 3D Practice, {request.Student.Name}!" : $"Perspective Review: Solid Volumetric Structure, {request.Student.Name}",
-                ModelVersion = "gemini-3.5-flash",
-                Validated = true,
-                MeasuredFindings =
-                [
-                    new MeasuredFindingItemDto
-                    {
-                        MetricName = "average_convergence_error",
-                        MeasuredValue = request.Geometry.AvgConvergenceErrorDeg,
-                        Unit = "degrees",
-                        PedagogicalContext = $"Your perspective lines show an average deviation of {request.Geometry.AvgConvergenceErrorDeg:F1}° to the horizon vanishing points."
-                    }
-                ],
-                QualitativeObservations =
-                [
-                    new QualitativeObservationItemDto
-                    {
-                        Aspect = "line_weight",
-                        Observation = "Clear distinction between light construction guidelines and final contours.",
-                        Status = "strength"
-                    },
-                    new QualitativeObservationItemDto
-                    {
-                        Aspect = "spatial_clarity",
-                        Observation = "Clean volume definition with readable receding planes.",
-                        Status = "proficient"
-                    }
-                ],
-                PedagogicalSummary = new PedagogicalSummaryDto
-                {
-                    Strengths = ["Clean depth lines", "Steady vertical axes"],
-                    FocusArea = "Refining secondary convergence edges towards the distant horizon.",
-                    Encouragement = $"Great work, {request.Student.Name}! Every drawing strengthens your 3D spatial vision."
-                },
-                NextExercise = new NextExerciseRecommendationDto
-                {
-                    Title = isBeginner ? "3 Aligned Boxes in Space" : "2-Point Stepped Volume Drill",
-                    Description = isBeginner ? "Draw three boxes pointing to the same dot on the horizon line." : "Construct two intersecting rectangular forms converging to F1 and F2.",
-                    TargetMetric = isBeginner ? "1-point VP consistency" : "2-point oblique perspective",
-                    Difficulty = isBeginner ? "beginner" : "advanced"
-                }
-            }
-        };
+        // No fallback critique. This method used to hand back a hand-written one, so a dead
+        // agent looked identical to a working one: the page showed a confident two-plane
+        // critique with the green validated badge, composed entirely in this file. The screen
+        // now says the agent is unreachable, which is the only true thing available.
+        _logger.LogError("atelier-agent refused the critique request.");
+        return null;
     }
 
-    public async Task<FeedbackRequestDto?> SubmitFeedbackAsync(string exerciseId, string studentId, bool helpful, string? note)
+    /// <summary>
+    /// Persist the exercise so that feedback has something to attach to.
+    ///
+    /// The UI never called this. It minted an id locally, so every feedback submission hit a
+    /// 404 that the client swallowed, and the screen reported the profile as adapted.
+    /// </summary>
+    public async Task<ExerciseRecordDto?> SaveExerciseAsync(ExerciseRecordDto exercise)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("/api/exercises", exercise);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<ExerciseRecordDto>();
+            }
+
+            _logger.LogError(
+                "Agent refused to save exercise {ExerciseId}: HTTP {Status}",
+                exercise.ExerciseId, (int)response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save exercise {ExerciseId}", exercise.ExerciseId);
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Record a thumbs up or down. Returns whether it was actually recorded.
+    ///
+    /// This used to return the request payload on both paths, so a caller could not tell a
+    /// stored event from a dropped one — and the UI, reasonably, assumed success.
+    /// </summary>
+    public async Task<bool> SubmitFeedbackAsync(string exerciseId, string studentId, bool helpful, string? note)
     {
         try
         {
@@ -186,14 +152,18 @@ public class AtelierAgentClient : IAtelierAgentClient
             var response = await _httpClient.PostAsJsonAsync($"/api/exercises/{exerciseId}/feedback", payload);
             if (response.IsSuccessStatusCode)
             {
-                return payload;
+                return true;
             }
+
+            _logger.LogError(
+                "Agent refused feedback for exercise {ExerciseId}: HTTP {Status}",
+                exerciseId, (int)response.StatusCode);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to submit feedback for exercise {ExerciseId}", exerciseId);
+            _logger.LogError(ex, "Failed to submit feedback for exercise {ExerciseId}", exerciseId);
         }
-        return new FeedbackRequestDto { StudentId = studentId, Helpful = helpful, Note = note };
+        return false;
     }
 
     public async Task<DerivedProfileDto?> GetDerivedProfileAsync(string studentId)

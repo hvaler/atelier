@@ -57,11 +57,15 @@
                 <h6 class="fw-bold text-light mb-0">Was this critique helpful? (CAPTURE & ADAPT)</h6>
                 <small class="text-secondary">Your feedback automatically adapts the agent's tone and exercises</small>
             </div>
-            @if (FeedbackSubmitted)
+            @if (FeedbackSubmitted && AdaptedProfile is not null)
             {
                 <span class="badge bg-success px-3 py-2 rounded-pill">
-                    Profile Adapted ✓
+                    Profile Adapted ✓ — tone: @AdaptedProfile.DerivedTonePreference
                 </span>
+            }
+            else if (FeedbackError is not null)
+            {
+                <span class="badge bg-danger px-3 py-2 rounded-pill">@FeedbackError</span>
             }
         </div>
 
@@ -128,7 +132,25 @@
         if (!HelpfulChoice.HasValue || string.IsNullOrEmpty(ExerciseId))
             return;
 
-        await AgentClient.SubmitFeedbackAsync(ExerciseId, StudentId, HelpfulChoice.Value, FeedbackNote);
-        FeedbackSubmitted = true;
+        // Only claim the profile adapted if the agent says it stored the event. This line used
+        // to be unconditional: the client returned its own request payload whether the call had
+        // succeeded or 404'd, so the badge appeared over an append-only store that had appended
+        // nothing.
+        FeedbackSubmitted = await AgentClient.SubmitFeedbackAsync(
+            ExerciseId, StudentId, HelpfulChoice.Value, FeedbackNote);
+
+        if (FeedbackSubmitted)
+        {
+            // Read the profile back and show what actually changed, rather than asserting that
+            // something did.
+            AdaptedProfile = await AgentClient.GetDerivedProfileAsync(StudentId);
+        }
+        else
+        {
+            FeedbackError = "The agent did not record that. Nothing was changed.";
+        }
     }
+
+    private DerivedProfileDto? AdaptedProfile { get; set; }
+    private string? FeedbackError { get; set; }
 }

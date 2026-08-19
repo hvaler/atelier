@@ -20,9 +20,24 @@
                     <p class="mb-0 text-white-50 small">Critique tailored for @Critique.StudentName • Grounded strictly on OpenCV (ADR-001)</p>
                 </div>
                 <div>
-                    <span class="badge bg-success bg-opacity-75 px-3 py-2 rounded-pill font-monospace small">
-                        Anti-Hallucination: Validated ✓
-                    </span>
+                    @* The green badge is earned, not decorative. It used to render over the
+                       deterministic studio template, which no model produced and which stamped
+                       itself validated=true — so deleting Vertex AI from the project would have
+                       changed nothing visible on this screen. *@
+                    @if (Critique.Source == "vertex" && Critique.Validated)
+                    {
+                        <span class="badge bg-success bg-opacity-75 px-3 py-2 rounded-pill font-monospace small">
+                            Anti-Hallucination: Validated ✓
+                        </span>
+                        <div class="text-white-50 small mt-1 font-monospace">@Critique.ModelVersion</div>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill font-monospace small">
+                            Deterministic fallback — no model answered
+                        </span>
+                        <div class="text-white-50 small mt-1 font-monospace">@Critique.ModelVersion</div>
+                    }
                 </div>
             </div>
         </div>

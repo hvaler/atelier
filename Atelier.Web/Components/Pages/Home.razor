@@ -78,8 +78,10 @@
                                      OnAskCompleted="HandleAskCompleted" />
             }
 
-            <!-- Verb 3: CAPTURE Feedback Card -->
-            @if (AnalysisCompleted)
+            <!-- Verb 3: CAPTURE Feedback Card. Only offered when the exercise was actually
+                 stored — asking for feedback on something that does not exist is how the screen
+                 came to report a profile as adapted over an empty database. -->
+            @if (AnalysisCompleted && ExerciseSaved)
             {
                 <CollaborativeDialog Mode="feedback"
                                      ExerciseId="@CurrentExerciseId"
@@ -93,6 +95,16 @@
             <OverlayViewer Geometry="CurrentGeometry" OriginalImageBase64="@CurrentBase64" />
 
             <!-- Two-Plane Pedagogical Critique -->
+            @if (AgentUnavailable)
+            {
+                <div class="alert alert-danger border-0 rounded-4">
+                    <strong>The analysis service did not answer.</strong>
+                    <div class="small mt-1">
+                        Nothing is shown rather than something invented. This page used to fill in
+                        hardcoded numbers here, which looked exactly like a working system.
+                    </div>
+                </div>
+            }
             @if (IsAnalyzing)
             {
                 <div class="card border-0 shadow-sm rounded-4 p-5 bg-dark text-center text-white">
@@ -118,6 +130,13 @@
     private GeometryAnalysisResultDto? CurrentGeometry { get; set; }
     private CritiqueOutputDto? CurrentCritique { get; set; }
     private string CurrentExerciseId { get; set; } = string.Empty;
+    /// <summary>Whether the agent actually stored this exercise. The feedback step is only
+    /// offered when it did — asking for feedback on something that was never saved is how the
+    /// screen came to report a profile as adapted over an empty database.</summary>
+    private bool ExerciseSaved { get; set; }
+    /// <summary>The agent did not answer. Said out loud, because the alternative was a page of
+    /// hardcoded numbers that looked exactly like a working system.</summary>
+    private bool AgentUnavailable { get; set; }
 
     private bool IsAnalyzing { get; set; }
     private bool AnalysisCompleted { get; set; }
@@ -179,6 +198,7 @@
             : string.Empty;
 
         CurrentGeometry = await AgentClient.AnalyzeGeometryAsync(CurrentBase64, kPoints, generateOverlay: true);
+        AgentUnavailable = CurrentGeometry is null;
         IsAnalyzing = false;
     }
 
@@ -205,7 +225,7 @@
         if (CurrentGeometry == null || CurrentStudent == null) return;
 
         IsAnalyzing = true;
-        CurrentExerciseId = $"ex-ui-{Guid.NewGuid().ToString("N")[..8]}";
+        ExerciseSaved = false;
 
         var critiqueReq = new CritiqueRequestDto
         {
@@ -213,11 +233,35 @@
             Student = CurrentStudent,
             StudentIntent = context.Intent,
             StudentDifficulty = context.Difficulty,
-            UseCache = true
+            // Off by default. Under a rule that mandates an unedited live execution, demoing a
+            // disk read is not demoing an agent — and a cached critique cannot be about the
+            // drawing that was just uploaded.
+            UseCache = false
         };
 
         var response = await AgentClient.GenerateCritiqueAsync(critiqueReq);
         CurrentCritique = response?.Critique;
+        AgentUnavailable = CurrentCritique is null;
+
+        // Persist the exercise and adopt the id the agent gives back. This is what makes the
+        // feedback step real: the id used to be minted here and never sent, so every thumbs-up
+        // arrived for an exercise the agent had never heard of.
+        if (CurrentCritique is not null)
+        {
+            var saved = await AgentClient.SaveExerciseAsync(new ExerciseRecordDto
+            {
+                ExerciseId = $"ex-ui-{Guid.NewGuid().ToString("N")[..8]}",
+                StudentId = CurrentStudent.StudentId,
+                Source = "upload",
+                StudentIntent = context.Intent,
+                StudentDifficulty = context.Difficulty,
+                GeometryAnalysis = CurrentGeometry,
+                Critique = CurrentCritique
+            });
+
+            CurrentExerciseId = saved?.ExerciseId ?? string.Empty;
+            ExerciseSaved = saved is not null;
+        }
 
         IsAnalyzing = false;
         AnalysisCompleted = true;
