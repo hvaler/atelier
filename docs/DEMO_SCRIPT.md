@@ -60,7 +60,7 @@ plate reads better than a sketch. Then screen share.]**
 > A published rubric cannot make that distinction, because making it means measuring each family's
 > mean direction separately."*
 
-**[Type a short answer, press *Analizar mi dibujo*.]**
+**[Type a short answer, press *Analyze Drawing with My Context* — *Analizar mi dibujo* in Spanish.]**
 
 ### 2.3 The critique, and what guards it (1:10 – 1:35)
 
@@ -74,7 +74,7 @@ plate reads better than a sketch. Then screen share.]**
 
 ### 2.4 The refusal (1:35 – 1:50)
 
-**[*Analizar otro dibujo* → upload a page of handwriting.]**
+**[*Analyse another drawing* → upload a page of handwriting.]**
 
 > *"Gemini looks at the photograph **before anything is measured**, and declines — in its own words.*
 >
@@ -135,7 +135,7 @@ plate reads better than a sketch. Then screen share.]**
 
 **[Visual: the GitHub repository.]**
 
-> *"Open source under Apache 2.0. **Ninety-eight automated tests** — ninety Python, eight .NET. The
+> *"Open source under Apache 2.0. **One hundred automated tests** — ninety-two Python, eight .NET. The
 > golden case asserts that a six-degree error comes back as six degrees **to within five hundredths
 > of a degree**, and the perspective suite cannot hold a bound that tight. We state the difference
 > instead of hiding it.*

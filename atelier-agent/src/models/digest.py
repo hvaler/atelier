@@ -21,8 +21,21 @@ class WeeklyDigest(BaseModel):
     student_name: str
     week_id: str = Field(..., description="ISO week identifier, e.g. '2026-W34'")
     total_drawings: int
-    weekly_avg_convergence_error_deg: float
-    error_reduction_deg: float = Field(0.0, description="Positive value indicates reduction/improvement in error")
+    weekly_avg_convergence_error_deg: float | None = Field(
+        None,
+        description=(
+            "Mean convergence error over the week's CONIC exercises only. None when the week "
+            "contained none — the mean of an empty set is not zero, and a 0.0 here would read as "
+            "a perfect week."
+        ),
+    )
+    error_reduction_deg: float | None = Field(
+        None,
+        description=(
+            "Positive value indicates reduction/improvement in error. None when there were fewer "
+            "than two conic exercises to compare."
+        ),
+    )
     recurring_issues: list[str]
     weekly_summary: str
     recommended_focus: str

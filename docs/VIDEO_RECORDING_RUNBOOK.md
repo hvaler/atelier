@@ -26,6 +26,9 @@ Phase 2 is the uncut take. Everything else may be cut together.
    also showing paper. Decide before, not during.
 5. **Collapse or expand the rail deliberately.** It remembers, so whatever you leave it as is what
    the take opens with.
+   > **Button labels below are given in English first, Spanish in brackets.** The interface is fully
+   > bilingual, so quote whichever set matches the language you are narrating in — the beats are the
+   > same either way.
 6. **Have a page of handwriting ready** as an image file, for the refusal beat.
 7. **Do not clear Firestore.** `level-basic` carries real accumulated history, and the history panel
    and progression page are worth more full than empty.
@@ -59,15 +62,17 @@ Screen recording of the deployed app. Do not cut inside this phase.
 
 ### 2.1 Step one — choose (0:35 – 0:50)
 
-- The studio opens on **Dibujo**, step one of three. The indicator is in the top bar.
-- Show the calibration grid. Say what the labels under each thumbnail mean: **cónica /
-  axonométrica / diédrico** — three of the four systems of representation, each measured against a
-  different reference.
-- Pick **`07_isometric_error_6deg.png`** — *"Isométrica (eje X colocado 6° mal)"*.
+- The studio opens on **Drawing** [*Dibujo*], step one of three. The indicator is in the top bar.
+- Show the calibration grid. Say what the eyebrow above each thumbnail means: **CONIC /
+  AXONOMETRIC / ORTHOGRAPHIC** — three of the four systems of representation, each measured
+  against a different reference.
+- Pick **`07_isometric_error_6deg.png`** — *"Isometric (X axis set 6° wrong)"*
+  [*"Isométrica (eje X colocado 6° mal)"*].
 
 ### 2.2 Step two — context (0:50 – 1:05)
 
-- The page advances to **Contexto** with the measurement already on screen beside the questions.
+- The page advances to **Context** [*Contexto*] with the measurement already on screen beside the
+  questions.
 - Point at the axis table while you talk:
   - **X: nominal 30,0° · measured 36,0° · systematic +6,0°**, and Y and Z at 0,0°.
 - **This is the beat that sells the project.** Say it plainly:
@@ -77,7 +82,8 @@ Screen recording of the deployed app. Do not cut inside this phase.
 - Then the pedagogical half, which is the part a rubric cannot do:
   > *"A whole family off by the same amount is a set square placed wrong, not an unsteady hand. One
   > correction, before drawing — not edge by edge."*
-- Type a short answer in the first textarea and press **Analizar mi dibujo**.
+- Type a short answer in the first textarea and press **Analyze Drawing with My Context**
+  [*Analizar mi dibujo*].
 
 ### 2.3 Step three — the critique (1:05 – 1:30)
 
@@ -85,14 +91,19 @@ Screen recording of the deployed app. Do not cut inside this phase.
   and a validator rejects any figure the model did not get from it. **Plane B is forbidden a number
   at all**, in either language.
 - When it lands, read one Plane A finding aloud and point at the green
-  **Sin alucinaciones: verificado ✓** badge with `gemini-3.5-flash` under it.
+  **Anti-Hallucination: Validated ✓** [*Sin alucinaciones: verificado ✓*] badge with
+  `gemini-3.5-flash` under it.
 - **The honesty beat**: the badge is earned per critique. When the model is unreachable the same
-  panel turns amber — *"Plantilla determinista — ningún modelo respondió"* — with the real
-  `model_version` beneath. Say that it appears only when Gemini actually answered.
+  panel turns amber — *"Deterministic fallback — no model answered"* / *"Plantilla determinista —
+  ningún modelo respondió"* — with the real `model_version` beneath. Say that it appears only when
+  Gemini actually answered.
+- The subtitle under the headline reads **"Grounded strictly on OpenCV measurements (ADR-001)"**.
+  It used to interpolate a stored name; the level badge above it is what actually sets the register,
+  and the profile is a level rather than a person.
 
 ### 2.4 The refusal (1:30 – 1:45)
 
-- Click **Analizar otro dibujo**, then upload the page of handwriting.
+- Click **Analyse another drawing** [*Analizar otro dibujo*], then upload the page of handwriting.
 - Gemini looks at it **before anything is measured** and declines in its own words.
 - Say why it matters: without the gate the page goes through RANSAC, finds a vanishing point among
   whatever edges exist, and spends real tokens telling a student their line weight is confident.
@@ -119,7 +130,8 @@ Back to step one. Pick two more samples in quick succession and let the panel ch
 - On step one, the panel on the right is the reader's own history: date, system, the one figure worth
   showing, and the headline of the critique written at the time.
 - Point out that a figure that was not measurable renders as a dash, **never as zero**.
-- Switch **Nivel: Básico → Avanzado**. Say what the profile is: a **difficulty level**, not a person.
+- Switch **Level: Basic → Advanced** [*Nivel: Básico → Avanzado*]. Say what the profile is: a
+  **difficulty level**, not a person.
   It sets the register of the rubric and the tone of the critique, and nothing interpolates a name.
 
 **End the uncut take here.**
@@ -147,7 +159,7 @@ Switch to `console.cloud.google.com`. This may be cut.
 ## Phase 4 — Wrap (3:00 – 3:30)
 
 - **Visual**: the GitHub repository.
-- **Say**: **98 automated tests** (90 Python + 8 .NET), Apache 2.0, architecture and pedagogy
+- **Say**: **100 automated tests** (92 Python + 8 .NET), Apache 2.0, architecture and pedagogy
   documentation, live demo URL.
 - Worth one line, because it is the project's whole character: the golden tests assert an injected
   6° error returns as 6° **to within 0.05°**, and the perspective suite cannot hold a bound that
@@ -175,18 +187,37 @@ Switch to `console.cloud.google.com`. This may be cut.
 ## ⚠️ Submission
 
 1. **YouTube**
-   - Title: `Atelier — AI Studio Master for Remote Art Students | All Things Agentic Hackathon`
+   - Title: `Atelier — an agent that verifies descriptive-geometry constructions | All Things Agentic Hackathon`
    - Privacy: **Public**. Not private, not unlisted.
    - Upload a **fresh** video; do not replace an existing link.
+   - **If you narrated in Spanish, upload English subtitles with it.** The rule is *"must be in
+     English or include English subtitles"* — an untranslated Spanish narration is a disqualifying
+     gap, not a stylistic choice.
 2. **Timing**
+   - Request the **$150 credits first**: the form closes **28 August, 12:00 PM PT** and takes up to
+     72 business hours. It also auto-declines a request that names a track that does not exist —
+     write *The Collaborative Partner*.
    - Submit **29 or 30 August 2026**.
    - Hard deadline: **31 August 2026, 17:00 PT** = **1 September, 02:00 CEST**. The European 31st
      evening is already too late. Leave 24 hours.
 3. **Before clicking Submit on Devpost**
    - [ ] Public GitHub repo (`https://github.com/hvaler/atelier`)
-   - [ ] Hosted demo URL, opened once in a private window to confirm it is warm
-   - [ ] Public YouTube link
-   - [ ] Architecture diagram attached
+   - [ ] Hosted demo URL, opened once in a **private window** to confirm it is warm and public
+   - [ ] Public YouTube link, English or English-subtitled, and the model **and framework** named
+         out loud inside it
+   - [ ] Architecture diagram attached — it has to show where **state** is stored and **which**
+         Google Cloud services, not just the boxes
    - [ ] Screenshots attached (`docs/img/`)
    - [ ] Track: *The Collaborative Partner*
-   - [ ] Bonus claims listed with direct links
+   - [ ] **Project start date**: 18 August 2026
+   - [ ] Bonus claims listed with direct links — the article, the social post with
+         **#AllThingsAgenticHackathon**, and **Gemma 4** as the additional Google model
+4. **After submitting — this one is easy to miss**
+   - Once the deadline passes, **submissions lock: no edits to the repo, the video or any linked
+     material** until winners are announced. Judging runs **1 September – 1 October**, results
+     around **8 October**.
+   - So the Cloud Run services have to stay deployed and funded for those five weeks. They scale to
+     zero, which is what makes that affordable — do not delete the project to tidy up.
+   - Judges *"aren't required to download or run your project"* and may score from the video, the
+     text description and the repo alone. Anything that only shows up when the app is running has
+     to be visible in one of those three.

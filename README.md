@@ -54,7 +54,21 @@ teaches but is **forbidden from producing a number**. A validator enforces it.
 
 ## What it looks like
 
-Every figure in these screenshots was measured by the deployed system. Nothing is mocked.
+Every figure in these screenshots was measured by the deployed system, and every screenshot
+was taken against it rather than assembled. Nothing here is a mockup.
+
+Three of the four systems of representation are measured, and the useful thing about having them
+together is that **they differ in where the reference comes from** — which sets a ceiling on how far
+each result can be trusted:
+
+| System | Where the reference comes from | How far it can be trusted |
+|---|---|---|
+| **Conic** | **Inferred.** RANSAC estimates a vanishing point from the student's own lines | Weakest. A consistently wrong drawing yields a vanishing point that agrees with it, and the reported error shrinks — there is a worked example of exactly that below |
+| **Orthographic** (*sistema diédrico*) | **Read off the page.** The ground line is a line the student drew | Middle. Nothing is guessed, but a crooked ground line skews everything, so its tilt is reported as a figure in its own right |
+| **Axonometric** | **Given.** The axes are constants of the projection system | Strongest. Nothing is estimated at all; an error injected at 6.00° comes back at 6.00° |
+
+The fourth, *sistema de planos acotados*, needs the numeric annotations read off the page — OCR
+rather than line geometry — and is documented as not implemented.
 
 ### The studio
 
@@ -75,21 +89,29 @@ not painted on.
 ![Atelier refusing to measure a page of handwritten text, with the model's own reason](docs/img/04-gate.png)
 
 A shopping list, uploaded by mistake. Before any measurement, Gemini 3.5 Flash looks at the page
-and answers one question: *is this a perspective exercise at all?* Here it is not, and it says
-why — *"only repeated lines of text and no perspective drawings or construction lines"*.
+and answers two questions: *is this an exercise at all*, and *which system of representation is
+it?* Here the first answer is no, and it says why in its own words — *"The image is a plain text
+shopping list and does not contain any technical drawing or geometric construction."*
 
 **Nothing is measured, and nothing is critiqued.** Without this gate the page would go through
-RANSAC, find a vanishing point among whatever edges exist, and spend real tokens telling a child
+RANSAC, find a vanishing point among whatever edges exist, and spend real tokens telling a student
 their line weight is confident. Measuring the wrong thing carefully is worse than declining to
 measure it.
 
+The refusal appears on **step one**, where the upload happened. That is worth saying because it did
+not always: the three status messages lived only in the results panel, which step one does not
+render, so a rejected upload looked like nothing at all had happened. The strongest argument the
+project has was invisible for a day.
+
 ### The calibration set
 
-![Five calibration drawings with known injected errors, 0° to 9°](docs/img/02-gallery.png)
+![The calibration gallery: eleven benchmark drawings across the three projection systems, each carrying an error of a known size](docs/img/02-gallery.png)
 
-Five synthetic drawings with errors injected at known angles. They are the benchmark the golden
-tests assert against: the detector must recover the vanishing point to within one pixel of where
-it was drawn, and must rank 0° below 4° below 9°.
+Eleven synthetic drawings across **all three** systems, each carrying an error of a known size —
+and each labelled with the system it belongs to, because that decides what it is measured against.
+They are the benchmark the golden tests assert against: the conic detector must recover the
+vanishing point to within one pixel of where it was drawn and must rank 0° below 4° below 9°; the
+axonometric and orthographic cases must return their injected error to within 0.05° and 1 px.
 
 ### The other projection system
 
@@ -104,10 +126,11 @@ That split is the point. A single average of 3.1° would say "slightly inaccurat
 student sanding every edge. Separating *systematic* from *per-line* deviation says something a
 published rubric cannot: the hand was steady, the axis was set wrong, and the fix happens once
 before drawing rather than edge by edge. Gemini reaches that conclusion from the payload on its
-own — *"como todas las líneas de este grupo están desviadas por igual, se trata de un error
-sistemático: tu pulso es excelente, solo necesitas ajustar la posición de la regla al empezar"* —
-and the critique contains no mention of a vanishing point, because there is no vanishing point in
-this drawing and the rubric forbids inventing one.
+own — *"Because all 17 edges share this same tilt, it means your set square or guide was just
+slightly rotated, rather than your hand wavering"* — and the critique contains no mention of a
+vanishing point, because there is no vanishing point in this drawing and the rubric forbids
+inventing one. The parallelism spread is 0.4°, and **0 of 33 edges fall off any axis**: nothing was
+dropped to make the average look better.
 
 ### The studio, step by step
 
@@ -135,9 +158,10 @@ convergence nor parallelism but **correspondence**: a point in one view must hav
 directly below it in the other.
 
 The plan in this plate is drawn correctly and *placed* 18 px to the right. Every vertex inherits
-that, so a naive reading reports four broken corners. Atelier reports one fact —
-**systematic offset: 18 px** — removes it, and then checks what is left, which is 1.8 px of
-residual and no orphans. The two mistakes it separates need different corrections:
+that, so a naive reading reports a broken corner at each one. Atelier reports one fact —
+**the plan sits 18 px sideways from the elevation, 2.2% of the page** — removes it, and then checks
+what is left: 1.8 px of residual, **2 of 2 vertices agreed**, no orphans. The two mistakes it
+separates need different corrections:
 
 | Reading | What went wrong | What the student does |
 |---|---|---|
@@ -154,24 +178,47 @@ correspondence, and claiming them from two views would be inventing.
 
 ### In the student's language
 
-![The studio in Spanish and in light theme, with a critique written in Spanish by Gemini](docs/img/05-espanol-claro.png)
+![The studio in Spanish and in the dark theme, with a critique written in Spanish by Gemini](docs/img/05-espanol-oscuro.png)
 
-The same drawing, the same measurements, in Spanish and in the light theme. Everything below the
-headline was written by Gemini in Spanish because the interface language travels with the request
-— the critique is not translated afterwards, and the numbers are the same ones OpenCV produced.
-Note `0,8°` rather than `0.8°`: the culture drives number formatting too, so the measurement reads
-the way the student writes it.
+A two-point plate, in Spanish and in the dark theme. Everything below the headline was written by
+Gemini **in** Spanish because the interface language travels with the request — the critique is not
+translated afterwards, and the numbers are the same ones OpenCV produced. Note `0,4°` rather than
+`0.4°`: the culture drives number formatting too, so the measurement reads the way the student
+writes it.
 
 Metric names, unit words and the strength/needs-attention statuses are identifiers the validator
 matches on, so they stay in English on the wire and are looked up for display. An identifier with
 no translation falls through to itself, which is readable English rather than a blank.
 
+**This screenshot also shows the weakest link in the system, and it is worth reading carefully.**
+The drawing is `05_2point_error_6deg.png` — a plate whose F1 was deliberately drifted by six
+degrees. The panel reports an average convergence error of **0,4°** (`0.42°` off the API). The
+*perfect* two-point plate, `04_2point_perfect.png`, reports **0.48°**. The drawing with the injected
+fault scores *better* than the one without it.
+
+That is not a defect in the arithmetic. It is what *inferred* reference means: RANSAC estimates the
+vanishing points from the lines the student actually drew, so a consistently drifted drawing yields
+a pair of vanishing points that agree with it, and the residual against them is small. The fault
+does surface — as **2.08° of horizon tilt**, against −0.51° for the correct plate — because two
+vanishing points estimated from a drifted construction no longer sit on a level horizon.
+
+This is exactly why the three systems are ranked in the table above, and why the ranking is in the
+documentation rather than buried. An axonometric drawing cannot do this: its axes are constants of
+the projection, so there is nothing for a wrong drawing to bend.
+
 ### The progression
 
 ![Student progression: overall average error, drawings recorded, adapted tone and helpful ratio](docs/img/03-progress.png)
 
-Read from Firestore, not from a fixture. The counts are low because they are real — every
-exercise on this page was produced by analysing an actual drawing through the deployed agent.
+Read from Firestore, not from a fixture. **16 drawings, 5.5° overall average**, tone adapted to
+*encouraging* from the feedback events, helpful ratio 100%. The counts are low because they are
+real — every exercise on this page was produced by analysing an actual drawing through the deployed
+agent, and the curve is jagged for the same reason.
+
+The curve plots **conic exercises only**. An average axis deviation and an average convergence
+error are both measured in degrees and are not the same quantity; one line through both would show
+progress or regression nobody made. The weekly practice plan appears on this page when a Cloud
+Scheduler digest exists for the student — absent rather than faked when it does not.
 
 ---
 
@@ -234,13 +281,12 @@ exercise on this page was produced by analysing an actual drawing through the de
   2. **GUIDE**: Targeted exercise prescriptions driven by recurring deviation patterns.
   3. **CAPTURE**: Explicit student feedback (`helpful: bool` + note) saved as immutable events.
   4. **ADAPT**: Dynamic profile derivation (shifting tone from technical to encouraging automatically).
-- 🧠 **Two-stage pre-router, two models**: **Gemma 4** (`gemma-4-26b-a4b-it`, Gemini API) reads the student's own description and picks 1-point or 2-point — a beginner who writes *"the corner of a building"* is measured as two-point because they said so, not as one-point because of a field in their profile. **Gemini 3.5 Flash** (Vertex AI) then *looks at the photograph* and answers the question that saves the most work: **is this a perspective exercise at all?** A page of text or a blank sheet is refused before the geometry engine runs and before a critique spends tokens describing nothing. Both label their own provenance (`source: gemma | vertex | fallback`).
-- 📏 **Two projection systems, and the agent picks which** (`tools/axonometry.py`): conic perspective *and* axonometric — isometric, dimetric, cavalier. The vision gate looks at the photograph and decides which one it is **before** anything is measured, because running a parallel projection through the perspective path finds a vanishing point among edges that were never meant to meet, and then reports an error about it. The second mode is the more trustworthy of the two: perspective has to *estimate* the vanishing point with RANSAC from the student's own lines, so a consistently wrong drawing yields a vanishing point that agrees with it — whereas the axes of an isometric projection are 30°, 90° and 150° **by definition**, so nothing is inferred. An error injected at 6.00° is recovered as 6.00°, asserted to within 0.05° in the golden tests.
+- 🧠 **Two-stage pre-router, two models**: **Gemma 4** (`gemma-4-26b-a4b-it`, Gemini API) reads the student's own description and picks 1-point or 2-point — a beginner who writes *"the corner of a building"* is measured as two-point because they said so, not as one-point because of a field in their profile. **Gemini 3.5 Flash** (Vertex AI) then *looks at the photograph* and answers the question that saves the most work: **is this a descriptive-geometry exercise at all, and which system?** A page of text or a blank sheet is refused before the geometry engine runs and before a critique spends tokens describing nothing. Both label their own provenance (`source: gemma | vertex | fallback`).
 - 📐 **Three projection systems, and three kinds of reference** — conic perspective, axonometric (`tools/axonometry.py`) and orthographic Monge plates (`tools/dihedral.py`). The vision gate looks at the photograph and decides which one it is **before** anything is measured. What makes them worth having together is that they are not the same tool three times: **conic infers its reference** (RANSAC estimates a vanishing point from the student's own lines, so a consistently wrong drawing yields one that agrees with it), **orthographic reads its reference off the page** (the ground line is a line the student actually drew — nothing is guessed, but a crooked one skews everything, so its tilt is reported as a measurement in its own right), and **axonometric is handed its reference** as a constant of the system. An error injected at 6.00° in an isometric plate comes back as 6.00°; a plan displaced by 18 px comes back as 18 px.
 - 🌍 **Taught in the student's own language**: The interface and the critique are both available in English and Spanish, chosen with one control and remembered in a cookie. This is not a translation layer bolted on top — the language is sent to the agent, so Gemini writes the critique itself in Spanish, and the anti-hallucination gate that forbids a number in Plane B recognises `4,2 grados` as well as `4.2 degrees`. A gate that only reads English would have stopped being a gate the moment the interface was translated.
 - 🌗 **Light and dark, decided before first paint**: Three states — light, dark, and follow-the-system, which is the default because a person who has already told their operating system how they want screens to look has answered the question once. The choice is applied by an inline script before the page renders, so there is no flash of the wrong theme.
 - 📈 **Append-Only Memory & Weekly Digests**: Event-sourced progression tracking in Google Cloud Firestore with automated weekly practice plans synthesized via Cloud Scheduler.
-- 🔒 **Async-First & Privacy-Preserving (ADR-004, ADR-006)**: Private Google Cloud Storage inbox (`gs://atelier-hack-inbox/{studentId}/`), Eventarc triggers, signed URLs, and first-names-only privacy model for young students.
+- 🔒 **Async-First & Privacy-Preserving (ADR-004, ADR-006)**: Private Google Cloud Storage inbox (`gs://atelier-hack-inbox/{studentId}/`), Eventarc triggers, signed URLs, and profiles that are difficulty levels rather than named people — there is no personal identifier to leak.
 
 ---
 
@@ -355,7 +401,7 @@ dotnet run
 All claims are backed by executable tests logged in [`docs/EVIDENCE.md`](docs/EVIDENCE.md).
 
 ```bash
-# Run Python backend tests (90 tests)
+# Run Python backend tests (92 tests)
 cd atelier-agent
 .venv\Scripts\python -m pytest tests -v
 

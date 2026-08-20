@@ -7,6 +7,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from src.main import app
+from src.models.axonometry import AxisMeasurement, AxonometricAnalysisResult
 from src.models.critique import (
     CritiqueOutput,
     NextExerciseRecommendation,
@@ -71,6 +72,60 @@ def make_dummy_exercise(student_id: str, avg_error: float) -> ExerciseRecord:
         exercise_id=f"ex-digest-{uuid.uuid4().hex[:6]}",
         student_id=student_id,
         geometry_analysis=geom,
+        critique=critique,
+    )
+
+
+def _make_axonometric_exercise(student_id: str) -> ExerciseRecord:
+    """An exercise whose measurement is parallel-projection, so `geometry_analysis` is None."""
+    axo = AxonometricAnalysisResult(
+        system="isometric",
+        axes=[
+            AxisMeasurement(
+                index=0,
+                label="x",
+                nominal_angle_deg=30.0,
+                measured_angle_deg=36.0,
+                systematic_error_deg=6.0,
+                supporting_lines=17,
+                avg_error_deg=6.0,
+                max_error_deg=6.2,
+            )
+        ],
+        avg_axis_error_deg=2.0,
+        max_axis_error_deg=6.2,
+        parallelism_error_deg=0.4,
+        off_axis_line_count=0,
+        line_count=17,
+        axes_supported=1,
+        confidence=0.9,
+        confidence_low=False,
+        image_width=800,
+        image_height=600,
+    )
+    critique = CritiqueOutput(
+        student_name="Student",
+        level="beginner",
+        headline="Axonometric Review",
+        measured_findings=[],
+        qualitative_observations=[],
+        pedagogical_summary=PedagogicalSummary(
+            strengths=["Parallel families"],
+            focus_area="Axis setup",
+            encouragement="Good!",
+        ),
+        next_exercise=NextExerciseRecommendation(
+            title="Set square drill",
+            description="Three families at 30, 90, 150",
+            target_metric="Systematic axis deviation",
+            difficulty="beginner",
+        ),
+        validated=True,
+    )
+    return ExerciseRecord(
+        exercise_id=f"ex-axo-{uuid.uuid4().hex[:6]}",
+        student_id=student_id,
+        axonometric_analysis=axo,
         critique=critique,
     )
 
@@ -205,3 +260,43 @@ def test_gcs_ingestion_refuses_an_object_it_cannot_read():
         assert "not exist" in response.text or "readable" in response.text
     finally:
         ingest.download_drawing_from_gcs = original
+
+
+def test_digest_survives_a_week_of_parallel_projection_only():
+    """A week with no conic drawing has no convergence average — and must not 500.
+
+    `geometry_analysis` is None on axonometric and orthographic records. The digest used to read
+    that field off every exercise, so a single isometric drawing in the week raised AttributeError
+    and the Cloud Scheduler job returned 500 silently.
+    """
+    student_id = f"student-parallel-{uuid.uuid4().hex[:6]}"
+    memory_repo.register_student(
+        StudentProfile(student_id=student_id, name="basic", level="beginner")
+    )
+    memory_repo.save_exercise(_make_axonometric_exercise(student_id))
+
+    digest = generate_weekly_digest(student_id)
+
+    assert digest.total_drawings == 1, "the drawing happened; it is just not a conic one"
+    # Not 0.0. An average over nothing that prints as zero reads as a perfect week.
+    assert digest.weekly_avg_convergence_error_deg is None
+    assert digest.error_reduction_deg is None
+    assert "no convergence average" in digest.weekly_summary.lower()
+    assert len(digest.next_week_practice_plan) == 3
+
+
+def test_digest_averages_only_the_conic_exercises():
+    """A mixed week averages the conic drawings and leaves the parallel ones out of that figure."""
+    student_id = f"student-mixed-{uuid.uuid4().hex[:6]}"
+    memory_repo.register_student(
+        StudentProfile(student_id=student_id, name="basic", level="beginner")
+    )
+    memory_repo.save_exercise(make_dummy_exercise(student_id, 4.0))
+    memory_repo.save_exercise(_make_axonometric_exercise(student_id))
+    memory_repo.save_exercise(make_dummy_exercise(student_id, 2.0))
+
+    digest = generate_weekly_digest(student_id)
+
+    assert digest.total_drawings == 3
+    # (4.0 + 2.0) / 2 — the isometric drawing contributes nothing to a convergence average.
+    assert digest.weekly_avg_convergence_error_deg == 3.0

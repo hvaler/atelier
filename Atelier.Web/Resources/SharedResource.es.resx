@@ -73,7 +73,7 @@
     <value>Avanzado</value>
   </data>
   <data name="Atelier — Studio Master Perspective AI" xml:space="preserve">
-    <value>Atelier — Maestro de estudio en perspectiva</value>
+    <value>Atelier — estudio de geometría descriptiva</value>
   </data>
   <data name="Studio" xml:space="preserve">
     <value>Estudio</value>
@@ -85,7 +85,7 @@
     <value>Estudiante:</value>
   </data>
   <data name="📂 Select Perspective Drawing" xml:space="preserve">
-    <value>📂 Elige el dibujo</value>
+    <value>📂 Elegir un dibujo</value>
   </data>
   <data name="Pre-Calibrated Golden Sample:" xml:space="preserve">
     <value>Muestra de calibración:</value>
@@ -121,10 +121,10 @@
     <value>Otras preguntas</value>
   </data>
   <data name="This does not look like a perspective exercise." xml:space="preserve">
-    <value>Esto no parece un ejercicio de perspectiva.</value>
+    <value>Esto no parece un ejercicio de geometría descriptiva.</value>
   </data>
-  <data name="Nothing was measured. Upload a drawing with construction lines running to a vanishing point and Atelier will look again." xml:space="preserve">
-    <value>No se ha medido nada. Sube un dibujo con líneas de construcción que vayan a un punto de fuga y Atelier volverá a mirar.</value>
+  <data name="Nothing was measured. Upload a construction from one of the systems of representation — conic, axonometric or orthographic — and Atelier will look again." xml:space="preserve">
+    <value>No se ha medido nada. Sube una construcción de uno de los sistemas de representación — cónica, axonométrica o diédrico — y Atelier volverá a mirar.</value>
   </data>
   <data name="Your description and your drawing do not match." xml:space="preserve">
     <value>Lo que has escrito y lo que has dibujado no coinciden.</value>
@@ -384,8 +384,8 @@
   <data name="{0} LEVEL CRITIQUE" xml:space="preserve">
     <value>CRÍTICA DE NIVEL {0}</value>
   </data>
-  <data name="Critique tailored for {0} • Grounded strictly on OpenCV (ADR-001)" xml:space="preserve">
-    <value>Crítica ajustada a {0} • Basada solo en las medidas de OpenCV (ADR-001)</value>
+  <data name="Grounded strictly on OpenCV measurements (ADR-001)" xml:space="preserve">
+    <value>Fundamentado estrictamente en las medidas de OpenCV (ADR-001)</value>
   </data>
   <data name="Anti-Hallucination: Validated ✓" xml:space="preserve">
     <value>Sin alucinaciones: verificado ✓</value>

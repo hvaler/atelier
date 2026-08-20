@@ -83,8 +83,8 @@ def generate_weekly_digest(student_id: str, week_id: str | None = None) -> Weekl
             student_name=student.name,
             week_id=target_week,
             total_drawings=0,
-            weekly_avg_convergence_error_deg=0.0,
-            error_reduction_deg=0.0,
+            weekly_avg_convergence_error_deg=None,
+            error_reduction_deg=None,
             recurring_issues=[],
             weekly_summary=summary,
             recommended_focus=focus,
@@ -93,24 +93,42 @@ def generate_weekly_digest(student_id: str, week_id: str | None = None) -> Weekl
         _save_digest(digest)
         return digest
 
-    # Calculate weekly metrics
-    errors = [ex.geometry_analysis.avg_convergence_error_deg for ex in exercises]
-    weekly_avg = float(np.mean(errors))
+    # Only conic exercises carry a convergence error. `geometry_analysis` is None for
+    # axonometric and orthographic records, deliberately — an axis deviation and a convergence
+    # error are both degrees and are not the same quantity. This line used to read the field off
+    # every exercise, so one parallel-projection drawing in the week raised AttributeError and the
+    # digest returned 500. Being a Cloud Scheduler job, it did so with nobody watching.
+    errors = [
+        ex.geometry_analysis.avg_convergence_error_deg
+        for ex in exercises
+        if ex.geometry_analysis is not None
+    ]
+    weekly_avg = float(np.mean(errors)) if errors else None
 
-    # Error reduction calculation: compare first half to second half if >= 2 exercises
+    # Error reduction: first half against second half, and only when there are two halves to
+    # compare. None rather than 0.0, because 0.0 is a real reading meaning "no change".
     if len(errors) >= 2:
         half = len(errors) // 2
         initial_avg = float(np.mean(errors[:half]))
         recent_avg = float(np.mean(errors[half:]))
         delta = round(initial_avg - recent_avg, 2)
     else:
-        delta = 0.0
+        delta = None
 
     derived_profile = memory_repo.derive_profile(student_id)
     recurring = derived_profile.recurring_issues
 
-    # Synthesize weekly summary text
-    if delta > 0.0:
+    # Synthesize weekly summary text. Every branch below has to survive a week with no conic
+    # drawing in it, which is what the digest used to crash on.
+    if weekly_avg is None:
+        improvement_phrase = (
+            "No conic exercise this week, so there is no convergence average to report. The "
+            "parallel-projection work is recorded and critiqued — it is measured against a "
+            "different reference, and averaging the two would describe neither."
+        )
+    elif delta is None:
+        improvement_phrase = f"One conic drawing this week, at {weekly_avg:.1f}° average error."
+    elif delta > 0.0:
         improvement_phrase = f"Your average convergence error decreased by {delta:.1f}°, showing notable consistency!"
     elif delta < 0.0:
         improvement_phrase = "You tackled more complex oblique angles this week — errors are expected when stepping up difficulty!"
@@ -170,7 +188,7 @@ def generate_weekly_digest(student_id: str, week_id: str | None = None) -> Weekl
         student_name=student.name,
         week_id=target_week,
         total_drawings=len(exercises),
-        weekly_avg_convergence_error_deg=round(weekly_avg, 2),
+        weekly_avg_convergence_error_deg=round(weekly_avg, 2) if weekly_avg is not None else None,
         error_reduction_deg=delta,
         recurring_issues=recurring,
         weekly_summary=summary,

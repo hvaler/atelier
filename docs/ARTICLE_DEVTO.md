@@ -1,4 +1,4 @@
-# The Geometry Measures, the AI Teaches: Building an Art Studio Tutor with the Google GenAI SDK, Vertex AI & OpenCV
+# The Geometry Measures, the AI Teaches: An Agent That Verifies Descriptive-Geometry Constructions, with the Google GenAI SDK, Vertex AI & OpenCV
 
 > *This project was created for the Devpost All Things Agentic Hackathon.*
 
@@ -180,4 +180,4 @@ the code enforces rather than something the prompt requests.
 
 *Built with the Google GenAI SDK (`google-genai`), Vertex AI (Gemini 3.5 Flash), Gemma 4, Google
 Cloud Run, Cloud Storage, Eventarc, Firestore, Cloud Scheduler, OpenCV and .NET 10. Apache 2.0,
-98 automated tests (90 Python + 8 .NET).*
+100 automated tests (92 Python + 8 .NET).*

@@ -777,10 +777,12 @@ public class WeeklyDigestDto
     public int TotalDrawings { get; set; }
 
     [JsonPropertyName("weekly_avg_convergence_error_deg")]
-    public double WeeklyAvgConvergenceErrorDeg { get; set; }
+    /// <summary>Null when the week held no conic exercise. Rendered as a dash, never as zero.</summary>
+    public double? WeeklyAvgConvergenceErrorDeg { get; set; }
 
     [JsonPropertyName("error_reduction_deg")]
-    public double ErrorReductionDeg { get; set; }
+    /// <summary>Null when there were fewer than two conic exercises to compare.</summary>
+    public double? ErrorReductionDeg { get; set; }
 
     [JsonPropertyName("recurring_issues")]
     public List<string> RecurringIssues { get; set; } = [];

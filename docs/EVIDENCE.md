@@ -100,9 +100,13 @@ three passing tests as proof. None of it was true:
 - The `canny_thresholds` it returned were consumed by nothing: `geometry.py` hardcoded
   `cv2.Canny(blurred, 50, 150)`.
 - The three tests asserted the stub's own constants back at itself and could not fail.
-- **Gemma is not reachable here at all.** Verified against this project on Vertex AI:
-  `gemma-3-27b-it`, `gemma-3-12b-it` and `gemma-3-4b-it` all return `404 NOT_FOUND`; reaching one
-  requires a deployed, billed Model Garden endpoint. The Gemma bonus is therefore **not claimed**.
+- **Gemma was not reachable on Vertex AI.** Verified against this project: `gemma-3-27b-it`,
+  `gemma-3-12b-it` and `gemma-3-4b-it` all return `404 NOT_FOUND` there; reaching one would need a
+  deployed, billed Model Garden endpoint.
+  **This is no longer where the story ends.** `gemma-4-26b-a4b-it` is reachable through the
+  **Gemini API**, and that is what routes from the student's words today — see Stage 1 below. The
+  additional-model bonus **is** claimed, on that path. An earlier revision of this document said it
+  was not, and was left stale after the router started working.
 
 The module is deleted. What replaces it makes a decision the caller does not already have.
 
@@ -147,7 +151,7 @@ a blank page                  is_exercise=False  k=0  "the image is completely b
 
 This is the gate the original design asked for and the deleted module never had. Without it a
 photograph of a cat goes through RANSAC, produces a vanishing point from whatever edges exist,
-and a critique call spends real tokens telling a child their line weight is confident.
+and a critique call spends real tokens telling a student their line weight is confident.
 
 **Why the work is split across two models.** Gemma's vision path was measured and rejected: with
 an image attached it returns `finish_reason=MAX_TOKENS` and empty text at 80 and 300 output
@@ -169,16 +173,46 @@ atelier-agent/.venv/Scripts/python -m pytest atelier-agent/tests/test_async_dige
 
 ### Verified Output
 ```text
-collected 5 items
+collected 8 items
 
-atelier-agent/tests/test_async_digest.py::test_gcs_upload_event_processing PASSED [ 20%]
-atelier-agent/tests/test_weekly_digest_generation_with_improvement PASSED [ 40%]
-atelier-agent/tests/test_weekly_digest_beginner_vs_advanced_plans PASSED [ 60%]
-atelier-agent/tests/test_async_digest.py::test_api_gcs_upload_endpoint PASSED [ 80%]
-atelier-agent/tests/test_async_digest.py::test_api_weekly_digest_endpoint PASSED [100%]
+test_async_digest.py::test_gcs_upload_event_processing                        PASSED [ 12%]
+test_async_digest.py::test_weekly_digest_generation_with_improvement          PASSED [ 25%]
+test_async_digest.py::test_weekly_digest_beginner_vs_advanced_plans           PASSED [ 37%]
+test_async_digest.py::test_api_gcs_upload_endpoint                            PASSED [ 50%]
+test_async_digest.py::test_api_weekly_digest_endpoint                          PASSED [ 62%]
+test_async_digest.py::test_gcs_ingestion_refuses_an_object_it_cannot_read     PASSED [ 75%]
+test_async_digest.py::test_digest_survives_a_week_of_parallel_projection_only PASSED [ 87%]
+test_async_digest.py::test_digest_averages_only_the_conic_exercises           PASSED [100%]
 
-======================== 5 passed in 0.45s ========================
+======================== 8 passed in 132.01s ========================
 ```
+
+### The last two tests exist because the digest was broken in production
+
+`generate_weekly_digest` computed the week's average by reading
+`ex.geometry_analysis.avg_convergence_error_deg` off **every** exercise. That field is `None` on
+axonometric and orthographic records — deliberately, because an axis deviation and a convergence
+error are both degrees and are not the same quantity. So the endpoint raised `AttributeError` and
+returned **500 for any student who had drawn anything other than a conic exercise**, which by then
+was every real profile.
+
+It had never been noticed because `weekly-digest-job` runs Mondays at 09:00 UTC and had not fired
+once since the project began on a Tuesday. Its first real run would have been **Monday 24 August**
+— seven days before the deadline, into a log nobody reads.
+
+Verified against the deployed service after the fix:
+
+```text
+POST /api/digest/weekly  {"student_id":"level-basic"}   ->  HTTP 200
+week: 2026-W34 | drawings: 16
+avg conic: 5.51 | reduction: 5.16
+plan: Monday 3 Aligned Cubes / Wednesday Tall Tower Box / Friday Stepped Block & Stairs
+```
+
+The average is over the conic exercises only, and it is `None` — rendered as a dash — when a week
+contains none. **Not `0.0`.** That is the third time this codebase has had to learn that the mean of
+an empty set is not zero, after the same bug in the orthographic aggregates and in
+`overall_avg_error_deg`.
 
 ---
 
@@ -197,7 +231,7 @@ dotnet test Atelier.slnx
 Serie de pruebas para Atelier.Web.Tests.dll (.NETCoreApp,Version=v10.0)
 1 archivos de prueba en total coincidieron con el patrón especificado.
 
-Correctas! - Con error: 0, Superado: 7, Omitido: 0, Total: 7 - Atelier.Web.Tests.dll (net10.0)
+Correctas! - Con error: 0, Superado: 8, Omitido: 0, Total: 8 - Atelier.Web.Tests.dll (net10.0)
 ```
 
 ---
@@ -216,7 +250,7 @@ Correctas! - Con error: 0, Superado: 7, Omitido: 0, Total: 7 - Atelier.Web.Tests
 | **`test_axonometry.py`** | Pytest | Parallel projection: angle maths, golden cases, subject-agnostic validator | 23 | ✅ Passed |
 | **`test_dihedral.py`** | Pytest | Monge plates: ground-line detection, correspondence, systematic offset, empty-set honesty | 20 | ✅ Passed |
 | **`Atelier.Web.Tests`** | xUnit | Typed client contract, provenance mapping, health | 8 | ✅ Passed |
-| **TOTAL** | | | **98 tests** | **✅ 98/98 PASSED** (90 Python + 8 .NET) |
+| **TOTAL** | | | **100 tests** | **✅ 100/100 PASSED** (92 Python + 8 .NET) |
 
 The axonometric suite asserts more tightly than the perspective one, and the difference is the
 point rather than an accident. Conic perspective estimates its own reference with RANSAC, so its
