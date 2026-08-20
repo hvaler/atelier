@@ -372,46 +372,99 @@ would otherwise have to find:
 
 ## 🚀 Quickstart: Clean-Machine Setup
 
+Written assuming a stranger will follow it, on a machine with nothing installed and **no Google
+Cloud account**. What that gets you is described at the end — it is not everything, and the
+difference is stated rather than left to be discovered.
+
 ### Prerequisites
+- [Git](https://git-scm.com/downloads)
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - [Python 3.12+](https://python.org/)
 
-### 1. Clone the Repository
+Nothing else. No `gcloud`, no credentials, no API key.
+
+### 1. Clone
+
 ```bash
 git clone https://github.com/hvaler/atelier.git
 cd atelier
 ```
 
-### 2. Seed the Calibration Benchmark Dataset
-```bash
-# Windows:
-atelier-agent\.venv\Scripts\python demo/generate_calibration_dataset.py
-# Linux / macOS:
-# python demo/generate_calibration_dataset.py
-```
+### 2. Create the agent's virtual environment and install into it
 
-### 3. Start the Backend (`atelier-agent`)
 ```bash
 cd atelier-agent
 python -m venv .venv
 
 # Windows:
 .venv\Scripts\activate
-# Linux/macOS:
+# Linux / macOS:
 # source .venv/bin/activate
 
 pip install -r requirements.txt
+cd ..
+```
+
+> This step used to come **after** the one below, which could not work: the next step runs
+> `atelier-agent/.venv/Scripts/python`, and that interpreter does not exist until this step has
+> created it. The dataset generator needs OpenCV, which arrives with `requirements.txt`.
+
+### 3. Generate the calibration dataset
+
+Eleven benchmark drawings across the three projection systems, each carrying an error of a known
+size. They are what the golden tests assert against and what the studio offers on step one.
+
+```bash
+# Windows:
+atelier-agent\.venv\Scripts\python demo/generate_calibration_dataset.py
+# Linux / macOS:
+# atelier-agent/.venv/bin/python demo/generate_calibration_dataset.py
+```
+
+### 4. Start the backend
+
+```bash
+cd atelier-agent
+# with the virtual environment from step 2 still active:
 python -m uvicorn src.main:app --reload --port 8000
 ```
-*API docs available at:* `http://localhost:8000/docs`
 
-### 4. Start the Web UI (`Atelier.Web`)
-In a separate terminal:
+Interactive API docs at **`http://localhost:8000/docs`**, and `http://localhost:8000/api/health`
+should report `"memory_backend":"memory"` — see below.
+
+### 5. Start the web UI, in a second terminal
+
 ```bash
 cd Atelier.Web
 dotnet run
 ```
-*Open your browser at:* `http://localhost:5000` (or the URL shown in console).
+
+Open **`http://localhost:5246`** (or `https://localhost:7140`). Both are in
+`Properties/launchSettings.json`; an earlier version of this file said port 5000, which is not one
+of them.
+
+**No configuration is needed to connect the two.** The web app reads `Agent:BaseUrl` and falls back
+to `http://localhost:8000`, which is exactly what step 4 starts.
+
+---
+
+### What a clean machine with no Google Cloud account can and cannot do
+
+This matters more than the steps, because two of these look like faults and are not:
+
+| | Without credentials | Why |
+|---|---|---|
+| **Measurement** — all three engines, the overlays, every figure | ✅ **Works fully** | It is OpenCV. There is no model in the measuring path, which is the whole premise |
+| **The eleven calibration samples** | ✅ Work | Generated in step 3 |
+| **The vision gate** | ⚠️ Opens unchecked, and **says so** | It cannot reach Gemini, so it lets the drawing through labelled `source: fallback` rather than refusing everything. A gate that closes when it cannot see would stop a student's work from being marked |
+| **The critique** | ⚠️ Deterministic template, in an **amber** panel | The green *Anti-Hallucination: Validated* badge is gated on a real model having answered. Amber with *"no model answered"* is the honest state, not a bug |
+| **The intent router** | ⚠️ Falls back to the level, labelled | Gemma needs an API key |
+| **History and progression** | ⚠️ **Empty, and resets on restart** | `MEMORY_BACKEND` defaults to `memory` outside production. An empty history on a fresh machine is correct |
+
+To get the green badge and a real critique you need Google Cloud: application-default credentials
+for Vertex AI, and a `GEMINI_API_KEY` for the Gemma router. **The hosted demo has both** —
+[`atelier-web-3hacbhowpq-ew.a.run.app`](https://atelier-web-3hacbhowpq-ew.a.run.app) — which is the
+faster way to see the part that needs them.
 
 ---
 
