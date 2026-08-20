@@ -16,14 +16,17 @@ lay the generated voice over it — a page that loads slowly then costs a trim r
 | File | What it gives you |
 |---|---|
 | [`demo/video/narration.md`](../demo/video/narration.md) | The words, and the only copy of them |
-| [`demo/video/shot-list.md`](../demo/video/shot-list.md) | What is on screen, with the app's **measured** waits — the critique takes 16–17 s, and segment 4 is written to fill exactly that |
+| [`demo/video/shot-list.md`](../demo/video/shot-list.md) | What is on screen, with the app's **measured** waits, and how long each of the nine clips has to be |
 | [`demo/video/make_voiceover.py`](../demo/video/make_voiceover.py) | Google Cloud Text-to-Speech, one MP3 per segment, plus `subtitles.srt` timed off the audio itself |
 | [`demo/video/make_closing_card.py`](../demo/video/make_closing_card.py) | The closing still: three systems, three kinds of reference |
+| [`demo/video/assemble.py --check`](../demo/video/assemble.py) | Before recording: how long each clip must be. After: what you got, and where it falls short |
+| [`demo/video/align.py`](../demo/video/align.py) | After editing: where each voice really landed in the export, and retiming the subtitles against the film |
 
-**Measured total: 3:38** — nine segments, 218.5 s of speech plus 2.5 s between each, twenty-two
-seconds inside the limit. The first draft ran to 6:23 and the second to 4:27; both were true and
-neither fitted. The script prints every segment's length against its window, so a new sentence tells
-you what it broke before you record rather than after.
+**Measured total: 3:41** — ten segments, 221.0 s of speech plus 2.5 s between each. With the
+five-second closing card the film is **3:46**, fourteen seconds inside the limit. The first draft ran
+to 6:23 and the second to 4:27; both were true and neither fitted. The script prints every segment's
+length against its window, so a new sentence tells you what it broke before you record rather than
+after.
 
 **English subtitles ship with it** whichever language you narrate in, which satisfies the language
 rule twice over and is what a judge watching with the sound off actually reads.

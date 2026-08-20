@@ -61,29 +61,35 @@ LIMIT_SECONDS = 240
 
 #: The edit, in order: one file you recorded, and the narration segments it has to cover.
 #:
-#: **Eight clips rather than one long take, with one exception.** A sibling project learned that a
-#: bad shot should cost one retake rather than the whole film, and the narration is already cut per
+#: **Nine clips rather than one long take, with one exception.** A sibling project learned that a bad
+#: shot should cost one retake rather than the whole film, and the narration is already cut per
 #: segment, so per-segment clips are the cheap default.
 #:
-#: The exception is segments 3 and 4, which are **one uncut clip on purpose**: pressing Analyze,
-#: the sixteen seconds the model actually takes, and the critique landing. Cutting inside that beat
-#: would look exactly like hiding the latency, and the judging criteria reward unedited live
-#: execution. Everything else is a scene change, and a scene change is allowed to be a cut.
+#: The exception is segments 4 and 5, which are **one uncut clip on purpose**: pressing Analyze, the
+#: sixteen seconds the model actually takes, and the critique landing. Cutting inside that beat would
+#: look exactly like hiding the latency, and the judging criteria reward unedited live execution.
+#: Everything else is a scene change, and a scene change is allowed to be a cut.
 #:
-#: Record segments 2 to 7 in **one continuous pass** even so — the browser state carries forward and
+#: Segments 1 and 2 are one spoken beat deliberately split in two, because the source changes:
+#: clip 1 is the webcam with a drawing in hand, clip 2 is the screen showing `docs/PEDAGOGY.md` while
+#: the voice makes the claim that document proves. Switching OBS scenes mid-take is the thing that
+#: costs takes.
+#:
+#: Record segments 3 to 8 in **one continuous pass** even so — the browser state carries forward and
 #: the framing cannot drift if you never stop. Cut that pass into these clips afterwards.
 #:
 #: Edit the file names to match what came out of OBS. A `still` entry holds an image instead.
 EDIT = [
-    {"clip": "take-01-the-gap.mp4",       "segments": [1]},
-    {"clip": "take-02-choose.mp4",        "segments": [2]},
-    {"clip": "take-03-measure-critique.mp4", "segments": [3, 4]},   # uncut
-    {"clip": "take-04-refusal.mp4",       "segments": [5]},
-    {"clip": "take-05-three-systems.mp4", "segments": [6]},
-    {"clip": "take-06-history.mp4",       "segments": [7]},
-    {"clip": "take-07-console.mp4",       "segments": [8]},
-    {"clip": "take-08-repo.mp4",          "segments": [9]},
-    {"still": "closing-card.png",         "hold": 5.0},
+    {"clip": "take-01-camera.mp4",           "segments": [1]},       # webcam, paper drawing
+    {"clip": "take-02-the-finding.mp4",      "segments": [2]},       # screen: PEDAGOGY.md
+    {"clip": "take-03-choose.mp4",           "segments": [3]},
+    {"clip": "take-04-measure-critique.mp4", "segments": [4, 5]},    # uncut
+    {"clip": "take-05-refusal.mp4",          "segments": [6]},
+    {"clip": "take-06-three-systems.mp4",    "segments": [7]},
+    {"clip": "take-07-history.mp4",          "segments": [8]},
+    {"clip": "take-08-console.mp4",          "segments": [9]},
+    {"clip": "take-09-repo.mp4",             "segments": [10]},
+    {"still": "closing-card.png",            "hold": 5.0},
 ]
 
 

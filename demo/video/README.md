@@ -7,7 +7,7 @@ One job: make every duration in the film a measured quantity instead of a hope.
 | `narration.md` | **The words. The only copy of them.** Headings carry the measured time windows; the blockquotes carry the script |
 | `_narration.py` | The shared bits: the narration format, the MP3 frame walker, and the 2.5-second gap. Defined once so two scripts cannot disagree |
 | `make_voiceover.py` | Synthesises one MP3 per segment with Google Cloud Text-to-Speech, times each one, and writes `subtitles.srt` from those measurements |
-| `shot-list.md` | What is on screen, in order, with the app's **measured** response times and how long each of the eight clips has to be |
+| `shot-list.md` | What is on screen, in order, with the app's **measured** response times and how long each of the nine clips has to be |
 | `assemble.py --check` | **Before recording**: how long each clip must be. **After**: what you actually got, and where it falls short |
 | `align.py` | **After editing**: finds where each voice segment really landed in the exported film, and retimes `subtitles.srt` against the film rather than the plan |
 | `make_closing_card.py` | The final still, 1920×1080 |
@@ -25,10 +25,10 @@ canvas settings, the per-clip lengths, and the lessons a sibling project paid fo
 
 ## The path this expects
 
-1. **Record** eight clips with OBS into `takes/`, silently. Segments 2 to 7 in one continuous pass,
-   cut into clips afterwards.
+1. **Record** nine clips with OBS into `takes/`, silently. Clip 1 is the webcam; segments 3 to 8 go
+   in one continuous pass, cut into clips afterwards.
 2. **`assemble.py --check`** — clip by clip, needs versus has.
-3. **Assemble in Clipchamp**: the nine MP3s in order with 2.5 s between them, each clip fitted to
+3. **Assemble in Clipchamp**: the ten MP3s in order with 2.5 s between them, each clip fitted to
    its voice. Export 1920×1080.
 4. **`align.py <export>`** — measures the drift between where the subtitles expect each voice and
    where it is. `--write-srt` retimes them against the film.

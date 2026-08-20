@@ -13,7 +13,8 @@ Ends are rounded up to the whole second, so a window never reads as an overrun a
 recording it was taken from. Change a sentence and the script tells you which window it broke,
 before you record rather than after.
 
-**Total: 3:38**, twenty-two seconds inside the four-minute limit.
+**Total: 3:41**, nineteen seconds inside the four-minute limit — plus a five-second closing card,
+which makes the film 3:46.
 
 **This went through two rounds of cutting.** The first draft ran to 6:23 against a four-minute
 limit, the second to 4:27. Both were true; neither fitted. What survived is what a judge cannot get
@@ -31,7 +32,14 @@ representación*, *diédrico*, *línea de tierra* — and an English synthetic v
 The interface on screen carries the Spanish; the voice says the English. The one exception is
 *Monge*, which the voice handles, and which the method is named after.
 
-**The stack is named twice**, in segment 1 and again in segment 8. That is not redundancy: the
+**Segment 1 is on camera and segment 2 is on screen**, which is why one beat is written as two.
+The cut between them is a source change, and a source change deserves its own clip rather than an
+OBS scene switch in the middle of a take. Segment 2 exists to put the *evidence* on screen while the
+claim is being made: `docs/PEDAGOGY.md`, its fourteen-row table of public criteria with their
+sources, and §7 with the sentence in bold. The architecture diagram is deliberately **not** here —
+see `shot-list.md`.
+
+**The stack is named twice**, in segment 1 and again in segment 9. That is not redundancy: the
 organisers' checklist asks the video for *"clear identification of which Gemini model and agent
 framework used"*, and segment 1 is the part most likely to be trimmed for time.
 
@@ -41,21 +49,23 @@ waits, so you know how long the dead air is before you hit record.
 
 ---
 
-## 0:00 – 0:33 · The gap
+## 0:00 – 0:17 · The gap, on paper
 
 > Atelier is an agent built on {{Gemini three point five Flash|Gemini 3.5 Flash}}, called through the
 > {{Google Gen A.I. S.D.K.|Google GenAI SDK}}.
 >
 > Descriptive geometry is a first year subject in architecture and engineering. Correctness in it is
-> objective. An isometric axis is at thirty degrees or it is not.
->
+> objective. An isometric axis is at {{thirty degrees|30°}} or it is not.
+
+## 0:19 – 0:36 · The finding
+
 > I read eighteen published syllabi and rubrics. Not one states a tolerance. The discipline defines
 > correctness exactly, then hands the checking to a person with a set square at the end of a stack
 > of plates.
 >
 > Atelier automates that check. It does not invent a new criterion.
 
-## 0:34 – 0:49 · Choose
+## 0:37 – 0:52 · Choose
 
 > Three steps. Drawing, context, critique.
 >
@@ -64,7 +74,7 @@ waits, so you know how long the dead air is before you hit record.
 >
 > An isometric cube whose X axis was set six degrees wrong.
 
-## 0:51 – 1:22 · The measurement
+## 0:54 – 1:25 · The measurement
 
 > X should be {{thirty degrees|30°}}. Measured, {{thirty six|36°}}. Systematic deviation, {{plus six point zero|+6.0°}}. Y
 > and Z at zero.
@@ -77,7 +87,7 @@ waits, so you know how long the dead air is before you hit record.
 > same amount is a set square placed wrong, not an unsteady hand. One correction before drawing,
 > instead of edge by edge.
 
-## 1:24 – 1:45 · The critique and its guard
+## 1:27 – 1:48 · The critique and its guard
 
 > Plane A carries only numbers OpenCV produced. A validator asks the analysis what it measured and
 > rejects any figure the model did not get from that set. Plane B is forbidden a number at all, in
@@ -86,7 +96,7 @@ waits, so you know how long the dead air is before you hit record.
 > Validated, with the model version underneath. That badge is earned per critique. When no model
 > answers, the panel turns amber and says so.
 
-## 1:47 – 2:08 · The refusal
+## 1:50 – 2:11 · The refusal
 
 > A shopping list, uploaded by mistake. Gemini looks at the page before anything is measured, and
 > declines in its own words.
@@ -95,7 +105,7 @@ waits, so you know how long the dead air is before you hit record.
 > exist, and spends real tokens describing nothing. Measuring the wrong thing carefully is worse
 > than declining to measure it.
 
-## 2:10 – 2:46 · Three systems, three references
+## 2:13 – 2:49 · Three systems, three references
 
 > Conic. The reference is inferred. RANSAC estimates the vanishing point from the student's own
 > lines.
@@ -108,12 +118,12 @@ waits, so you know how long the dead air is before you hit record.
 > that agree with it, so the reported error shrinks. One plate here has {{six degrees|6°}} of drift injected
 > and scores better than the perfect one. Axonometry cannot: its axes are constants.
 
-## 2:48 – 2:56 · History and level
+## 2:51 – 2:59 · History and level
 
 > A figure that was not measurable renders as a dash, never a zero. And the profile is a difficulty
 > level, not a person.
 
-## 2:58 – 3:20 · Google Cloud, live
+## 3:01 – 3:23 · Google Cloud, live
 
 > Two Cloud Run services, and these are the requests the run you just watched made.
 >
@@ -124,7 +134,7 @@ waits, so you know how long the dead air is before you hit record.
 > made through the {{Google Gen A.I. S.D.K.|Google GenAI SDK}}. In
 > {{europe west three|europe-west3}}, deliberately not the Cloud Run region.
 
-## 3:23 – 3:39 · Close
+## 3:25 – 3:41 · Close
 
 > {{Apache two point zero|Apache 2.0}}. One hundred automated tests. The golden case asserts that a
 > {{six degree|6°}} error comes back as {{six degrees|6°}} to within

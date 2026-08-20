@@ -1,155 +1,155 @@
 1
-00:00:00,000 --> 00:00:06,381
+00:00:00,000 --> 00:00:06,624
 Atelier is an agent built on Gemini 3.5 Flash, called through the Google
 GenAI SDK.
 
 2
-00:00:06,381 --> 00:00:12,054
+00:00:06,624 --> 00:00:12,512
 Descriptive geometry is a first year subject in architecture and
 engineering. Correctness in it is objective.
 
 3
-00:00:12,054 --> 00:00:15,953
-An isometric axis is at thirty degrees or it is not.
+00:00:12,512 --> 00:00:16,560
+An isometric axis is at 30° or it is not.
 
 4
-00:00:15,953 --> 00:00:20,208
+00:00:19,060 --> 00:00:23,153
 I read eighteen published syllabi and rubrics. Not one states a
 tolerance.
 
 5
-00:00:20,208 --> 00:00:28,716
+00:00:23,153 --> 00:00:31,340
 The discipline defines correctness exactly, then hands the checking to a
 person with a set square at the end of a stack of plates.
 
 6
-00:00:28,716 --> 00:00:32,616
+00:00:31,340 --> 00:00:35,092
 Atelier automates that check. It does not invent a new criterion.
 
 7
-00:00:35,116 --> 00:00:37,166
+00:00:37,592 --> 00:00:39,642
 Three steps. Drawing, context, critique.
 
 8
-00:00:37,166 --> 00:00:44,957
+00:00:39,642 --> 00:00:47,433
 Every sample carries the system it belongs to. Conic, axonometric,
 orthographic. Each is measured against a completely different reference.
 
 9
-00:00:44,957 --> 00:00:49,468
+00:00:47,433 --> 00:00:51,944
 An isometric cube whose X axis was set six degrees wrong.
 
 10
-00:00:51,968 --> 00:00:58,523
+00:00:54,444 --> 00:01:00,999
 X should be 30°. Measured, 36°. Systematic deviation, +6.0°. Y and Z at
 zero.
 
 11
-00:00:58,523 --> 00:01:09,218
+00:01:00,999 --> 00:01:11,694
 Injected at exactly six degrees, and it comes back at exactly six.
 Nothing is guessed. The axes of an isometric projection are 30°, 90° and
 150° by definition.
 
 12
-00:01:09,218 --> 00:01:13,013
+00:01:11,694 --> 00:01:15,489
 And separating those two numbers says what a published rubric cannot.
 
 13
-00:01:13,013 --> 00:01:22,328
+00:01:15,489 --> 00:01:24,804
 A whole family off by the same amount is a set square placed wrong, not
 an unsteady hand. One correction before drawing, instead of edge by
 edge.
 
 14
-00:01:24,828 --> 00:01:27,224
+00:01:27,304 --> 00:01:29,700
 Plane A carries only numbers OpenCV produced.
 
 15
-00:01:27,224 --> 00:01:34,070
+00:01:29,700 --> 00:01:36,546
 A validator asks the analysis what it measured and rejects any figure
 the model did not get from that set.
 
 16
-00:01:34,070 --> 00:01:37,835
+00:01:36,546 --> 00:01:40,311
 Plane B is forbidden a number at all, in either language.
 
 17
-00:01:37,835 --> 00:01:45,708
+00:01:40,311 --> 00:01:48,184
 Validated, with the model version underneath. That badge is earned per
 critique. When no model answers, the panel turns amber and says so.
 
 18
-00:01:48,208 --> 00:01:55,850
+00:01:50,684 --> 00:01:58,326
 A shopping list, uploaded by mistake. Gemini looks at the page before
 anything is measured, and declines in its own words.
 
 19
-00:01:55,850 --> 00:02:03,857
+00:01:58,326 --> 00:02:06,333
 Without this gate the page goes through RANSAC, finds a vanishing point
 among whatever edges exist, and spends real tokens describing nothing.
 
 20
-00:02:03,857 --> 00:02:08,224
+00:02:06,333 --> 00:02:10,700
 Measuring the wrong thing carefully is worse than declining to measure
 it.
 
 21
-00:02:10,724 --> 00:02:16,021
+00:02:13,200 --> 00:02:18,497
 Conic. The reference is inferred. RANSAC estimates the vanishing point
 from the student's own lines.
 
 22
-00:02:16,021 --> 00:02:23,789
+00:02:18,497 --> 00:02:26,265
 Orthographic, the Monge method. Here the reference is read off the page,
 because the ground line is a line the student drew.
 
 23
-00:02:23,789 --> 00:02:29,439
+00:02:26,265 --> 00:02:31,915
 This plan sits 18 px sideways. One placement mistake every vertex
 inherits, not four broken corners.
 
 24
-00:02:29,439 --> 00:02:38,620
+00:02:31,915 --> 00:02:41,096
 The three are not equal, and the first is the weakest. A drifted drawing
 produces vanishing points that agree with it, so the reported error
 shrinks.
 
 25
-00:02:38,620 --> 00:02:46,388
+00:02:41,096 --> 00:02:48,864
 One plate here has 6° of drift injected and scores better than the
 perfect one. Axonometry cannot: its axes are constants.
 
 26
-00:02:48,888 --> 00:02:56,496
+00:02:51,364 --> 00:02:58,972
 A figure that was not measurable renders as a dash, never a zero. And
 the profile is a difficulty level, not a person.
 
 27
-00:02:58,996 --> 00:03:03,912
+00:03:01,472 --> 00:03:06,388
 Two Cloud Run services, and these are the requests the run you just
 watched made.
 
 28
-00:03:03,912 --> 00:03:11,779
+00:03:06,388 --> 00:03:14,255
 A private Cloud Storage inbox with an Eventarc trigger. Cloud Scheduler
 for the weekly digest. Firestore, append only, where all of the state
 lives.
 
 29
-00:03:11,779 --> 00:03:20,956
+00:03:14,255 --> 00:03:23,432
 And Gemini 3.5 Flash on Vertex AI, every call made through the Google
 GenAI SDK. In europe-west3, deliberately not the Cloud Run region.
 
 30
-00:03:23,456 --> 00:03:26,021
+00:03:25,932 --> 00:03:28,497
 Apache 2.0. One hundred automated tests.
 
 31
-00:03:26,021 --> 00:03:35,963
+00:03:28,497 --> 00:03:38,439
 The golden case asserts that a 6° error comes back as 6° to within
 0.05°, and the perspective suite cannot hold a bound that tight.
 
 32
-00:03:35,963 --> 00:03:38,528
+00:03:38,439 --> 00:03:41,004
 We state the difference instead of hiding it.
 

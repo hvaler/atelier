@@ -39,7 +39,6 @@ import sys
 from pathlib import Path
 
 import numpy as np
-
 from _narration import (
     PAUSE_BETWEEN_SEGMENTS,
     mp3_duration,
