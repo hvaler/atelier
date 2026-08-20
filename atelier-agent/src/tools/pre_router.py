@@ -248,7 +248,7 @@ def classify_drawing(image_bytes: bytes, mime_type: str = "image/png") -> Drawin
     the analysis* — and the deleted module never performed: it read no image and returned a
     branch on a string. The valuable class is the third one. Without it, a photograph of a cat
     goes through RANSAC, produces a vanishing point from whatever edges exist, and a critique
-    call spends real tokens telling a child their line weight is confident.
+    call spends real tokens telling a student their line weight is confident.
 
     **On failure it opens rather than closes.** An unreachable model must not silently stop a
     student's work from being marked; the fallback says `is_exercise=True` and labels itself

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     #: because the failure was swallowed. The mandatory "Gemini 3.5 or newer" requirement was
     #: met by the code and broken by the deployment.
     #:
-    #: europe-west3 rather than `global`: both serve the model, and west3 keeps a nine-year-old's
+    #: europe-west3 rather than `global`: both serve the model, and west3 keeps a student's
     #: drawings inside the EU and co-located with the Firestore database (eur3).
     gemini_location: str = os.getenv("GEMINI_LOCATION", "europe-west3")
 
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     #: Where student memory lives. Firestore in production, dicts everywhere else.
     #:
     #: Explicit rather than inferred from whether credentials happen to be present: a service
-    #: that silently downgrades to process memory is a service that loses a child's history on
+    #: that silently downgrades to process memory is a service that loses a student's history on
     #: the next cold start and reports nothing. CI and local development run on "memory" by
     #: default and say so on /api/health.
     memory_backend: str = os.getenv(

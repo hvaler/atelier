@@ -85,7 +85,7 @@ how far each result can be trusted — so the ranking is documented rather than 
   - Each line is assigned to its nearest axis of the declared system — isometric 30/150/90, dimetric 7/138.58/90, cavalier 0/45/90 — and **nothing is dropped**: a line that fits no family is reported, not discarded.
   - Reports *systematic* deviation (the whole family turned) apart from *per-line* deviation (an unsteady hand). Averaged together they are indistinguishable, and they need opposite corrections.
   - **Strongest of the three.** The axes are constants of the projection system; nothing is estimated.
-- **Orthographic / sistema diédrico — `src/tools/dihedral.py`** · reference **read off the page**:
+- **Orthographic** (*sistema diédrico*) — **`src/tools/dihedral.py`** · reference **read off the page**:
   - Detects the ground line, clusters vertex abscissae in each view, and checks correspondence — a point in the plan must sit directly below its counterpart in the elevation.
   - `estimate_systematic_offset()` takes the median of nearest-neighbour deltas and **refuses to report** an offset wider than 25% of the plate: past that it is not a displaced view, it is a failed match.
   - Correspondence never pairs individual features. In orthographic projection corresponding points share an abscissa, so comparing the two sets of abscissae answers the question without solving the pairing problem at all.

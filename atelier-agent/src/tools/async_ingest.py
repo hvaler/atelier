@@ -78,7 +78,7 @@ def process_gcs_upload_event(event: GcsEventPayload) -> GcsProcessingResponse:
 
     # 3. The gate, before anything expensive. Nobody is watching this path — a file lands in a
     #    bucket and the pipeline runs — so this is exactly where a photograph that is not a
-    #    drawing would otherwise be measured, critiqued and filed under a child's name.
+    #    drawing would otherwise be measured, critiqued and filed under the wrong profile.
     gate = classify_drawing(cv2.imencode(".png", image)[1].tobytes())
     if not gate.is_exercise:
         raise ValueError(

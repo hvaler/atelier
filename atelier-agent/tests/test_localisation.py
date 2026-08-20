@@ -80,7 +80,7 @@ class TestAskQuestions:
         assert len(ask.quick_intent_suggestions) == 3
 
     def test_the_two_levels_stay_distinct_in_spanish(self):
-        """The nine-year-old is asked about boxes; the animation student about construction."""
+        """The basic level is asked about boxes; the advanced level about construction."""
         beginner = ask_clarification("level-basic", language="es")
         advanced = ask_clarification("level-advanced", language="es")
         assert beginner.intent_question != advanced.intent_question

@@ -17,8 +17,8 @@ builder.Services.AddHttpClient("AgentClient", client =>
 builder.Services.AddScoped<Atelier.Web.Services.IAtelierAgentClient, Atelier.Web.Services.AtelierAgentClient>();
 
 // Localisation. English is the default because the submission, the repository and the judging
-// are in English; Spanish exists because the student this was built for reads Spanish, and a
-// nine-year-old should not have to read her own drawing critique in a second language.
+// are in English; Spanish exists because the discipline is taught in Spanish, and nobody should
+// have to read a critique of their own drawing in a second language.
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddControllers();   // for the culture-setting endpoint below
 

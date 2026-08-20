@@ -73,8 +73,8 @@ The invariant the whole system is built on:
  └────────────────────────┘      └──────────────────────────┘   └────────────────────┘
 ```
 
-Atelier measures **three of the four systems of representation**. The fourth, *planos acotados*,
-needs the numeric annotations read off the page — OCR rather than line geometry — and is documented
+Atelier measures **three of the four systems of representation**. The fourth, contoured planes
+(*planos acotados*), needs the numeric annotations read off the page — OCR rather than line geometry — and is documented
 as not implemented.
 
 What makes them worth having together is that they are not one tool three times. **They differ in

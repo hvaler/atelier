@@ -224,7 +224,7 @@ def call_vertex_ai_critique(
 
     except Exception as exc:  # noqa: BLE001 - see below
         # Deliberately broad: a missing credential, a quota error, a renamed model and a network
-        # fault must all end in a usable critique rather than a 500 in front of a child.
+        # fault must all end in a usable critique rather than a 500 in front of a student.
         #
         # But it is **logged and labelled**. This used to be a bare `except` that returned the
         # template with `validated=True` and `model_version="gemini-3.5-flash"`, so deleting

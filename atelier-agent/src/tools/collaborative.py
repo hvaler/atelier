@@ -12,7 +12,7 @@ from src.tools.memory import memory_repo
 # The ASK step is the first thing a student reads, and it is written here rather than by a model:
 # these are fixed questions, and a fixed question in the wrong language is a worse answer than a
 # generated one. Keyed by (language, level) so the beginner and advanced registers stay distinct
-# in both — the nine-year-old is asked about boxes, the animation student about construction axes.
+# in both — the basic level is asked about boxes, the advanced level about construction axes.
 _ASK_SCRIPTS: dict[tuple[str, str], dict[str, object]] = {
     ("en", "beginner"): {
         "intent": "What kind of 3D shape or box were you practising today?",
