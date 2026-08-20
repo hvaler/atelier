@@ -8,6 +8,31 @@ Phase 2 is the uncut take. Everything else may be cut together.
 
 ---
 
+## The narration is generated, and its length is already known
+
+**`demo/video/` holds the production rig.** Do not narrate live. Capture the screen silently, then
+lay the generated voice over it — a page that loads slowly then costs a trim rather than a retake.
+
+| File | What it gives you |
+|---|---|
+| [`demo/video/narration.md`](../demo/video/narration.md) | The words, and the only copy of them |
+| [`demo/video/shot-list.md`](../demo/video/shot-list.md) | What is on screen, with the app's **measured** waits — the critique takes 16–17 s, and segment 4 is written to fill exactly that |
+| [`demo/video/make_voiceover.py`](../demo/video/make_voiceover.py) | Google Cloud Text-to-Speech, one MP3 per segment, plus `subtitles.srt` timed off the audio itself |
+| [`demo/video/make_closing_card.py`](../demo/video/make_closing_card.py) | The closing still: three systems, three kinds of reference |
+
+**Measured total: 3:38** — nine segments, 218.5 s of speech plus 2.5 s between each, twenty-two
+seconds inside the limit. The first draft ran to 6:23 and the second to 4:27; both were true and
+neither fitted. The script prints every segment's length against its window, so a new sentence tells
+you what it broke before you record rather than after.
+
+**English subtitles ship with it** whichever language you narrate in, which satisfies the language
+rule twice over and is what a judge watching with the sound off actually reads.
+
+The phases below remain the authority on **what to do on screen and in the console**. Where a timing
+here disagrees with `shot-list.md`, the shot list is the measured one.
+
+---
+
 ## Before you press record
 
 1. **Warm the services.** Both Cloud Run services scale to zero. Hit them twice, a minute apart:

@@ -45,3 +45,10 @@ Thumbs.db
 # Internal compliance audit against the hackathon rules. Working notes, not part of the
 # submission, and it names deadlines and personal eligibility questions.
 docs/HACKATHON_COMPLIANCE.md
+
+# Recorded takes and exported films. Large, regenerable from the takes, and the takes themselves
+# are raw footage rather than source.
+demo/video/takes/
+demo/video/*.mp4
+demo/video/subtitles.srt.planned
+demo/video/__pycache__/
