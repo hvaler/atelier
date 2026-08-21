@@ -52,3 +52,7 @@ demo/video/takes/
 demo/video/*.mp4
 demo/video/subtitles.srt.planned
 demo/video/__pycache__/
+
+# Spanish working copy of the shot list. Operational notes for the person holding the camera;
+# the public repo stays English-only.
+demo/video/shot-list.es.md

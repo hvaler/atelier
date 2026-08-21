@@ -92,7 +92,7 @@ how far each result can be trusted — so the ranking is documented rather than 
   - Aggregates are `float | None`. An average over an empty set renders as a dash, never as `0.00` — a plate whose views do not correspond at all once reported perfect alignment.
 - **Two-stage pre-router (`src/tools/pre_router.py`)**:
   - `classify_drawing()` — Gemini 3.5 Flash looks at the photograph and answers two questions before anything is measured: *is this an exercise at all*, and *conic, axonometric or orthographic*. That verdict selects which engine runs, because the three measure against unrelated references.
-  - `route_from_intent()` — Gemma 4 reads the student's own description and infers which perspective they meant. When it disagrees with the measurement the disagreement is **reported and nothing is changed**: the measurement is evidence, the description is a claim.
+  - `route_from_intent()` — Gemma 4 reads the student's own description and infers which **system of representation** they meant, across the same taxonomy the gate uses. When it disagrees with the measurement the disagreement is **reported and nothing is changed**: the measurement is evidence, the description is a claim. The call carries an 8-second deadline, because the failure worth bounding here is not slowness but silence.
   - It does **not** tune Canny thresholds. Those are fixed at 50/150 in `geometry.py`; an earlier version of this document said otherwise and was wrong.
 - **Gemini Flash Client (`src/tools/critique.py`)**:
   - Prompts calibrated with real instructor rubrics for formal descriptive-geometry coursework.

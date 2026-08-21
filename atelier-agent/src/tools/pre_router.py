@@ -43,32 +43,85 @@ from src.config import settings
 
 logger = logging.getLogger(__name__)
 
-# The two measurable cases of conic projection, and the vanishing-point count each one implies.
-# Kept as one mapping because the consistency check below used to test for the substring "2-point";
-# renaming the taxonomy silently inverted that test and every genuine two-point routing was refused
-# as self-contradictory. A rename now breaks this table loudly instead.
+# Every exercise type the router may name, and the count each one implies. This is the *same*
+# convention as the vision gate below — conic carries its vanishing-point count, a parallel
+# projection carries 3 for its three axes, and anything the engine does not measure carries 0 —
+# so the stage that reads words and the stage that looks at the page cannot disagree about what a
+# word means.
+#
+# The list was conic-only until the axonometric and orthographic engines existed, and nobody
+# extended it. Asking a schema-constrained model to classify "an isometric cube" into a set that
+# has no axonometric member does not produce a wrong answer: it produces no answer at all. The
+# model spent its whole budget reasoning and never emitted the JSON, and the reader watched a
+# frozen page for as long as the client would wait. Adding a system to the engine means adding it
+# here, in the same commit.
 ONE_POINT_CONICAL = "one-point-conical"
 TWO_POINT_OBLIQUE = "two-point-oblique"
-CONIC_K_BY_TYPE = {ONE_POINT_CONICAL: 1, TWO_POINT_OBLIQUE: 2}
+CURVILINEAR = "curvilinear"
+ISOMETRIC = "isometric"
+DIMETRIC = "dimetric"
+CAVALIER = "cavalier"
+ORTHOGRAPHIC_TWO_VIEW = "orthographic-two-view"
+FREEHAND = "freehand"
 
-ROUTER_SYSTEM_PROMPT = """You route a drawing to the right case of conic projection before any
+K_BY_TYPE = {
+    ONE_POINT_CONICAL: 1,
+    TWO_POINT_OBLIQUE: 2,
+    ISOMETRIC: 3,
+    DIMETRIC: 3,
+    CAVALIER: 3,
+    ORTHOGRAPHIC_TWO_VIEW: 0,
+    # Neither of these is measured by any of the three engines, so neither carries a count.
+    CURVILINEAR: 0,
+    FREEHAND: 0,
+}
+
+# How long the router may take before the fallback is used instead. The failure this bounds is
+# not slowness but silence: a request that never completes.
+#
+# **The Gemini API refuses anything under 10s** — `400 INVALID_ARGUMENT: Manually set deadline 8s
+# is too short. Minimum allowed deadline is 10s.` A deadline it rejects is worse than none: every
+# call fails instantly and every reader gets the fallback, which is what 8000 did here in
+# production for the four minutes it took to read the log. 12s clears the floor and is still
+# seven times the 1.6s the model takes when it answers at all.
+ROUTER_TIMEOUT_MS = 12000
+
+ROUTER_SYSTEM_PROMPT = """You route a drawing to the right system of representation before any
 measurement happens. You are given only the student's own words about what they were practising.
 
-The two cases are the ones descriptive geometry names:
-- ONE-POINT CONICAL (perspectiva cónica frontal): the picture plane is parallel to a principal face
-  of the subject, so one family of edges recedes to a single vanishing point on the horizon line.
-- TWO-POINT OBLIQUE (perspectiva cónica oblicua): the subject is turned to the picture plane, so two
-  families of edges recede to two vanishing points, F1 and F2, both on the horizon line.
+The systems are the ones descriptive geometry names, and they are measured against unrelated
+references, so telling them apart is the whole job:
+
+CONIC (perspectiva cónica) — receding edges converge on vanishing points.
+- ONE-POINT CONICAL (cónica frontal): the picture plane is parallel to a principal face, so one
+  family of edges recedes to a single vanishing point. A corridor, a road, a room from the doorway,
+  a box seen face-on.
+- TWO-POINT OBLIQUE (cónica oblicua): the subject is turned to the picture plane, so two families
+  recede to F1 and F2. A building corner, a box at an angle, an oblique street view.
+- CURVILINEAR: three-point or fisheye. Named for completeness; not measured.
+
+AXONOMETRIC (proyección paralela) — edges stay parallel and never meet. There is no vanishing
+point at all.
+- ISOMETRIC: three axes evenly spaced at 30, 150 and 90 degrees; the cube reads as a hexagon.
+- DIMETRIC: two axes share a scale and the third does not.
+- CAVALIER: one face is a true square facing the viewer and depth runs off at a slant, often 45.
+
+ORTHOGRAPHIC (sistema diédrico, Monge) — two flat views about a ground line: a plan below and an
+elevation above, each point in one lying directly under its counterpart in the other.
+
+FREEHAND: a sketch with no construction the student names.
 
 Answer with:
-- exercise_type: 'one-point-conical', 'two-point-oblique', 'curvilinear' or 'freehand'
-- recommended_k: 1 when one vanishing point is implied (a corridor, a road, a box seen face-on, a
-  room from the doorway); 2 when the subject is seen from a corner (a building corner, a box at an
-  angle, an oblique street view)
+- exercise_type: 'one-point-conical', 'two-point-oblique', 'curvilinear', 'isometric', 'dimetric',
+  'cavalier', 'orthographic-two-view' or 'freehand'
+- recommended_k: 1 or 2 for conic, by how many vanishing points the words imply. 3 for any
+  axonometric system, because a parallel projection shows three axes and no vanishing point.
+  0 for orthographic, curvilinear and freehand, which have neither.
 - reasoning: one short sentence naming the words that decided it
 
-If the description does not say, choose the fallback you are told and say so in the reasoning.
-Never invent detail the student did not give you."""
+Answer with one of those values and nothing else. If the description does not say which system it
+is, choose the fallback you are told and say so in the reasoning. Never invent detail the student
+did not give you."""
 
 
 class RoutingDecision(BaseModel):
@@ -77,11 +130,18 @@ class RoutingDecision(BaseModel):
     exercise_type: str = Field(
         ...,
         description=(
-            "'one-point-conical' (perspectiva cónica frontal), 'two-point-oblique' (perspectiva "
-            "cónica oblicua), 'curvilinear' or 'freehand'"
+            "'one-point-conical' (cónica frontal), 'two-point-oblique' (cónica oblicua), "
+            "'curvilinear', 'isometric', 'dimetric', 'cavalier', 'orthographic-two-view' "
+            "(sistema diédrico) or 'freehand'"
         ),
     )
-    recommended_k: int = Field(1, description="Vanishing point count to measure against: 1 or 2")
+    recommended_k: int = Field(
+        1,
+        description=(
+            "1 or 2 for conic, by vanishing point count. 3 for any axonometric system, for its "
+            "three axes. 0 for orthographic, curvilinear and freehand, which have neither."
+        ),
+    )
     reasoning: str = Field("", description="One sentence naming what in the description decided it")
 
 
@@ -118,7 +178,10 @@ def route_from_intent(student_intent: str | None, student_level: str = "beginner
         if not settings.gemini_api_key:
             raise ValueError("GEMINI_API_KEY is unset; the Gemma router is unreachable.")
 
-        client = genai.Client(api_key=settings.gemini_api_key)
+        client = genai.Client(
+            api_key=settings.gemini_api_key,
+            http_options=types.HttpOptions(timeout=ROUTER_TIMEOUT_MS),
+        )
         response = client.models.generate_content(
             model=settings.router_model,
             contents=(
@@ -136,14 +199,13 @@ def route_from_intent(student_intent: str | None, student_level: str = "beginner
             raise ValueError("Empty routing response.")
 
         decision = RoutingDecision.model_validate_json(response.text)
-        if decision.recommended_k not in (1, 2):
-            raise ValueError(f"Router returned k={decision.recommended_k}; only 1 and 2 are measurable.")
         # Observed on this model: it answered `two-point-oblique` with `recommended_k=1` for "a box
         # at an angle". A router that contradicts itself is not usable output, whichever half is
-        # right, so it is refused rather than half-believed. Types outside the two conic cases
-        # (`curvilinear`, `freehand`) imply no second vanishing point, so k=2 there is incoherent
-        # too and is refused for the same reason.
-        expected_k = CONIC_K_BY_TYPE.get(decision.exercise_type, 1)
+        # right, so it is refused rather than half-believed. A type outside the table is refused
+        # for the same reason: an answer we cannot map is not an answer.
+        expected_k = K_BY_TYPE.get(decision.exercise_type)
+        if expected_k is None:
+            raise ValueError(f"Router returned an unknown exercise type: {decision.exercise_type!r}.")
         if decision.recommended_k != expected_k:
             raise ValueError(
                 f"Router contradicted itself: {decision.exercise_type} with k={decision.recommended_k}."

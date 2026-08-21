@@ -82,6 +82,37 @@ has just watched happen. That is when a diagram earns its keep.
 
 ## Before you press record
 
+**Turn off HDR and Adaptive colour, in Windows, first.** Settings → System → Display. Eight of the
+nine clips are screen capture, and with **HDR on** OBS captures an HDR signal and writes it into an SDR
+file: grey, washed out, no real blacks. It is the classic "it looked right on my monitor" failure.
+**Adaptive colour** is the screen's equivalent of the webcam's auto-exposure — it retints the display
+from the ambient light sensor, so it can drift *during* a take. Night light should be off too.
+
+Do this **before** framing anything: switching HDR off changes the apparent brightness of the panel,
+so any exposure you set beforehand is set against a reference that is about to move.
+
+**Then set OBS → Settings → Video.** OBS auto-detects this panel and gets it wrong: it offers a
+**2881×1801** canvas — an off-by-one — and a **1920×1200** output, which is 16:10. Shipping 16:10
+sends YouTube your taskbar, your clock and any notification that lands mid-take. Type the values.
+
+The panel is **2880×1800 at 200% scaling**, so the *logical* desktop is 1440×900: no window can be
+1920 wide, and the panel is 16:10 rather than 16:9.
+
+| Field | Value | Why |
+|---|---|---|
+| Base (Canvas) Resolution | **2880×1620** | The 16:9 crop of the physical panel |
+| Output (Scaled) Resolution | **1920×1080** | Exactly two thirds of the canvas — a clean reduction |
+| Downscale Filter | **Lanczos** | |
+| FPS | **30** | Matches the C930e, which does not do 60 at 1080p |
+| Display Capture source | position **0,0** | The bottom 180 physical px — the taskbar — fall off the canvas by themselves |
+
+No manual crop, and nothing to remember: check OBS's preview and confirm the taskbar is simply not
+there.
+
+**Leave Windows display scaling at 200%.** At 1440 logical pixels wide the studio's tables and
+figures are legible at 1080p. Dropping to 100% would fit twice as much in the frame and none of it
+would read.
+
 **Warm both services.** They scale to zero, and a cold container in the middle of a continuous take
 costs you the take. Read the state first rather than warming what is already warm:
 
@@ -97,8 +128,26 @@ Invoke-RestMethod https://atelier-web-3hacbhowpq-ew.a.run.app/api/health
 parses the JSON — which is what you actually want to read. The agent must report
 `"gemini_model":"gemini-3.5-flash"` and `"memory_backend":"firestore"`.
 
-**Then run one full analysis and reload.** The first Vertex call of the day is the slow one. Warming
-the path means the 16 seconds in the table above stays 16 and does not become 30.
+**Then warm Vertex — but not through the studio.** The first Vertex call of the day is the slow
+one, and warming it keeps the 16 seconds in the table above at 16 rather than 30. Do **not** warm it
+by running a full analysis in the app: a critique that lands is persisted immediately
+(`Home.razor`, `SaveExerciseAsync`), so that warm-up leaves a seventeenth exercise in
+`level-basic` — which both falsifies the sentence below and changes the history panel that appears
+on camera.
+
+The gate endpoint is the same Vertex path, the same model and the same region, and it writes
+nothing:
+
+```powershell
+$b64 = [Convert]::ToBase64String(
+  [IO.File]::ReadAllBytes("Atelier.Web\wwwroot\samples\01_1point_perfect.png"))
+Invoke-RestMethod -Method Post -ContentType 'application/json' `
+  -Uri https://atelier-agent-3hacbhowpq-ew.a.run.app/api/router/gate `
+  -Body (@{ image_base64 = $b64 } | ConvertTo-Json)
+```
+
+It must come back with `source: vertex` and `model_version: gemini-3.5-flash`. If it answers in
+under a second the path was already warm; the first call of the day takes several.
 
 **Set the interface to English.** The narration is in English, so the screen has to be too — except
 for one deliberate shot, below. The picker is top-right and writes a cookie.
@@ -171,6 +220,53 @@ supported-device list is closed, and what it shows varies by model — the fallb
 right-click the Video Capture Device source in OBS, **Properties**, then **Configure Video**.
 That is the DirectShow control panel, and the three switches above are all in it. Less pleasant,
 same result.
+
+### The device itself, in OBS
+
+The camera is a **Logitech C930e**, and two of its properties decide how the plate reads.
+
+**Video Format is the one that matters.** The C930e is USB 2.0, so uncompressed YUY2 does not fit at
+1080p: left on *Any*, OBS negotiates 5 fps, or drops to 640×480. Soft and stuttering, and it looks
+like a lens problem when it is a bandwidth one. Right-click the source → **Properties**:
+
+| Field | Value |
+|---|---|
+| Resolution/FPS Type | **Custom** — *Device Default* lets OBS choose, and it chooses badly |
+| Resolution | **1920×1080** |
+| FPS | **30** — the C930e does not do 60 at 1080p |
+| Video Format | **MJPEG** — the only format that fits 1080p30 over USB 2.0 |
+| Color Space | **709** |
+| Color Range | **Full** — see below |
+| Buffering | **Disable** |
+| Deactivate when not showing | **unchecked** — a deactivated device forgets the manual settings |
+
+**Colour range is worth thirty seconds of checking rather than guessing.** That field tells OBS what
+range the camera *sends*; getting it wrong makes OBS remap. MJPEG is JFIF, which is full range by
+definition, so **Full** is the likely answer — but confirm it with the plate in frame:
+
+| What you see | What it means |
+|---|---|
+| The paper reads flat white and the pencil lines lose their stroke | Being stretched → **Full** |
+| Everything looks hazy, no real black, no real white | Being compressed → **Limited** |
+| Paper reaches white without clipping, graphite reads dark grey | Correct — leave it |
+
+This is not the *other* Color Range, in **Settings → Advanced**. That one is the range OBS *writes*,
+and it stays **Limited** — the video standard, and what YouTube expects. Source Full and output
+Limited is not a contradiction; it is the correct conversion.
+
+**Field of view is the setting Logi Capture had and this dialog does not.** The C930e switches
+between 90°, 78° and 65°, but that lives in a proprietary UVC extension unit which the standard
+DirectShow dialog does not reach — which is exactly why the sheet looked better in Logi Capture. The
+substitute is **Zoom**, in *Configure Video → Camera Control*: the C930e does up to 4× digital, and
+**1.4–1.6×** gives roughly the 65° crop without the barrel distortion of the wide setting. Pan and
+tilt then recentre the plate without moving the camera.
+
+Two values in *Video Proc Amp* that are easy to miss:
+
+- **PowerLine Frequency → 50 Hz.** Spain is 50 Hz mains; at 60 you get horizontal banding.
+- **Sharpness → 160–190** (default 128). Thin pencil lines read better. Past 200 it starts haloing.
+
+Leave brightness and contrast alone. Fix the light, not the slider.
 
 The rest is light rather than settings: a 1080p webcam gets noisy and drops its effective frame rate
 in a dim room, no configuration compensates for that, and a window behind you turns you into a
