@@ -251,7 +251,7 @@ model for the measurements.
  ┌─────────────────────────────────────┐             ┌─────────────────────────────────────┐
  │       STUDENT WEB CLIENT            │             │      BACKGROUND GCS INGESTION       │
  │  Atelier.Web (Blazor Server .NET10) │             │  gs://atelier-hack-inbox/{studentId}/    │
- │  - Multimodal Overlay (Original/AI) │             │  - Private Family Bucket (ADR-006)  │
+ │  - Multimodal Overlay (Original/AI) │             │  - Private Inbox Bucket (ADR-006)   │
  │  - Two-Plane Level-Aware Critique   │             │  - Eventarc Object Finalized        │
  │  - Progress Curve (Native SVG)      │             │  - Cloud Scheduler Weekly Digest    │
  └─────────────────────────────────────┘             └─────────────────────────────────────┘
@@ -349,9 +349,15 @@ would otherwise have to find:
   accounts, IAM bindings, Eventarc trigger and Scheduler job that previously existed only because
   somebody typed them once — reproducing, step by step, what the live project contains. But the
   only honest proof is a clean-room run on an empty project, and there has not been one.
-- **No application-level authentication.** Both Cloud Run services are `--allow-unauthenticated`
-  and the agent has no authorization at all: anyone with the URL can register a student or
-  trigger a digest. That is proportionate for a judged demo and wrong for anything else.
+- **No application-level authentication, and therefore no accounts.** Both Cloud Run services are
+  `--allow-unauthenticated` and the agent has no authorization at all: anyone with the URL can
+  register a student or trigger a digest. `CurrentStudentId` is one of two compile-time constants,
+  so **every visitor reads and writes the same two level profiles** — an exercise uploaded by one
+  person is counted in the history the next person sees. The history panel shows the date, the
+  system, one figure and a critique headline; it does **not** re-display the uploaded image, and no
+  name, email or address is ever collected because there is nowhere to put one. Proportionate for a
+  judged demo, wrong for anything else, and [`ADR-006`](adr/ADR-006-family-privacy.md) now records
+  what real accounts would take rather than leaving it implied.
 - **No signed URLs.** ADR-006 called for them. The current data flow never hands a browser a
   stored object — images travel as base64 over TLS and the bucket is private with uniform
   access — so the control it describes is not needed yet. It becomes required the moment a

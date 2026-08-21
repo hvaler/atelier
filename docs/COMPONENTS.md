@@ -263,6 +263,34 @@ fresh.
 
 ---
 
+## What is deliberately not here
+
+### No accounts, and no authentication
+
+`CurrentStudentId` is one of two compile-time constants, `level-basic` and `level-advanced`. There
+is no sign-in, no session, and no per-person anything: **every visitor to the public URL reads and
+writes the same two profiles.**
+
+**Why that is acceptable for this**, and stated rather than left to be found: the data is technical
+drawings and their measurements. No name, email or address is collected, because the profile is a
+difficulty level and there is nowhere to put one. The history panel shows a date, a projection
+system, one figure and a critique headline — it does **not** re-display the uploaded image, so a
+drawing is never served back to anybody.
+
+**Why it would not be acceptable for a product**, and what it would take:
+
+| Needed | Cheapest correct answer |
+|---|---|
+| Identity | Google Sign-In via Firebase Authentication — one more Google Cloud service, and no new secret to hold |
+| Isolation | Firestore security rules keyed on the authenticated uid. Today the agent's service account reads everything, because there is nothing to separate |
+| The existing data | A migration for a shared history that belongs to nobody in particular |
+| Instructor access | A decision about what a teacher may see, which is a pedagogical question and not a technical one — and the reason this is not simply *"add auth"* |
+
+It is recorded in [`adr/ADR-006`](../adr/ADR-006-family-privacy.md) as an amendment, so the absence
+reads as a scope decision rather than an oversight that happens to be harmless.
+
+---
+
 ## Requirement → evidence
 
 | # | Requirement | Evidence a judge can check without running anything |
