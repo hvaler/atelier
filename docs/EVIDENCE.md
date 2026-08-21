@@ -241,7 +241,7 @@ Correctas! - Con error: 0, Superado: 8, Omitido: 0, Total: 8 - Atelier.Web.Tests
 | Test Suite | Framework | Target Component | Test Count | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **`test_geometry.py`** | Pytest | OpenCV RANSAC VP & per-line error, calibration dataset | 9 | ✅ Passed |
-| **`test_pre_router.py`** | Pytest | Intent pre-router & gate, fallback labelling | 7 | ✅ Passed |
+| **`test_pre_router.py`** | Pytest | Intent pre-router & gate, taxonomy across the three systems, call deadline, fallback labelling | 11 | ✅ Passed |
 | **`test_critique.py`** | Pytest | Vertex AI Gemini & anti-hallucination validator | 6 | ✅ Passed |
 | **`test_memory_collaborative.py`** | Pytest | 4 Verbs & event-sourced adaptation | 6 | ✅ Passed |
 | **`test_async_digest.py`** | Pytest | GCS ingestion, refusal path & weekly digest | 6 | ✅ Passed |
@@ -250,7 +250,7 @@ Correctas! - Con error: 0, Superado: 8, Omitido: 0, Total: 8 - Atelier.Web.Tests
 | **`test_axonometry.py`** | Pytest | Parallel projection: angle maths, golden cases, subject-agnostic validator | 23 | ✅ Passed |
 | **`test_dihedral.py`** | Pytest | Monge plates: ground-line detection, correspondence, systematic offset, empty-set honesty | 20 | ✅ Passed |
 | **`Atelier.Web.Tests`** | xUnit | Typed client contract, provenance mapping, health | 8 | ✅ Passed |
-| **TOTAL** | | | **100 tests** | **✅ 100/100 PASSED** (92 Python + 8 .NET) |
+| **TOTAL** | | | **104 tests** | **✅ 104/104 PASSED** (96 Python + 8 .NET) |
 
 The axonometric suite asserts more tightly than the perspective one, and the difference is the
 point rather than an accident. Conic perspective estimates its own reference with RANSAC, so its

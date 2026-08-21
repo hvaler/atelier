@@ -481,7 +481,7 @@ faster way to see the part that needs them.
 All claims are backed by executable tests logged in [`docs/EVIDENCE.md`](docs/EVIDENCE.md).
 
 ```bash
-# Run Python backend tests (92 tests)
+# Run Python backend tests (96 tests)
 cd atelier-agent
 .venv\Scripts\python -m pytest tests -v
 

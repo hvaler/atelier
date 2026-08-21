@@ -56,3 +56,6 @@ demo/video/__pycache__/
 # Spanish working copy of the shot list. Operational notes for the person holding the camera;
 # the public repo stays English-only.
 demo/video/shot-list.es.md
+
+# Devpost form answers. Working material for the submission, not source.
+docs/DEVPOST_SUBMISSION.md

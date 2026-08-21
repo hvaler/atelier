@@ -150,7 +150,7 @@ disagreement and changes nothing.
 
 ## 5. What we learned
 
-Three lessons, and the useful ones are all about honesty rather than about models.
+Four lessons, and the useful ones are all about honesty rather than about models.
 
 **The mean of an empty set is not zero.** Twice — in the orthographic engine and again in the
 progress profile — an average computed over nothing was reported as `0.00`, which reads as *perfect*.
@@ -166,6 +166,18 @@ is what lets the critique say *"your hand is excellent, you just need to set the
 start"* — which a published rubric cannot say, because saying it requires measuring each family's
 mean direction separately.
 
+**A schema that cannot express the answer produces no answer.** The intent router still offered
+only the conic taxonomy long after the axonometric and orthographic engines shipped. Asking a
+schema-constrained model to classify *"an isometric cube"* into a set with no axonometric member
+did not return something wrong — it returned **nothing at all**, measured at 30 s, 45 s and 300 s
+with no response, while conic phrasings answered in 1.6 s. What eventually unblocked the interface
+was the HTTP client's hundred-second default, and what the reader saw was a frozen page. Three of
+the eleven calibration samples are parallel projections, so anyone describing what they had just
+opened would have found it. The fix is two things in the same commit: extend the taxonomy so the
+answer is expressible, and put a deadline on the call so the next unexpressible question costs
+twelve seconds instead of a hundred. Adding a capability to the engine means adding it to every
+stage that has to name it.
+
 **Silent fallbacks make a broken system look healthy.** The critique path once caught every exception
 and returned a hand-written template stamped `validated=true` with the real model's name on it.
 Deleting Vertex AI from the project would have changed nothing observable. Now provenance is stamped
@@ -180,4 +192,4 @@ the code enforces rather than something the prompt requests.
 
 *Built with the Google GenAI SDK (`google-genai`), Vertex AI (Gemini 3.5 Flash), Gemma 4, Google
 Cloud Run, Cloud Storage, Eventarc, Firestore, Cloud Scheduler, OpenCV and .NET 10. Apache 2.0,
-100 automated tests (92 Python + 8 .NET).*
+104 automated tests (96 Python + 8 .NET).*

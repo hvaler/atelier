@@ -82,7 +82,7 @@ all reported a correspondence error of zero. A worse drawing produced a better n
 aggregates are nullable now and render as a dash.
 
 Built with the Google GenAI SDK, Gemini 3.5 Flash and Gemma 4, Cloud Run, Firestore, Cloud Storage,
-Eventarc, Cloud Scheduler, OpenCV and .NET 10. Apache 2.0, 100 automated tests.
+Eventarc, Cloud Scheduler, OpenCV and .NET 10. Apache 2.0, 104 automated tests.
 
 Repo, architecture and the pedagogy sources: https://github.com/hvaler/atelier
 
