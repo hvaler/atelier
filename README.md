@@ -10,6 +10,7 @@
 [![Google Cloud](https://img.shields.io/badge/GCP-Cloud_Run_%7C_Vertex_AI_%7C_Firestore-4285F4.svg)](https://cloud.google.com/)
 [![Google GenAI SDK](https://img.shields.io/badge/Google_GenAI_SDK-google--genai-4285F4.svg)](https://pypi.org/project/google-genai/)
 [![Gemini](https://img.shields.io/badge/Gemini-3.5_Flash-8E24AA.svg)](https://deepmind.google/technologies/gemini/)
+[![Demo video](https://img.shields.io/badge/Demo_video-3%3A41-FF0000.svg?logo=youtube&logoColor=white)](https://youtu.be/uIwx3I5ZpeI)
 
 **Atelier** verifies technical drawings in **descriptive geometry** — *sistemas de representación*,
 the Monge tradition taught as a first-year subject in architecture, engineering and animation
@@ -44,6 +45,7 @@ teaches but is **forbidden from producing a number**. A validator enforces it.
 
 ## 🌐 Live Demo & Hosted Deployment
 
+- 🎬 **Demo video (3:41)**: <https://youtu.be/uIwx3I5ZpeI> — the measurement, the refusal, and the Google Cloud backend serving it, recorded against this deployment
 - 💻 **Studio Web Client (Blazor / .NET 10)**: `https://atelier-web-773993294789.europe-west1.run.app`
 - 🤖 **Agent Backend API (Google GenAI SDK + FastAPI / Cloud Run)**: `https://atelier-agent-773993294789.europe-west1.run.app`
 - 📚 **Interactive Swagger API Docs**: `https://atelier-agent-773993294789.europe-west1.run.app/docs`
