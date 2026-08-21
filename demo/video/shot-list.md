@@ -154,7 +154,7 @@ are locking against the scene you will record rather than against an empty room:
 
 | Setting | Set it to | Why |
 |---|---|---|
-| **RightLight / auto exposure** | **off**, exposure by hand | This is Logitech's auto-exposure. It is the thing that closes down when the white sheet arrives and opens again when it moves |
+| **RightLight / auto exposure** | **off**, exposure by hand | RightLight *is* the automatic metering described above. Off is what makes the pulse impossible rather than unlikely |
 | **Autofocus** | **off**, fixed at the paper's distance | Autofocus hunts when the plate moves, and nineteen seconds of a shot going soft and sharp again is as unusable as nineteen seconds of pulsing brightness |
 | **Auto white balance** | **off**, fixed | A sheet of white paper otherwise drags the balance of the whole frame with it |
 
@@ -166,10 +166,11 @@ rather than assume: open OBS's preview, move the paper in and out of frame, and 
 brightness moves. If it does, leave Tune running — but close its own preview window before opening
 OBS.
 
-**If Tune does not expose exposure or focus for your camera** — what it shows varies by model — the
-fallback always works: right-click the Video Capture Device source in OBS, **Properties**, then
-**Configure Video**. That is the DirectShow control panel, and the three switches above are all in
-it. Less pleasant, same result.
+**If Tune does not list your camera at all, or does not expose exposure and focus for it** — its
+supported-device list is closed, and what it shows varies by model — the fallback always works:
+right-click the Video Capture Device source in OBS, **Properties**, then **Configure Video**.
+That is the DirectShow control panel, and the three switches above are all in it. Less pleasant,
+same result.
 
 The rest is light rather than settings: a 1080p webcam gets noisy and drops its effective frame rate
 in a dim room, no configuration compensates for that, and a window behind you turns you into a
