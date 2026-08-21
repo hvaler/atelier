@@ -131,6 +131,31 @@ This is the only clip where you are on camera. Nineteen seconds.
 > carries it — but do not cut both. The organisers' checklist asks the video for *"clear
 > identification of which Gemini model and agent framework used"*.
 
+### The camera, and the one setting that decides this shot
+
+**Lock the exposure, with the paper already in frame.** A webcam left on automatic meters the scene,
+sees a sheet of white paper arrive, closes down, and opens again when the paper moves. On camera that
+is a pulse of brightness running through the whole nineteen seconds, and it is a more likely way to
+lose this clip than any resolution setting. Frame the shot holding the plate, *then* lock exposure and
+white balance, then start recording.
+
+**Record it in OBS, not in the camera's own software.** The other eight clips come out of OBS; a clip
+from a second encoder can differ in frame rate, colour range or codec, and that shows as a jump at
+the cut. Add a scene with the camera as a **Video Capture Device** and leave the canvas and output
+settings exactly as they are for the screen clips — one encoder for all nine.
+
+Logitech's **Logi Capture** is useful as the tuning layer rather than the recording layer: it exposes
+exposure lock, white-balance lock and field of view with more control than OBS's device-properties
+dialog. Point OBS at its virtual camera and you get both. Two cautions — it is **discontinued**, so
+it may not install for a recent camera, and if you do use the virtual camera, close it completely
+before recording the screen clips. Two applications contending for one device is a hang waiting to
+happen.
+
+The rest is light rather than settings: a 1080p webcam gets noisy and drops its effective frame rate
+in a dim room, no configuration compensates for that, and a window behind you turns you into a
+silhouette. Hold the plate closer than feels natural — at 1080p it needs to fill a good part of the
+frame to read as a construction rather than a piece of paper.
+
 ---
 
 ## Clip 2 · The finding — 0:19 – 0:36 · **screen**
