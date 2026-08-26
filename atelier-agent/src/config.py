@@ -40,6 +40,14 @@ class Settings(BaseSettings):
     #: reasoning and returns empty, and at larger budgets it hangs for minutes. So Gemma reads
     #: words and `gemini_model` looks at pictures.
     router_model: str = os.getenv("ROUTER_MODEL", "gemma-4-26b-a4b-it")
+
+    #: How far a number in the critique may sit from a number OpenCV measured and still be
+    #: accepted, in degrees. It exists because the model rounds and phrases; it is not a
+    #: licence to invent. At 0.5 a fabricated figure landing within half a degree of any
+    #: measured value passes, which is wide when the whitelist holds ten of them — so a
+    #: deployment that wants a stricter gate can tighten it without touching code.
+    #: Setting it to 0.0 demands an exact match.
+    validator_tolerance_deg: float = float(os.getenv("VALIDATOR_TOLERANCE_DEG", "0.5"))
     gemini_api_key: str | None = os.getenv("GEMINI_API_KEY")
 
     #: Where student memory lives. Firestore in production, dicts everywhere else.

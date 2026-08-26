@@ -166,12 +166,18 @@ if ! gcloud scheduler jobs describe weekly-digest-job --location="$REGION" &>/de
   if [ -z "$AGENT_URL" ]; then
     echo "   ⚠️  atelier-agent is not deployed yet; run ./infra/deploy.sh first, then re-run this."
   else
+    # The body is not optional. WeeklyDigestRequest.student_id is required, so a job created
+    # without one fails validation on every fire and Scheduler reports FAILED_PRECONDITION —
+    # which is exactly what the deployed job did every Monday until 2026-08-26.
+    # 'level-basic' is a difficulty level rather than a person, which is the profile model.
     gcloud scheduler jobs create http weekly-digest-job \
       --location="$REGION" \
       --schedule="0 9 * * 1" \
       --time-zone="UTC" \
       --uri="${AGENT_URL}/api/digest/weekly" \
-      --http-method=POST
+      --http-method=POST \
+      --headers="Content-Type=application/json" \
+      --message-body='{"student_id":"level-basic"}'
     echo "   ✅ weekly-digest-job created."
   fi
 else

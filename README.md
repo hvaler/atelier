@@ -16,7 +16,8 @@
 **A student drops a photograph of a plate into a folder and closes the laptop.** Nobody presses
 anything. Cloud Storage finalises the object, Eventarc fires, and the agent measures the drawing,
 writes a critique and appends the result to that student's history — while nobody is watching.
-On Sunday, Cloud Scheduler synthesises the week into a practice plan the student never asked for.
+On Monday morning, Cloud Scheduler synthesises the week into a practice plan the student never
+asked for.
 
 That is the shape of the thing: **the interactive studio is one way in, not the product**. The
 same pipeline runs when the browser is closed.
@@ -62,7 +63,7 @@ teaches but is **forbidden from producing a number**. A validator enforces it.
 
 | Requirement | How Atelier satisfies it | Where |
 | :--- | :--- | :--- |
-| **Gemini 3.5+ via Gemini API or Vertex AI** | Gemini 3.5 Flash on Vertex AI (critique + dialogue) | [`atelier-agent/src/tools/critique.py`](atelier-agent/src/tools/critique.py) |
+| **Gemini 3.5+ via Gemini API or Vertex AI** | `gemini-3.5-flash` on Vertex AI, `europe-west3` (critique, dialogue and the vision gate) · `config.py:16` | [`atelier-agent/src/tools/critique.py`](atelier-agent/src/tools/critique.py) |
 | **≥1 Google Agent Framework** | Google GenAI SDK — `google-genai` **2.18.1**, `genai.Client(vertexai=True, …)`, every model call | [`atelier-agent/requirements.txt`](atelier-agent/requirements.txt) · [`src/tools/`](atelier-agent/src/tools/) |
 | **≥1 Google Cloud infrastructure service** | **Cloud Run** and **Firestore** (both on the rules' enumerated list) · plus Cloud Storage, Eventarc and Cloud Scheduler | [`infra/`](infra/) · [`src/tools/`](atelier-agent/src/tools/) |
 
@@ -331,7 +332,7 @@ model for the measurements.
 
 ---
 
-## Honest Technical Gaps
+## What is missing, and what is wrong
 
 What is measured, what is deliberately not, and what is simply missing. A judge who reads one row of this table has seen the project's whole posture: the difference is stated rather than hidden.
 
@@ -362,9 +363,12 @@ What is measured, what is deliberately not, and what is simply missing. A judge 
 | **A drifted two-point plate scores better than a clean one** | ⚠️ *Known, measured, not fixed* | Measured 2026-08-26 on the calibration set: `04_2point_perfect.png` reports **avg 0.480°, max 1.590°**, while `05_2point_error_6deg.png` — the same plate with 6° of drift injected — reports **avg 0.420°, max 0.970°**. Lower on both. RANSAC fits the vanishing points to the student's own lines, so a consistent rotation moves the target rather than scattering the shots. The signal that does move is **horizon tilt: −0.51° clean against +2.08° drifted**. Read the tilt, not the average. This is a property of inferring the reference, so **axonometric cannot fail this way** — its axes are constants of the system, not estimates. |
 | **One-point conic does not have that problem** | ✅ Measured the same day | Same experiment, k=1: perfect **0.820°**, 4° injected **1.360°**, 9° injected **4.470°**. Monotonic, as it should be. The weakness above is specific to the two-vanishing-point fit, not to conic perspective as a family. |
 | **The ±0.05° figure belongs to axonometry only** | ⚠️ *Precision is not transferable* | The golden case recovers an injected 6° as 6° to within 0.05° **because the axes are fixed by the system**. No conic measurement in this repository supports a bound that tight, and the two rows above are why. Do not carry the number across systems. |
+| **The three fallbacks now agree about `validated`** | ✅ Fixed 2026-08-26 | The conic template used to return `validated=true` while the orthographic and axonometric ones returned `false`. No validator passes any of them, so all three now say `false`. Three existing tests failed when this was corrected: they asserted `validated is True` while running without credentials, which meant they were pinning the fault. They now assert `validated is (source == "vertex")`, which is true with credentials and without. |
+| **The critique cache outlives the rules that filled it** | ⚠️ *Local only* | `.cache/critiques/` is keyed on the request, not on the code version, and nothing invalidates it when the critique logic changes. It still holds entries stamped `source=fallback` with `validated=true` from before the provenance work. The directory is gitignored, so this affects a developer's machine and not a deployment. |
+| **The Quickstart runs on a clean machine; the browser flow does not** | ✅ Steps 1–4, 2026-08-26 | Two containers, clone from GitHub, commands exactly as written. `python:3.12-slim`: venv, `pip install`, **11 calibration plates**, and `/api/health` answering `"memory_backend":"memory"`. `dotnet/sdk:10.0`: build **0 warnings, 0 errors**, **8 tests**. **Step 5 is not covered** — nobody has started the Blazor app and clicked through it on a machine that never had the repository. |
 | **One tester, not a cohort** | ⏳ *Not validated* | Every drawing this has been exercised on is either synthetic, from `demo/generate_calibration_dataset.py`, or from a single 9-year-old beginner. Handwriting, paper, lighting and camera angle all vary between people, and none of that variation has been sampled. |
-| **Where the validator can still be fooled** | ⚠️ *Bounded, not closed* | The gate compares numbers in the critique against `measured_values()`. A model that writes a measured number in a **sentence that misattributes it** — the right figure against the wrong edge — passes, because the check is on the value and not on what it is predicated of. Rounding is normalised to two decimals, so a value that coincides after rounding also passes. |
-| **If a model does not answer** | ✅ Handled three different ways, each labelled | They are not the same failure and the screen does not pretend they are. **The gate refuses the page** — amber panel, *"This does not look like a perspective exercise"*, nothing measured. **Gemini fails but OpenCV succeeded** — measurements and overlay render normally and the critique carries an amber pill reading *"Deterministic fallback — no model answered"*, with `source=fallback`, `validated=false`, `model_version=deterministic-template`. **The agent is unreachable** — red panel, *"Nothing is shown rather than something invented"*, and no figures at all, because the geometry is computed in the agent and there is nothing to show. A figure that could not be measured renders as a dash, never a zero. |
+| **Where the validator can still be fooled** | ⚠️ *Bounded, not closed* | Two ways, both read out of `validator.py`. It compares **values and never what they are predicated of** (`validator.py:67`), so a correct 6.0° attached to the wrong edge passes. And the match is not exact: the tolerance defaults to **±0.5°**, so any invented figure landing within half a degree of any measured value is accepted. That one is now an operator setting — `VALIDATOR_TOLERANCE_DEG`, where `0.0` demands an exact match — so a stricter deployment does not need a code change. A third hole, Plane B blocking degrees but not pixels, was closed on 2026-08-26. |
+| **If a model does not answer** | ✅ Handled three different ways, each labelled | They are not the same failure and the screen does not pretend they are. **The gate refuses the page** — amber panel, *"This does not look like a perspective exercise"*, nothing measured. **Gemini fails but OpenCV succeeded** — measurements and overlay render normally and the critique carries an amber pill reading *"Deterministic fallback — no model answered"*, with `source=fallback` and `model_version=deterministic-template`. Pinned by `test_a_server_error_from_vertex_serves_the_template_and_says_so`. **The agent is unreachable** — red panel, *"Nothing is shown rather than something invented"*, and no figures at all, because the geometry is computed in the agent and there is nothing to show. A figure that could not be measured renders as a dash, never a zero. |
 
 ---
 
@@ -430,18 +434,22 @@ cd atelier
 cd atelier-agent
 python -m venv .venv
 
-# Windows:
-.venv\Scripts\activate
-# Linux / macOS:
-# source .venv/bin/activate
+source .venv/bin/activate          # Linux / macOS
+# .venv\Scripts\activate           # Windows
 
 pip install -r requirements.txt
 cd ..
 ```
 
-> This step used to come **after** the one below, which could not work: the next step runs
-> `atelier-agent/.venv/Scripts/python`, and that interpreter does not exist until this step has
-> created it. The dataset generator needs OpenCV, which arrives with `requirements.txt`.
+> This step used to come **after** the one below, which could not work: the next step runs the
+> virtual environment's interpreter, and it does not exist until this step has created it. The
+> dataset generator needs OpenCV, which arrives with `requirements.txt`.
+>
+> **Steps 1 to 4 were run verbatim in a clean `python:3.12-slim` container on 2026-08-26**, cloning
+> from GitHub with nothing else installed. Eleven plates were generated and `/api/health` answered
+> `"memory_backend":"memory"`. `dotnet build` and `dotnet test` were verified the same way in
+> `mcr.microsoft.com/dotnet/sdk:10.0`. Step 5 — starting the Blazor app and using it in a browser —
+> has not been exercised that way.
 
 ### 3. Generate the calibration dataset
 
@@ -449,10 +457,8 @@ Eleven benchmark drawings across the three projection systems, each carrying an 
 size. They are what the golden tests assert against and what the studio offers on step one.
 
 ```bash
-# Windows:
-atelier-agent\.venv\Scripts\python demo/generate_calibration_dataset.py
-# Linux / macOS:
-# atelier-agent/.venv/bin/python demo/generate_calibration_dataset.py
+atelier-agent/.venv/bin/python demo/generate_calibration_dataset.py          # Linux / macOS
+# atelier-agent\.venv\Scripts\python demo/generate_calibration_dataset.py     # Windows
 ```
 
 ### 4. Start the backend
@@ -504,15 +510,18 @@ faster way to see the part that needs them.
 
 ## Running the Test Suites
 
-All claims are backed by executable tests logged in [`docs/EVIDENCE.md`](docs/EVIDENCE.md).
+**110 tests, none skipped** — 102 Python and 8 .NET, measured on 2026-08-26 and broken down per
+suite in [`docs/FACTS.md`](docs/FACTS.md), which also lists what each one does and does not cover.
+CI runs both on `ubuntu-latest` on every push.
 
 ```bash
-# Run Python backend tests (96 tests)
+# Python agent — 102 tests
 cd atelier-agent
-.venv\Scripts\python -m pytest tests -v
+.venv/bin/python -m pytest tests -v          # Linux / macOS
+# .venv\Scripts\python -m pytest tests -v    # Windows
 
-# Run .NET Blazor tests (8 tests)
-dotnet test Atelier.slnx
+# Blazor web — 8 tests
+cd .. && dotnet test Atelier.slnx
 ```
 
 ---

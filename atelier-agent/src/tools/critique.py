@@ -164,7 +164,12 @@ def generate_fallback_critique(request: CritiqueRequest) -> CritiqueOutput:
         next_exercise=next_ex,
         source="fallback",
         model_version="deterministic-template",
-        validated=True,
+        # False because nothing validated it. This template never passes through
+        # validate_critique_measurements — it is what we serve *instead* of a model answer, and
+        # on one of the two paths here the model had just failed the validator three times.
+        # The orthographic and axonometric templates have always said False; this one did not,
+        # which made the field mean different things depending on the projection system.
+        validated=False,
     )
 
 
@@ -339,7 +344,10 @@ def generate_pedagogical_critique(request: CritiqueRequest) -> CritiqueResponse:
     for attempt in range(max_retries + 1):
         critique_result = call_vertex_ai_critique(request, system_prompt, user_prompt)
         is_valid, validation_errors = validate_critique_measurements(
-            critique_result, request.analysis, had_image=bool(request.image_base64)
+            critique_result,
+            request.analysis,
+            tolerance=settings.validator_tolerance_deg,
+            had_image=bool(request.image_base64),
         )
 
         if is_valid:

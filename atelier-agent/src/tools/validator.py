@@ -26,8 +26,14 @@ class MeasuredAnalysis(Protocol):
 # Spanish is listed alongside English because the critique is written in the student's language:
 # a gate that only recognises "degrees" would wave through "4,2 grados" and quietly stop being a
 # gate the moment the interface was translated.
-_DEGREES_IN_PROSE = re.compile(
-    r"\d+(?:[.,]\d+)?\s*(?:°|deg\b|degs\b|degrees\b|grado\b|grados\b)", re.IGNORECASE
+#: Pixels are here because the orthographic system reports its error in them, not in degrees.
+#: A gate that only knew about degrees let "the plan is 18 px out" through Plane B, which is a
+#: measurement wearing the clothes of an observation.
+_MEASUREMENT_IN_PROSE = re.compile(
+    r"\d+(?:[.,]\d+)?\s*"
+    r"(?:°|deg\b|degs\b|degrees\b|grado\b|grados\b"
+    r"|px\b|pixel\b|pixels\b|p[íi]xel\b|p[íi]xeles\b)",
+    re.IGNORECASE,
 )
 
 
@@ -42,7 +48,10 @@ def validate_critique_measurements(
     Args:
         critique: The generated critique output from the LLM.
         geometry: The deterministic geometry results from OpenCV.
-        tolerance: Allowed float tolerance for rounding differences.
+        tolerance: How far a cited number may sit from a measured one and still be accepted,
+            in degrees. Defaults to 0.5 so the function stays usable on its own; production
+            passes `settings.validator_tolerance_deg`, which reads `VALIDATOR_TOLERANCE_DEG`.
+            0.0 demands an exact match.
         had_image: Whether the drawing was actually sent to the model. When it was not, Plane B
             must be empty: an observation about line weight is not an opinion, it is a claim
             about a picture, and a model that was shown no picture cannot make it.
@@ -80,7 +89,7 @@ def validate_critique_measurements(
         )
 
     for qual in critique.qualitative_observations:
-        match = _DEGREES_IN_PROSE.search(qual.observation)
+        match = _MEASUREMENT_IN_PROSE.search(qual.observation)
         if match:
             errors.append(
                 f"Plane B observation '{qual.aspect}' states a measurement ({match.group(0).strip()}). "

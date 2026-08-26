@@ -12,7 +12,7 @@ from src.models.critique import CritiqueRequest, StudentProfile
 from src.models.geometry import GeometryAnalysisResult
 from src.tools.collaborative import ask_clarification
 from src.tools.critique import get_cache_key
-from src.tools.validator import _DEGREES_IN_PROSE
+from src.tools.validator import _MEASUREMENT_IN_PROSE
 
 
 def _request(language: str) -> CritiqueRequest:
@@ -36,20 +36,20 @@ class TestProseDegreeGate:
     """Plane B may not state a measurement — in either language."""
 
     def test_catches_spanish_degrees(self):
-        assert _DEGREES_IN_PROSE.search("la desviación es de 4,2 grados")
+        assert _MEASUREMENT_IN_PROSE.search("la desviación es de 4,2 grados")
 
     def test_catches_spanish_singular(self):
-        assert _DEGREES_IN_PROSE.search("se desvía 1 grado del punto de fuga")
+        assert _MEASUREMENT_IN_PROSE.search("se desvía 1 grado del punto de fuga")
 
     def test_catches_english_degrees(self):
-        assert _DEGREES_IN_PROSE.search("tilted 3.1 degrees away")
+        assert _MEASUREMENT_IN_PROSE.search("tilted 3.1 degrees away")
 
     def test_catches_the_symbol_in_either_language(self):
-        assert _DEGREES_IN_PROSE.search("a 9° del punto de fuga")
+        assert _MEASUREMENT_IN_PROSE.search("a 9° del punto de fuga")
 
     def test_lets_qualitative_prose_through(self):
         """The gate exists to stop numbers, not to stop Plane B from saying anything."""
-        assert not _DEGREES_IN_PROSE.search(
+        assert not _MEASUREMENT_IN_PROSE.search(
             "Tus líneas son firmes y el grosor distingue bien construcción de trazo definitivo."
         )
 
