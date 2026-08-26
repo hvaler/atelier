@@ -276,8 +276,9 @@ def test_a_server_error_from_vertex_serves_the_template_and_says_so(monkeypatch)
     pins the two things that make it acceptable: the student still gets something usable, and
     the provenance says no model wrote it.
     """
-    import src.tools.critique as critique_module
     from google import genai
+
+    import src.tools.critique as critique_module
 
     # Patched at the SDK boundary, not on call_vertex_ai_critique: replacing the whole function
     # would remove the very handler this test exists to pin.
