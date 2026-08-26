@@ -108,7 +108,7 @@ public class AgentClientTests
         const string body = """
         {
           "critique": {
-            "student_name": "Clara", "level": "beginner",
+            "student_name": "beginner-01", "level": "beginner",
             "headline": "Fantastic 3D Box Magic!",
             "measured_findings": [], "qualitative_observations": [],
             "pedagogical_summary": {"strengths": [], "focus_area": "", "encouragement": ""},
@@ -135,7 +135,7 @@ public class AgentClientTests
         const string body = """
         {
           "critique": {
-            "student_name": "Clara", "level": "beginner", "headline": "x",
+            "student_name": "beginner-01", "level": "beginner", "headline": "x",
             "measured_findings": [], "qualitative_observations": [],
             "pedagogical_summary": {"strengths": [], "focus_area": "", "encouragement": ""},
             "next_exercise": {"title": "", "description": "", "target_metric": "", "difficulty": "beginner"}

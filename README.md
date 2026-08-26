@@ -4,6 +4,7 @@
 
 > *"The geometry measures, the AI teaches, the student grows." (ADR-001)*
 
+[![CI](https://github.com/hvaler/atelier/actions/workflows/ci.yml/badge.svg)](https://github.com/hvaler/atelier/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://python.org/)
@@ -11,6 +12,30 @@
 [![Google GenAI SDK](https://img.shields.io/badge/Google_GenAI_SDK-google--genai-4285F4.svg)](https://pypi.org/project/google-genai/)
 [![Gemini](https://img.shields.io/badge/Gemini-3.5_Flash-8E24AA.svg)](https://deepmind.google/technologies/gemini/)
 [![Demo video](https://img.shields.io/badge/Demo_video-3%3A41-FF0000.svg?logo=youtube&logoColor=white)](https://youtu.be/uIwx3I5ZpeI)
+
+**A student drops a photograph of a plate into a folder and closes the laptop.** Nobody presses
+anything. Cloud Storage finalises the object, Eventarc fires, and the agent measures the drawing,
+writes a critique and appends the result to that student's history — while nobody is watching.
+On Sunday, Cloud Scheduler synthesises the week into a practice plan the student never asked for.
+
+That is the shape of the thing: **the interactive studio is one way in, not the product**. The
+same pipeline runs when the browser is closed.
+
+[![Atelier — 3:41 demo: the measurement, the refusal, and the Google Cloud backend serving it](https://img.youtube.com/vi/uIwx3I5ZpeI/maxresdefault.jpg)](https://youtu.be/uIwx3I5ZpeI)
+
+Around that loop sit four verbs, which are the collaborative partnership rather than a
+request/response API:
+
+| | | |
+|---|---|---|
+| **ASK** | before critiquing | *"What were you practicing today? Which part felt hardest?"* — intent the pixels do not carry |
+| **GUIDE** | after measuring | an exercise chosen from the deviation that keeps recurring, not from the last plate |
+| **CAPTURE** | after teaching | `helpful: bool` plus a note, stored as an immutable event |
+| **ADAPT** | across sessions | the tone moves from technical to encouraging on its own, derived from the history |
+
+---
+
+## Why a machine can check this at all
 
 **Atelier** verifies technical drawings in **descriptive geometry** — *sistemas de representación*,
 the Monge tradition taught as a first-year subject in architecture, engineering and animation
@@ -33,22 +58,22 @@ teaches but is **forbidden from producing a number**. A validator enforces it.
 
 ---
 
-## ✅ Mandatory Stack Compliance (Hackathon Requirements)
+## Mandatory Stack Compliance (Hackathon Requirements)
 
 | Requirement | How Atelier satisfies it | Where |
 | :--- | :--- | :--- |
 | **Gemini 3.5+ via Gemini API or Vertex AI** | Gemini 3.5 Flash on Vertex AI (critique + dialogue) | [`atelier-agent/src/tools/critique.py`](atelier-agent/src/tools/critique.py) |
-| **≥1 Google Agent Framework** | Google GenAI SDK (`google-genai`) — every model call | [`atelier-agent/requirements.txt`](atelier-agent/requirements.txt) · [`src/tools/`](atelier-agent/src/tools/) |
+| **≥1 Google Agent Framework** | Google GenAI SDK — `google-genai` **2.18.1**, `genai.Client(vertexai=True, …)`, every model call | [`atelier-agent/requirements.txt`](atelier-agent/requirements.txt) · [`src/tools/`](atelier-agent/src/tools/) |
 | **≥1 Google Cloud infrastructure service** | **Cloud Run** and **Firestore** (both on the rules' enumerated list) · plus Cloud Storage, Eventarc and Cloud Scheduler | [`infra/`](infra/) · [`src/tools/`](atelier-agent/src/tools/) |
 
 ---
 
-## 🌐 Live Demo & Hosted Deployment
+## Live Demo & Hosted Deployment
 
-- 🎬 **Demo video (3:41)**: <https://youtu.be/uIwx3I5ZpeI> — the measurement, the refusal, and the Google Cloud backend serving it, recorded against this deployment
-- 💻 **Studio Web Client (Blazor / .NET 10)**: `https://atelier-web-773993294789.europe-west1.run.app`
-- 🤖 **Agent Backend API (Google GenAI SDK + FastAPI / Cloud Run)**: `https://atelier-agent-773993294789.europe-west1.run.app`
-- 📚 **Interactive Swagger API Docs**: `https://atelier-agent-773993294789.europe-west1.run.app/docs`
+- **Demo video (3:41)**: <https://youtu.be/uIwx3I5ZpeI> — the measurement, the refusal, and the Google Cloud backend serving it, recorded against this deployment
+- **Studio Web Client (Blazor / .NET 10)**: `https://atelier-web-773993294789.europe-west1.run.app`
+- **Agent Backend API (Google GenAI SDK + FastAPI / Cloud Run)**: `https://atelier-agent-773993294789.europe-west1.run.app`
+- **Interactive Swagger API Docs**: `https://atelier-agent-773993294789.europe-west1.run.app/docs`
 
 > 💡 *Note on Cold Starts*: To conserve Google Cloud student budget, Cloud Run services scale to 0 instances when idle. The initial load request may take ~5-10 seconds to spin up containers.
 
@@ -227,7 +252,7 @@ Scheduler digest exists for the student — absent rather than faked when it doe
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 ![Atelier architecture: two Cloud Run services, Gemini 3.5 Flash on Vertex AI and Gemma 4 on the Gemini API through the Google GenAI SDK, all state in Firestore, and the asynchronous Cloud Storage / Eventarc / Cloud Scheduler path](docs/img/architecture.png)
 
@@ -293,38 +318,33 @@ model for the measurements.
 
 ---
 
-## 🌟 Key Highlights
+## Key Highlights
 
-- 📐 **Zero Hallucination Architecture (ADR-001)**: Deterministic OpenCV calculates all geometric ground truth ($VP$, $F_1, F_2$, $LH$, degree errors). Gemini teaches and mentors. Gemini *never* estimates or invents measurements.
-- 🎨 **Multimodal Interactive Overlay (Best Multimodal UX)**: Instant toggle between original student sketches, color-coded geometric overlays (Green $<2.5^\circ$, Yellow $2.5^\circ-6.0^\circ$, Red $>6.0^\circ$), side-by-side comparison, and line inspection tables.
-- 💬 **The 4 Collaborative Verbs ("The Collaborative Partner")**:
-  1. **ASK**: Clarifying pre-critique questions to contextualize intent (*"What were you practicing today? Which part felt hardest?"*).
-  2. **GUIDE**: Targeted exercise prescriptions driven by recurring deviation patterns.
-  3. **CAPTURE**: Explicit student feedback (`helpful: bool` + note) saved as immutable events.
-  4. **ADAPT**: Dynamic profile derivation (shifting tone from technical to encouraging automatically).
-- 🧠 **Two-stage pre-router, two models**: **Gemma 4** (`gemma-4-26b-a4b-it`, Gemini API) reads the student's own description and picks 1-point or 2-point — a beginner who writes *"the corner of a building"* is measured as two-point because they said so, not as one-point because of a field in their profile. **Gemini 3.5 Flash** (Vertex AI) then *looks at the photograph* and answers the question that saves the most work: **is this a descriptive-geometry exercise at all, and which system?** A page of text or a blank sheet is refused before the geometry engine runs and before a critique spends tokens describing nothing. Both label their own provenance (`source: gemma | vertex | fallback`).
-- 📐 **Three projection systems, and three kinds of reference** — conic perspective, axonometric (`tools/axonometry.py`) and orthographic Monge plates (`tools/dihedral.py`). The vision gate looks at the photograph and decides which one it is **before** anything is measured. What makes them worth having together is that they are not the same tool three times: **conic infers its reference** (RANSAC estimates a vanishing point from the student's own lines, so a consistently wrong drawing yields one that agrees with it), **orthographic reads its reference off the page** (the ground line is a line the student actually drew — nothing is guessed, but a crooked one skews everything, so its tilt is reported as a measurement in its own right), and **axonometric is handed its reference** as a constant of the system. An error injected at 6.00° in an isometric plate comes back as 6.00°; a plan displaced by 18 px comes back as 18 px.
-- 🌍 **Taught in the student's own language**: The interface and the critique are both available in English and Spanish, chosen with one control and remembered in a cookie. This is not a translation layer bolted on top — the language is sent to the agent, so Gemini writes the critique itself in Spanish, and the anti-hallucination gate that forbids a number in Plane B recognises `4,2 grados` as well as `4.2 degrees`. A gate that only reads English would have stopped being a gate the moment the interface was translated.
-- 🌗 **Light and dark, decided before first paint**: Three states — light, dark, and follow-the-system, which is the default because a person who has already told their operating system how they want screens to look has answered the question once. The choice is applied by an inline script before the page renders, so there is no flash of the wrong theme.
-- 📈 **Append-Only Memory & Weekly Digests**: Event-sourced progression tracking in Google Cloud Firestore with automated weekly practice plans synthesized via Cloud Scheduler.
-- 🔒 **Async-First & Privacy-Preserving (ADR-004, ADR-006)**: Private Google Cloud Storage inbox (`gs://atelier-hack-inbox/{studentId}/`), Eventarc triggers, signed URLs, and profiles that are difficulty levels rather than named people — there is no personal identifier to leak.
+- **Numbers come from OpenCV, never from the model (ADR-001)**: vanishing points, horizon line, axis angles and per-line error in degrees are computed deterministically. The critique is then checked against that set — a figure the geometry did not produce sends the model back for another pass. It is a gate with a retry, not a guarantee; where it can still be fooled is written down below.
+- **Interactive overlay**: toggle between the original sketch and the measured overlay, colour-coded by deviation (green under 2.5°, amber 2.5° to 6.0°, red above 6.0°), side by side, with the per-line table underneath.
+- **Two-stage pre-router, two models**: **Gemma 4** (`gemma-4-26b-a4b-it`, Gemini API) reads the student's own description and picks 1-point or 2-point — a beginner who writes *"the corner of a building"* is measured as two-point because they said so, not as one-point because of a field in their profile. **Gemini 3.5 Flash** (Vertex AI) then *looks at the photograph* and answers the question that saves the most work: **is this a descriptive-geometry exercise at all, and which system?** A page of text or a blank sheet is refused before the geometry engine runs and before a critique spends tokens describing nothing. Both label their own provenance (`source: gemma | vertex | fallback`).
+- **Three projection systems, and three kinds of reference** — conic perspective, axonometric (`tools/axonometry.py`) and orthographic Monge plates (`tools/dihedral.py`). The vision gate looks at the photograph and decides which one it is **before** anything is measured. What makes them worth having together is that they are not the same tool three times: **conic infers its reference** (RANSAC estimates a vanishing point from the student's own lines, so a consistently wrong drawing yields one that agrees with it), **orthographic reads its reference off the page** (the ground line is a line the student actually drew — nothing is guessed, but a crooked one skews everything, so its tilt is reported as a measurement in its own right), and **axonometric is handed its reference** as a constant of the system. An error injected at 6.00° in an isometric plate comes back as 6.00°; a plan displaced by 18 px comes back as 18 px.
+- **Taught in the student's own language**: The interface and the critique are both available in English and Spanish, chosen with one control and remembered in a cookie. This is not a translation layer bolted on top — the language is sent to the agent, so Gemini writes the critique itself in Spanish, and the anti-hallucination gate that forbids a number in Plane B recognises `4,2 grados` as well as `4.2 degrees`. A gate that only reads English would have stopped being a gate the moment the interface was translated.
+- **Light and dark, decided before first paint**: Three states — light, dark, and follow-the-system, which is the default because a person who has already told their operating system how they want screens to look has answered the question once. The choice is applied by an inline script before the page renders, so there is no flash of the wrong theme.
+- **Append-Only Memory & Weekly Digests**: Event-sourced progression tracking in Google Cloud Firestore with automated weekly practice plans synthesized via Cloud Scheduler.
+- **Async-First & Privacy-Preserving (ADR-004, ADR-006)**: Private Google Cloud Storage inbox (`gs://atelier-hack-inbox/{studentId}/`), Eventarc triggers, signed URLs, and profiles that are difficulty levels rather than named people — there is no personal identifier to leak.
 
 ---
 
-## 🔍 Honest Technical Gaps
+## Honest Technical Gaps
 
 What is measured, what is deliberately not, and what is simply missing. A judge who reads one row of this table has seen the project's whole posture: the difference is stated rather than hidden.
 
 | Feature / Domain Area | Current Implementation Status | Notes & Roadmap |
 | :--- | :--- | :--- |
-| **One-point conical ($k=1$)** | ✅ Complete & benchmarked | Golden-case dataset with deliberately injected errors; the detector recovers the vanishing point to within one pixel of where it was drawn. The five calibration images are **synthetic**, generated by `demo/generate_calibration_dataset.py` — there are no photographs of real drawings in this repository. |
-| **2-Point Oblique Perspective ($k=2$)** | ✅ **100% Complete & Benchmarked** | RANSAC vanishing point clustering for $F_1$ and $F_2$, horizon tilt, and error per line. |
-| **Two-Plane Critique Model** | ✅ **100% Complete & Validated** | Plane A (OpenCV measured) + Plane B (qualitative rubric) strictly separated. Calibrated against published **descriptive-geometry** curricula — the Monge tradition taught in architecture, engineering and animation degrees — across **eighteen sources**. See **[docs/PEDAGOGY.md](docs/PEDAGOGY.md)** for the assessment-criteria comparison, the bilingual canonical vocabulary, and the sourced exercise progression. |
-| **Anti-Hallucination Validator** | ✅ **100% Complete & Tested** | In-code gate rejecting fabricated numerical measurements with feedback retry loop. |
-| **Collaborative Loop (4 Verbs)** | ✅ **100% Complete** | Ask, Guide, Capture & Adapt with dynamic tone shift and Firestore append-only models. |
-| **Two-stage Pre-Router** | ✅ Complete (+0.2 bonus: Gemma) | `/api/router/classify` on Gemma 4, `/api/router/gate` on Gemini 3.5 Flash vision. Gemma's vision path was measured and rejected: it spends its whole output budget reasoning and returns empty. |
+| **One-point conical (k=1)** | ✅ Complete & benchmarked | Golden-case dataset with deliberately injected errors; the detector recovers the vanishing point to within one pixel of where it was drawn. The five calibration images are **synthetic**, generated by `demo/generate_calibration_dataset.py` — there are no photographs of real drawings in this repository. |
+| **Two-point oblique perspective** | Measured — **and the one to read with care** | RANSAC clusters two vanishing points, F1 and F2, and reports horizon tilt and per-line error. On this system a consistent drift *lowers* the convergence error instead of raising it; the row **A drifted two-point plate scores better than a clean one** below has the numbers. |
+| **Two-plane critique model** | Separation enforced in code, `test_critique.py` | Plane A (OpenCV measured) + Plane B (qualitative rubric) strictly separated. Calibrated against published **descriptive-geometry** curricula — the Monge tradition taught in architecture, engineering and animation degrees — across **eighteen sources**. See **[docs/PEDAGOGY.md](docs/PEDAGOGY.md)** for the assessment-criteria comparison, the bilingual canonical vocabulary, and the sourced exercise progression. |
+| **Anti-hallucination validator** | In code, with a retry loop — see its blind spot below | Every number in the critique must appear in the set OpenCV produced, or the model is asked again. `measured_values()` builds that whitelist from the analysis itself, so a new measurement cannot silently escape the gate. |
+| **The four verbs** | Implemented, `test_memory_collaborative.py` | Ask, Guide, Capture and Adapt, with tone derived from history and every event appended to Firestore rather than overwritten. |
+| **Two-stage pre-router** | Both stages live, `test_pre_router.py` | Its job is to spend the cheap model first: `/api/router/classify` on Gemma 4 reads the student's own words and picks the projection system, which sets the Canny and Hough parameters before any image is processed; `/api/router/gate` on Gemini 3.5 Flash then looks at the page and can refuse it outright. Both decisions happen before the large model is asked for a critique. Gemma's vision path was measured and rejected: it spends its whole output budget reasoning and returns empty. |
 | **Async GCS Ingestion (Eventarc + Scheduler)** | ✅ **Verified on GCP (2026-08-18)** | Object finalize triggers Cloud Run pipeline and persists immutable events in Firestore. |
-| **Multimodal Blazor UI** | ✅ **100% Complete** | Interactive overlay viewer, side-by-side comparison, and SVG progress curve. |
+| **Blazor studio UI** | Working, `Atelier.Web.Tests` covers the client contract | Overlay viewer with original/measured toggle, side-by-side comparison, line table and an SVG progress curve drawn without a charting library. |
 | **Cylinders & ellipses** | ⏳ *Not measured* | BYU-Idaho's published rubric scores ellipse shape and major/minor axis; Atelier has no ellipse detection. A documented rung of the curriculum ladder ([PEDAGOGY §5](docs/PEDAGOGY.md)) that the engine cannot yet assess, so the agent should not prescribe it. |
 | **Interior & exterior scenes** | ⏳ *Untested* | Measurable in principle — an interior is one-point with more orthogonals — but never tested against a real room drawing. Exterior depth is largely atmospheric, which is tonal rather than geometric. |
 | **Vertical-line accuracy** | ⏳ *Not scored* | Verticals are correctly excluded from the convergence average, and their deviation from true vertical is not measured. BYU scores it; Atelier does not. |
@@ -332,13 +352,19 @@ What is measured, what is deliberately not, and what is simply missing. A judge 
 | **Axonometric exercises in the progression curve** | ⏳ *Deliberately excluded* | Axonometric exercises are stored, critiqued and counted towards tone adaptation, but they do not join the progress curve. An average axis deviation and an average convergence error are both measured in degrees and are not the same quantity; one line through both would show progress or regression nobody made. |
 | **Orthographic projection** (*sistema diédrico*, the Monge method) | ✅ **Complete & benchmarked** | `POST /api/analyze/dihedral`. Ground-line detection, reference-line squareness, and correspondence between the two views by shared abscissa. A plan displaced by 18 px is recovered as 18 px and reported as one systematic offset rather than one broken vertex per corner. Taught inside the same subject as conic perspective, and **before** it, in the Spanish public syllabi ([PEDAGOGY §5](docs/PEDAGOGY.md)). |
 | **Heights and depths across three views** (*cotas* and *alejamientos*) | ⏳ *Not measured* | Checking that a height in the elevation equals the height in the profile needs a third view and real feature correspondence. Two views cannot support the claim, so it is not made. |
-| **3-Point Curvilinear Perspective ($k=3$)** | ⏳ *Planned for Phase 2* | 3-point worm/bird's-eye perspective is planned for high-level architectural rendering. Taught as inclined-picture-plane perspective — *perspectiva de plano inclinado* — alongside one- and two-point in a Spanish public fine-arts syllabus ([PEDAGOGY §5](docs/PEDAGOGY.md)), so it is the very next documented rung rather than a distant one. |
+| **3-Point Curvilinear Perspective (k=3)** | ⏳ *Planned for Phase 2* | 3-point worm/bird's-eye perspective is planned for high-level architectural rendering. Taught as inclined-picture-plane perspective — *perspectiva de plano inclinado* — alongside one- and two-point in a Spanish public fine-arts syllabus ([PEDAGOGY §5](docs/PEDAGOGY.md)), so it is the very next documented rung rather than a distant one. |
 | **Cast shadows & reflections** | ⏳ *Not measured* | Universidad de Granada devotes a whole block to *"Proyección Caballera. Proyección Militar. Sombras"*. Shadow construction converges on its own points and is geometric, so it is measurable in principle — the engine does not look for it ([PEDAGOGY §3](docs/PEDAGOGY.md)). |
 | **Contoured planes** (*sistema de planos acotados*) | ⏳ *Not measured* | The fourth system of representation: one view plus numeric heights, used for terrain, roofs and earthworks. Reading it needs the annotations off the page — OCR rather than line geometry — so it is the one system of the four Atelier does not cover ([PEDAGOGY §1](docs/PEDAGOGY.md)). |
 | **True magnitudes: rabatment, rotation, change of plane** (*abatimientos*, *giros*, *cambios de plano*) | ⏳ *Not measured* | Named in the first block of two published Spanish syllabi. A rabatment either recovers the true length or it does not, so the result is checkable — the engine does not check it ([PEDAGOGY §3](docs/PEDAGOGY.md)). |
 | **Measuring points & distance points** | ⏳ *Not measured* | The construction that carries true dimensions into a perspective. A documented rung above where Atelier stops, so the agent must not prescribe it ([PEDAGOGY §5](docs/PEDAGOGY.md)). |
 | **Whole-scene layout** | ⏳ *Out of current scope* | Sheridan runs six consecutive semesters of layout and The Animation Workshop teaches *Environment Design and Construction*; Atelier measures one construction at a time ([PEDAGOGY §5](docs/PEDAGOGY.md)). |
-| **Live Camera WebRTC Stream** | ⏳ *Planned for Phase 2* | Current version operates on uploaded photos and GCS inbox drops; live video streaming planned. |
+| **Live camera stream** | ⏳ *Not built* | Uploads and inbox drops only. |
+| **A drifted two-point plate scores better than a clean one** | ⚠️ *Known, measured, not fixed* | Measured 2026-08-26 on the calibration set: `04_2point_perfect.png` reports **avg 0.480°, max 1.590°**, while `05_2point_error_6deg.png` — the same plate with 6° of drift injected — reports **avg 0.420°, max 0.970°**. Lower on both. RANSAC fits the vanishing points to the student's own lines, so a consistent rotation moves the target rather than scattering the shots. The signal that does move is **horizon tilt: −0.51° clean against +2.08° drifted**. Read the tilt, not the average. This is a property of inferring the reference, so **axonometric cannot fail this way** — its axes are constants of the system, not estimates. |
+| **One-point conic does not have that problem** | ✅ Measured the same day | Same experiment, k=1: perfect **0.820°**, 4° injected **1.360°**, 9° injected **4.470°**. Monotonic, as it should be. The weakness above is specific to the two-vanishing-point fit, not to conic perspective as a family. |
+| **The ±0.05° figure belongs to axonometry only** | ⚠️ *Precision is not transferable* | The golden case recovers an injected 6° as 6° to within 0.05° **because the axes are fixed by the system**. No conic measurement in this repository supports a bound that tight, and the two rows above are why. Do not carry the number across systems. |
+| **One tester, not a cohort** | ⏳ *Not validated* | Every drawing this has been exercised on is either synthetic, from `demo/generate_calibration_dataset.py`, or from a single 9-year-old beginner. Handwriting, paper, lighting and camera angle all vary between people, and none of that variation has been sampled. |
+| **Where the validator can still be fooled** | ⚠️ *Bounded, not closed* | The gate compares numbers in the critique against `measured_values()`. A model that writes a measured number in a **sentence that misattributes it** — the right figure against the wrong edge — passes, because the check is on the value and not on what it is predicated of. Rounding is normalised to two decimals, so a value that coincides after rounding also passes. |
+| **If a model does not answer** | ✅ Handled three different ways, each labelled | They are not the same failure and the screen does not pretend they are. **The gate refuses the page** — amber panel, *"This does not look like a perspective exercise"*, nothing measured. **Gemini fails but OpenCV succeeded** — measurements and overlay render normally and the critique carries an amber pill reading *"Deterministic fallback — no model answered"*, with `source=fallback`, `validated=false`, `model_version=deterministic-template`. **The agent is unreachable** — red panel, *"Nothing is shown rather than something invented"*, and no figures at all, because the geometry is computed in the agent and there is nothing to show. A figure that could not be measured renders as a dash, never a zero. |
 
 ---
 
@@ -378,7 +404,7 @@ would otherwise have to find:
 
 ---
 
-## 🚀 Quickstart: Clean-Machine Setup
+## Quickstart: Clean-Machine Setup
 
 Written assuming a stranger will follow it, on a machine with nothing installed and **no Google
 Cloud account**. What that gets you is described at the end — it is not everything, and the
@@ -476,7 +502,7 @@ faster way to see the part that needs them.
 
 ---
 
-## 🧪 Running the Test Suites
+## Running the Test Suites
 
 All claims are backed by executable tests logged in [`docs/EVIDENCE.md`](docs/EVIDENCE.md).
 
@@ -491,7 +517,7 @@ dotnet test Atelier.slnx
 
 ---
 
-## 🛠️ Tooling disclosure
+## Tooling disclosure
 
 No pre-existing code or prior work was incorporated into this project; the first commit is dated
 **18 August 2026**, inside the submission period. AI coding assistants were used during development,
@@ -506,5 +532,5 @@ sources cited in [`docs/PEDAGOGY.md`](docs/PEDAGOGY.md).
 
 ---
 
-## 📄 License
+## License
 This project is licensed under the [Apache 2.0 License](LICENSE).
