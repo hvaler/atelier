@@ -15,7 +15,7 @@ Atelier — AI Studio Master for Remote Art Students
 
 ### 2. Elevator Pitch / Tagline (1-2 sentences)
 ```text
-"The geometry measures, the AI teaches, the student grows." Atelier pairs deterministic OpenCV vision with Gemini 3.5 Flash on Vertex AI for zero-hallucination, level-aware perspective drawing critique and collaborative progression.
+An isometric axis is at 30° or it is not: no published rubric says how close is close enough. OpenCV measures three systems of representation; Gemini teaches, and may not invent a single figure.
 ```
 
 ### 3. Built With (Tags for Devpost)
@@ -70,7 +70,7 @@ Async-first by design: a private **GCS** inbox per student (`gs://atelier-hack-i
 
 ## What we learned
 
-1. **Decouple Measurement from Pedagogy (ADR-001)**: LLMs should not do raw trigonometry on raster images. Decoupling deterministic OpenCV vision for ground truth from Gemini for empathetic pedagogy gave us 100% mathematical consistency without sacrificing warmth.
+1. **Decouple Measurement from Pedagogy (ADR-001)**: LLMs should not do raw trigonometry on raster images. Decoupling deterministic OpenCV vision for ground truth from Gemini for empathetic pedagogy means every figure in a critique is checked against the set the geometry actually produced, and the model is asked again when one is not — a gate with a retry rather than a guarantee, and the README says where it can still be fooled.
 2. **Two-Plane Structured Schemas**: Separating critiques into Plane A (OpenCV Measured Findings) and Plane B (Qualitative Studio Observations) allowed students and instructors to immediately distinguish between provable mathematical facts and artistic advice (line weight, spatial depth).
 3. **Append-Only Memory beats Mutable State (ADR-005)**: Rather than maintaining a mutable "skill rating", storing raw exercise and feedback events in Cloud Firestore allowed the agent to derive tone preferences and error reduction trends dynamically over time.
 4. **The 4 Collaborative Verbs Transform UX**: Asking clarifying questions before analyzing work transformed the interaction from an intimidating automated grader into a supportive, human-centric studio partner.
@@ -94,4 +94,4 @@ Three-point and curvilinear perspective ($k=3$), more exercise families behind t
 | **Bonus 1 (+0.2 pts)** | **Gemma 4 pre-router** (`/api/router/classify`) — `gemma-4-26b-a4b-it` on the Gemini API routes 1-point vs 2-point from the student's own description in ~1.6s. Gemma is *not* on Vertex AI (`gemma-*` returns 404 there), so this is the Gemini API backend, keyed from Secret Manager. | ✅ |
 | **Bonus 2 (+0.2 pts)** | [Dev.to Article](https://dev.to/hugo_valer_79d0d94e00804b/the-geometry-measures-the-ai-teaches-building-an-art-studio-tutor-with-adk-vertex-ai-opencv-551m) | ✅ Published |
 | **Bonus 3 (+0.2 pts)** | [X / Twitter Post](https://x.com/hugo_valer/status/2089965500713296311?s=20) | ✅ Published |
-| **Video Demo (≤4 min)** | Video Runbook (`docs/VIDEO_RECORDING_RUNBOOK.md`) | ⏳ Record & upload to YouTube |
+| **Video Demo (≤4 min)** | **<https://youtu.be/uIwx3I5ZpeI>** — 3:41, public, recorded against this deployment. Runbook: `docs/VIDEO_RECORDING_RUNBOOK.md` | ✅ Published |
