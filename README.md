@@ -448,8 +448,12 @@ cd ..
 > **Steps 1 to 4 were run verbatim in a clean `python:3.12-slim` container on 2026-08-26**, cloning
 > from GitHub with nothing else installed. Eleven plates were generated and `/api/health` answered
 > `"memory_backend":"memory"`. `dotnet build` and `dotnet test` were verified the same way in
-> `mcr.microsoft.com/dotnet/sdk:10.0`. Step 5 — starting the Blazor app and using it in a browser —
-> has not been exercised that way.
+> `mcr.microsoft.com/dotnet/sdk:10.0`.
+>
+> **Step 5 was exercised on 2026-08-31**, from a fresh `git clone` of this repository: the studio
+> opened on 5246, the eleven plates from step 3 were on screen, and choosing one measured it —
+> `cónica frontal` at 100% confidence, the vanishing point at 0.8°, the overlay drawn — with no
+> credentials of any kind present. That run is also what found the port paragraph above wrong.
 
 ### 3. Generate the calibration dataset
 
@@ -479,9 +483,12 @@ cd Atelier.Web
 dotnet run
 ```
 
-Open **`http://localhost:5246`** (or `https://localhost:7140`). Both are in
-`Properties/launchSettings.json`; an earlier version of this file said port 5000, which is not one
-of them.
+Open **`http://localhost:5246`**. That is the `http` profile in
+`Properties/launchSettings.json`, and `dotnet run` with no arguments starts the first profile in
+that file — so it is the port you get. There is an `https` profile on 7140 as well, but reaching it
+takes `dotnet run --launch-profile https` and a trusted development certificate, which is why these
+instructions do not go that way. An earlier version of this section said port 5000, which is not in
+the file at all, and then offered 7140 as though `dotnet run` served it.
 
 **No configuration is needed to connect the two.** The web app reads `Agent:BaseUrl` and falls back
 to `http://localhost:8000`, which is exactly what step 4 starts.
