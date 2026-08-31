@@ -76,7 +76,7 @@ teaches but is **forbidden from producing a number**. A validator enforces it.
 - **Agent Backend API (Google GenAI SDK + FastAPI / Cloud Run)**: `https://atelier-agent-773993294789.europe-west1.run.app`
 - **Interactive Swagger API Docs**: `https://atelier-agent-773993294789.europe-west1.run.app/docs`
 
-> 💡 *Note on Cold Starts*: To conserve Google Cloud student budget, Cloud Run services scale to 0 instances when idle. The initial load request may take ~5-10 seconds to spin up containers.
+> 💡 *Note on Cold Starts*: To conserve hackathon credits, Cloud Run services scale to 0 instances when idle. The initial load request may take ~5-10 seconds to spin up containers.
 
 ---
 
@@ -291,7 +291,7 @@ model for the measurements.
  │                                                                                         │
  │   ┌───────────────────────────┐                     ┌───────────────────────────────┐   │
  │   │    Intent Pre-Router      │ ──(Chooses k)─────> │   OpenCV Deterministic Engine │   │
- │   │    (Vertex AI 2B/9B)      │                     │   - Deskew & Hough Lines      │   │
+ │   │    (Gemma 4, Vertex)      │                     │   - Deskew & Hough Lines      │   │
  │   │    - Exercise Classification                    │   - RANSAC Vanishing Points   │   │
  │   │    - Canny Threshold Tuning                     │   - Horizon Line & Error (°)  │   │
  │   └───────────────────────────┘                     │   - Base64 Annotated Overlay  │   │
